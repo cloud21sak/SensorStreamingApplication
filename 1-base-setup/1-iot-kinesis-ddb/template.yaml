@@ -1,0 +1,219 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Description: SensorData - Base template for all examples
+
+Resources:
+  KinesisSensorStream:
+    Type: AWS::Kinesis::Stream
+    Properties:
+      Name: "sensordata"
+      RetentionPeriodHours: 24
+      ShardCount: 1
+
+  ##########################################
+  # Resources for sensor app realtime      #
+  # messaging                             #
+  ##########################################
+  SensorDataRealtime:
+    Type: AWS::IoT::Thing
+    Properties:
+      ThingName: "sensordata-realtime"
+      AttributePayload:
+        Attributes: {}
+
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: SensorDataUserPool
+      MfaConfiguration: "OFF"
+      Schema:
+        - Name: email
+          AttributeDataType: String
+          Mutable: true
+          Required: true
+
+  # Creates a User Pool Client to be used by the identity pool
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: SensorDataUserPoolClient
+      GenerateSecret: false
+      UserPoolId: !Ref UserPool
+
+  # Creates a federated Identity pool
+  IdentityPool:
+    Type: AWS::Cognito::IdentityPool
+    Properties:
+      IdentityPoolName: SensorDataIdentityPool
+      AllowUnauthenticatedIdentities: true
+      CognitoIdentityProviders:
+        - ClientId: !Ref UserPoolClient
+          ProviderName: !GetAtt UserPool.ProviderName
+
+  # Create a role for authorized acces to AWS resources.
+  CognitoAuthorizedRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Federated: "cognito-identity.amazonaws.com"
+            Action:
+              - "sts:AssumeRoleWithWebIdentity"
+            Condition:
+              StringEquals:
+                "cognito-identity.amazonaws.com:aud": !Ref IdentityPool
+              "ForAnyValue:StringLike":
+                "cognito-identity.amazonaws.com:amr": authenticated
+      Policies:
+        - PolicyName: "CognitoAuthorizedPolicy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "cognito-sync:*"
+                Resource:
+                  !Join [
+                    "",
+                    [
+                      "arn:aws:cognito-sync:",
+                      !Ref "AWS::Region",
+                      ":",
+                      !Ref "AWS::AccountId",
+                      ":identitypool/",
+                      !Ref IdentityPool,
+                    ],
+                  ]
+              - Effect: Allow
+                Action:
+                  - iot:Connect
+                Resource:
+                  !Join [
+                    "",
+                    [
+                      "arn:aws:iot:",
+                      !Ref "AWS::Region",
+                      ":",
+                      !Ref "AWS::AccountId",
+                      ":client/sensordata-*",
+                    ],
+                  ]
+              - Effect: Allow
+                Action:
+                  - iot:Subscribe
+                  - iot:Publish
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - iot:Receive
+                Resource:
+                  !Join [
+                    "",
+                    [
+                      "arn:aws:iot:",
+                      !Ref "AWS::Region",
+                      ":",
+                      !Ref "AWS::AccountId",
+                      ":topic/*",
+                    ],
+                  ]
+  # Assigns the roles to the Identity Pool
+  IdentityPoolRoleMapping:
+    Type: AWS::Cognito::IdentityPoolRoleAttachment
+    Properties:
+      IdentityPoolId: !Ref IdentityPool
+      Roles:
+        authenticated: !GetAtt CognitoAuthorizedRole.Arn
+
+  ###################################################################
+  # IoT topic rule to publish from IoT to Kinesis Stream/CloudWatch #
+  ###################################################################
+  IotSensorTopicRule:
+    Type: AWS::IoT::TopicRule
+    Properties:
+      RuleName: "sensordataIngest"
+      TopicRulePayload:
+        RuleDisabled: false
+        Sql: "SELECT * FROM 'sensordata-publish'"
+        Actions:
+          - Kinesis:
+              StreamName: "sensordata"
+              PartitionKey: "${timestamp()}"
+              RoleArn: !GetAtt IoTKinesisSensorRole.Arn
+
+  IoTKinesisSensorRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - iot.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+      Path: /
+      Policies:
+        - PolicyName: IoTKinesisSensorPutPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: "kinesis:PutRecord"
+                Resource: !GetAtt KinesisSensorStream.Arn
+
+  ##########################################
+  #   Sensor App's DynamoDB table          #
+  ##########################################
+  DynamoDBSensorTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      TableName: "sensordata-table"
+      AttributeDefinitions:
+        - AttributeName: "GSI"
+          AttributeType: "N"
+        - AttributeName: "PK"
+          AttributeType: "S"
+        - AttributeName: "SK"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "PK"
+          KeyType: "HASH"
+        - AttributeName: "SK"
+          KeyType: "RANGE"
+      BillingMode: "PROVISIONED"
+      ProvisionedThroughput:
+        ReadCapacityUnits: 20
+        WriteCapacityUnits: 20
+      GlobalSecondaryIndexes:
+        - IndexName: "GSI_Index"
+          KeySchema:
+            - AttributeName: "GSI"
+              KeyType: "HASH"
+            - AttributeName: "SK"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: "ALL"
+          ProvisionedThroughput:
+            ReadCapacityUnits: 10
+            WriteCapacityUnits: 10
+      LocalSecondaryIndexes:
+        - IndexName: "GSI_PK_Index"
+          KeySchema:
+            - AttributeName: "PK"
+              KeyType: "HASH"
+            - AttributeName: "GSI"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: "ALL"
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+
+Outputs:
+  DynamoDBSensorstreamARN:
+    Description: Stream ARN used to publish changes to IoT Core.
+    Value: !GetAtt DynamoDBSensorTable.StreamArn

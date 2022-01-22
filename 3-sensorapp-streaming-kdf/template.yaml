@@ -1,0 +1,180 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Description: SensorData - KDF example
+
+# This template builds the Kinesis stream ARN from the base
+# template using the following expression:
+#   !Sub "arn:aws:kinesis:${AWS::Region}:${AWS::AccountId}:stream/sensordata"
+
+Parameters:
+  KinesisStreamName:
+    Type: String
+    Default: "sensordata"
+  DeliveryBucketName:
+    Type: String
+    Default: "sensordata-firehose-bucket1-sak"
+  HistoryBucketName:
+    Type: String
+    Default: "sensordata-history-bucket-sak"
+  DynamoDBtableName:
+    Type: String
+    Default: sensordata-table
+
+Resources:
+  ##########################################
+  # S3 Delivery Bucket                     #
+  ##########################################
+
+  DeliveryBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref DeliveryBucketName
+
+  HistoryBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref HistoryBucketName
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - "*"
+            AllowedMethods:
+              - GET
+              - PUT
+              - POST
+              - DELETE
+              - HEAD
+            AllowedOrigins:
+              - "*"
+
+  ##########################################
+  # Lambda functions                       #
+  ##########################################
+
+  FirehoseProcessFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: transformer/
+      Handler: app.handler
+      Runtime: nodejs14.x
+      Timeout: 30
+      MemorySize: 256
+
+  S3SensorProcessorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3-sensordataProcessor/
+      Handler: app.handler
+      Runtime: nodejs14.x
+      Timeout: 30
+      MemorySize: 1024
+      Environment:
+        Variables:
+          DDB_TABLE: !Ref DynamoDBtableName
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DynamoDBtableName
+        - S3ReadPolicy:
+            BucketName: !Ref DeliveryBucketName
+      Events:
+        NewObjectEvent:
+          Type: S3
+          Properties:
+            Bucket: !Ref DeliveryBucket
+            Events: s3:ObjectCreated:*
+
+  ##########################################
+  # Kinesis Data Firehose configuration    #
+  ##########################################
+
+  DeliveryStream:
+    Type: AWS::KinesisFirehose::DeliveryStream
+    DependsOn:
+      - DeliveryStreamPolicy
+    Properties:
+      DeliveryStreamName: "sensordata-data-firehose"
+      DeliveryStreamType: "KinesisStreamAsSource"
+      KinesisStreamSourceConfiguration:
+        KinesisStreamARN: !Sub "arn:aws:kinesis:${AWS::Region}:${AWS::AccountId}:stream/${KinesisStreamName}"
+        RoleARN: !GetAtt DeliveryStreamRole.Arn
+      ExtendedS3DestinationConfiguration:
+        BucketARN: !GetAtt DeliveryBucket.Arn
+        BufferingHints:
+          SizeInMBs: 1
+          IntervalInSeconds: 60
+        CloudWatchLoggingOptions:
+          Enabled: true
+          LogGroupName: "/aws/kinesisfirehose/sensordata-firehose"
+          LogStreamName: "S3Delivery"
+        CompressionFormat: "UNCOMPRESSED"
+        EncryptionConfiguration:
+          NoEncryptionConfig: "NoEncryption"
+        # Prefix: fhbase/year=!{timestamp:yyyy}/month=!{timestamp:MM}/day=!{timestamp:dd}/
+        Prefix: ""
+        ErrorOutputPrefix: myPrefix/error=!{firehose:error-output-type}/!{timestamp:yyyy/MM/dd}
+        RoleARN: !GetAtt DeliveryStreamRole.Arn
+        ProcessingConfiguration:
+          Enabled: true
+          Processors:
+            - Type: "Lambda"
+              Parameters:
+                - ParameterName: "LambdaArn"
+                  ParameterValue: !GetAtt FirehoseProcessFunction.Arn
+
+  ##########################################
+  # IAM roles and policies                 #
+  ##########################################
+
+  DeliveryStreamRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: ""
+            Effect: Allow
+            Principal:
+              Service: firehose.amazonaws.com
+            Action: "sts:AssumeRole"
+            Condition:
+              StringEquals:
+                "sts:ExternalId": !Ref "AWS::AccountId"
+
+  DeliveryStreamPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      Roles:
+        - !Ref DeliveryStreamRole
+      PolicyName: firehose_delivery_policy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - "s3:AbortMultipartUpload"
+              - "s3:GetBucketLocation"
+              - "s3:GetObject"
+              - "s3:ListBucket"
+              - "s3:ListBucketMultipartUploads"
+              - "s3:PutObject"
+            Resource:
+              - !GetAtt DeliveryBucket.Arn
+              - !Join
+                - ""
+                - - "arn:aws:s3:::"
+                  - !Ref DeliveryBucket
+                  - "*"
+          - Effect: Allow
+            Action:
+              - "lambda:InvokeFunction"
+              - "lambda:GetFunctionConfiguration"
+            Resource:
+              - !GetAtt FirehoseProcessFunction.Arn
+          - Effect: Allow
+            Action:
+              - "kinesis:DescribeStream"
+              - "kinesis:GetShardIterator"
+              - "kinesis:GetRecords"
+              - "kinesis:ListShards"
+            Resource:
+              - !Sub "arn:aws:kinesis:${AWS::Region}:${AWS::AccountId}:stream/${KinesisStreamName}"

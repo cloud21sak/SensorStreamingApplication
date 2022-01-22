@@ -1,0 +1,9 @@
+{
+  "userPoolId": "us-east-1_ljPvS0IUf",
+  "appClientId": "1ccs9f7gfeqdqidhq5b2qalf9f",
+  "identityPoolId": "us-east-1:e589c407-a13c-4632-9c51-258b8943bde7",
+  "iotHost": "a603983x0lhpt-ats.iot.us-east-1.amazonaws.com",
+  "region": "us-east-1",
+  "historyBucket": "sensordata-history-bucket-sak",
+  "APIendpoint": "https://4jmej9jsph.execute-api.us-east-1.amazonaws.com"
+}
