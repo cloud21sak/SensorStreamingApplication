@@ -44,21 +44,25 @@ cd ../..
 ```
 2. Change directory, for each use case, and deploy the AWS SAM template in the directory:
 
+a)
 ```
-a) cd ./2-sensorapp-streaming-kds    <--- Sensor App using Kinesis Streams (see part 2 of the blog series)
+cd ./2-sensorapp-streaming-kds    <--- Sensor App using Kinesis Streams (see part 2 of the blog series)
 ```
 ```
 sam deploy --guided 
 ```
 During the prompts, enter a stack name, your preferred Region, and accept the defaults for the remaining questions. 
+
+b)
 ```
-b) cd ../3-sensorapp-streaming-kdf   <--- Sensor App using Kinesis Firehose (see part 3 of the blog series)
+cd ../3-sensorapp-streaming-kdf   <--- Sensor App using Kinesis Firehose (see part 3 of the blog series)
 ```
 ```
 sam deploy --guided 
 ```
+c)
 ```
-c) cd ../4-sensorapp-streaming-kda  <---  Sensor App using Kinesis Data Analytics (see part 4 of the blog series)
+cd ../4-sensorapp-streaming-kda  <---  Sensor App using Kinesis Data Analytics (see part 4 of the blog series)
 ```
 ```
 sam deploy --guided 
@@ -78,7 +82,7 @@ aws cognito-identity list-identity-pools --max-results 10
 
 The frontend code is saved in the `AdminAppFrontend` subdirectory. 
 
-1. Before running, you need to set environment variables in the `src\main.js` file:
+1. Before running, you need to set environment variables in the `src\configurations\appconfig.json` file:
 
 - APIendpoint: this is the `APIendpoint` value earlier.
 - PoolId: your Cognito pool ID from earlier.
