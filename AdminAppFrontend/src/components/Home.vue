@@ -584,16 +584,18 @@ export default {
         30000
       );
 
-      for (let sensor in this.sensors) {
+      // for (let sensor in this.sensors) {
+      this.sensors.forEach((sensor) => {
         this.sensor = new Sensor(sensor);
         {
           console.log("sensor:", sensor);
-          console.log("sensorId:", sensor[0]);
-          console.log("sensorName:", this.sensors[sensor]);
+          console.log("sensorId:", sensor.id);
+          console.log("sensorName:", sensor.name);
         }
         this.sensorsToPublish.push(this.sensor);
-      }
+      });
       //  this.sensormessages = [];
+      console.log("this.sensorsToPublish: ", this.sensorsToPublish);
     },
 
     stopFacility() {
@@ -692,7 +694,8 @@ export default {
         this.event = "final";
       }
 
-      for (let sensor in this.sensorsToPublish) {
+      // for (let sensor in this.sensorsToPublish) {
+      this.sensorsToPublish.forEach((sensor) => {
         //   console.log("sensor to publish: ", sensor);
         // Publish the sensor's current value
         const sensorData = simulateSensorData(1, 100);
@@ -703,15 +706,16 @@ export default {
           event: this.event,
           deviceTimestamp: Date.now(),
           second: this.currentSecond,
-          name: this.sensors[sensor].name,
-          sensorId: sensor,
+          // name: this.sensors[sensor].name,
+          name: sensor.name,
+          sensorId: sensor.id,
           processId: this.currentProcessId,
           facilityId: 1,
           sensorData: sensorData,
         };
 
         bus.$emit("sensorpublish", sensormessage);
-      }
+      });
 
       if (this.currentSecond === FACILITY_RUN_SECONDS) {
         clearInterval(this.intervalVar);

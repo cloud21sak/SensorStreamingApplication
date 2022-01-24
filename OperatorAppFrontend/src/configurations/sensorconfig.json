@@ -3,20 +3,17 @@
     {
       "typeId": 0,
       "name": "temperature",
-      "totalnumber": 5,
-      "image": "@/../assets/temperature.png"
+      "totalnumber": 5
     },
     {
       "typeId": 1,
       "name": "pressure",
-      "totalnumber": 5,
-      "image": "@/../assets/pressure.png"
+      "totalnumber": 5
     },
     {
       "typeId": 2,
       "name": "humidity",
-      "totalnumber": 5,
-      "image": "@/../assets/humidity.png"
+      "totalnumber": 5
     }
   ]
 }

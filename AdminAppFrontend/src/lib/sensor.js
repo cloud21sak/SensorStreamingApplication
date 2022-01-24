@@ -1,8 +1,8 @@
 class Sensor {
-  constructor(id) {
+  constructor({ id, name, typeId }) {
     this.id = id;
-    this.name = "";
-    this.typeId = null;
+    this.name = name;
+    this.typeId = typeId;
   }
 }
 

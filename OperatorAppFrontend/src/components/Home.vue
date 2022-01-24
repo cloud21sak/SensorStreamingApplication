@@ -159,21 +159,15 @@
 <script>
 import IoT from "./IoT.vue";
 import { bus } from "../main";
-//import { v4 as uuidv4 } from "uuid";
-// SAK???
+
 import sensorconfig from "@/configurations/sensorconfig.json";
-//import appconfig from "@/assets/appconfig.json";
-// END SAK???
+
 //import { gunzip } from "@/lib/gzip";
 import axios from "axios";
 
 // Libraries
 //const Sensor = require("@/lib/sensor");
 import appStore from "../store";
-
-// Globals
-//var FACILITY_RUN_SECONDS = 600;
-//const INTERVAL_SECONDS = 1;
 
 const round = (value, decimals) => {
   return Number(Math.round(value + "e" + decimals) + "e-" + decimals);
@@ -227,13 +221,11 @@ export default {
       issuedcommand: null,
       sensor: {},
       sensorsToPublish: [],
-      //    sensormessages: [],
       realtimeSensorData: {},
       latestMinuteSensorStats: {},
       realtimeSensorDisplay: [],
       latestMinuteSensorStatsDisplay: [],
       dailySensorStats: {},
-      //dailyStatsDisplay: [],
       dailyDataIntervalVar: null,
       sensorsForSelectedFacility: [],
       resultsForSelectedFacility: {},
@@ -364,9 +356,9 @@ export default {
     async updateRealtimeSensorData(sensormessage) {
       let sensorData = JSON.parse(sensormessage);
       let intermediateSensorData = [];
-      console.log("updateRealtimeSensorData is called!!!");
+      // console.log("updateRealtimeSensorData is called!!!");
 
-      // console.log("updateRealtimeSensorResults: ", results);
+      // console.log("updateRealtimeSensorData: ", sensorData);
 
       // TODO: refactor to use one message per facility and set current second
       // on the facility instead of on each sensor message:
@@ -430,7 +422,6 @@ export default {
         intermediateSensorStats.push(this.dailySensorStats[sensorId]);
       }
 
-      //this.dailyStatsDisplay = intermediateSensorStats;
       this.$store.dispatch("setDailySenorStats", intermediateSensorStats);
     },
 
