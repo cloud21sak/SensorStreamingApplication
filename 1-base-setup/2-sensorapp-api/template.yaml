@@ -1,17 +1,14 @@
 AWSTemplateFormatVersion: 2010-09-09
 Transform: AWS::Serverless-2016-10-31
-Description: AlleyCat - Database lookup APIs
+Description: Sensor Application - Database lookup APIs
 
 Parameters:
-  # DynamoDBtableName:
-  #   Type: String
-  #   Default: alleycat-races
   DynamoDBSensortableName:
     Type: String
     Default: sensordata-table
 
 Resources:
-  MyApi:
+  SensorAppApi:
     Type: AWS::Serverless::HttpApi
     Properties:
       # CORS configuration - this is open for development only and should be restricted in prod.
@@ -50,9 +47,9 @@ Resources:
           Properties:
             Path: "/dailyStats"
             Method: get
-            ApiId: !Ref MyApi
+            ApiId: !Ref SensorAppApi
 
 Outputs:
   APIendpoint:
     Description: HTTP API endpoint URL.
-    Value: !Sub "https://${MyApi}.execute-api.${AWS::Region}.amazonaws.com"
+    Value: !Sub "https://${SensorAppApi}.execute-api.${AWS::Region}.amazonaws.com"
