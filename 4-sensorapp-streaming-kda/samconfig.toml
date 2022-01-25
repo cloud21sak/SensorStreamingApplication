@@ -8,4 +8,4 @@ s3_prefix = "sensorapp-analytics-stack"
 region = "us-east-1"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
-parameter_overrides = "IoTdataEndpoint=\"a1ou2qah1nayy0-ats.iot.us-east-1.amazonaws.com\""
+parameter_overrides = "IoTdataEndpoint=\"a1h6atu826lbn9-ats.iot.us-east-1.amazonaws.com\""

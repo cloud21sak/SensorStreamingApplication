@@ -3,7 +3,7 @@ version = 0.1
 [default.deploy]
 [default.deploy.parameters]
 stack_name = "sensorapp-firehose-stack"
-s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-1szqkqoeoeua1"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-1jtgg21hvv5dg"
 s3_prefix = "sensorapp-firehose-stack"
 region = "us-east-1"
 confirm_changeset = true

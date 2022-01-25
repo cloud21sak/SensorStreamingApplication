@@ -3,9 +3,9 @@ version = 0.1
 [default.deploy]
 [default.deploy.parameters]
 stack_name = "sensorapp-streaming-stack"
-s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-1szqkqoeoeua1"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-1jtgg21hvv5dg"
 s3_prefix = "sensorapp-streaming-stack"
 region = "us-east-1"
 capabilities = "CAPABILITY_IAM"
-parameter_overrides = "KinesisSensorStreamName=\"sensordata\" DynamoDBSensortableName=\"sensordata-table\" IoTdataEndpoint=\"a1ou2qah1nayy0-ats.iot.us-east-1.amazonaws.com\" DynamoDBSensorstreamARN=\"arn:aws:dynamodb:us-east-1:119611005532:table/sensordata-table/stream/2022-01-24T11:15:26.787\""
+parameter_overrides = "KinesisSensorStreamName=\"sensordata\" DynamoDBSensortableName=\"sensordata-table\" IoTdataEndpoint=\"a1h6atu826lbn9-ats.iot.us-east-1.amazonaws.com\" DynamoDBSensorstreamARN=\"arn:aws:dynamodb:us-east-1:079560432659:table/sensordata-table/stream/2022-01-25T12:00:38.297\""
 confirm_changeset = true
