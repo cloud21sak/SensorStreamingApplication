@@ -8,9 +8,6 @@ exports.handler = async (event) => {
     const buffer = Buffer.from(record.data, "base64").toString();
     const jsonRecord = JSON.parse(buffer);
 
-    // Add calculated field
-    //jsonRecord.output = ((jsonRecord.cadence + 35) * (jsonRecord.resistance + 65)) / 100
-
     // Convert back to base64 + add a newline
     const dataBuffer = Buffer.from(
       JSON.stringify(jsonRecord) + "\n",

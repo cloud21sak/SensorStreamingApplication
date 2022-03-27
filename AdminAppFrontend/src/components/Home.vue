@@ -570,7 +570,7 @@ export default {
     },
     launchFacility() {
       console.log("Start facility");
-      this.currentSecond = 550;
+      this.currentSecond = 540;
       this.currentProcessId = Date.now();
       this.pctComplete = 0;
       this.sensorsToPublish.length = 0;
@@ -686,13 +686,8 @@ export default {
         2
       );
 
-      console.log("this.pctComplete1:", this.pctComplete);
-      console.log("this.currentSecond:", this.currentSecond);
-
-      // For last event reported, mark as final
-      if (this.currentSecond === FACILITY_RUN_SECONDS) {
-        this.event = "final";
-      }
+      // console.log("this.pctComplete1:", this.pctComplete);
+      // console.log("this.currentSecond:", this.currentSecond);
 
       // for (let sensor in this.sensorsToPublish) {
       this.sensorsToPublish.forEach((sensor) => {
@@ -706,7 +701,6 @@ export default {
           event: this.event,
           deviceTimestamp: Date.now(),
           second: this.currentSecond,
-          // name: this.sensors[sensor].name,
           name: sensor.name,
           sensorId: sensor.id,
           processId: this.currentProcessId,
@@ -728,12 +722,27 @@ export default {
         // TODO: move updating of facility status and pctcomplete into a separate function
         this.$store.dispatch("setFacilityStatus", udpatedFacilityStatus);
         this.$store.dispatch("setPctComplete", this.pctComplete);
-        console.log("pctComplete: ", this.pctComplete);
+        //  console.log("pctComplete: ", this.pctComplete);
         bus.$emit("updatepercentcomplete", {
           facilityid: 1,
           pctcomplete: round(this.pctComplete, 2),
         });
         bus.$emit("facilitystatusupdate", udpatedFacilityStatus);
+
+        // Finally, check if the process is complete then send
+        // the last message for this process with event status as "complete":
+        if (this.currentSecond === FACILITY_RUN_SECONDS) {
+          this.event = "complete";
+          const sensormessage = {
+            uuid: uuidv4(),
+            event: this.event,
+            deviceTimestamp: Date.now(),
+            second: this.currentSecond,
+            processId: this.currentProcessId,
+            facilityId: 1,
+          };
+          bus.$emit("sensorpublish", sensormessage);
+        }
 
         return;
       }
@@ -745,8 +754,8 @@ export default {
       });
 
       this.currentSecond += INTERVAL_SECONDS;
-      console.log("this.currentSecond: ", this.currentSecond);
-      console.log("this.pctcomplete: ", this.pctComplete);
+      // console.log("this.currentSecond: ", this.currentSecond);
+      // console.log("this.pctcomplete: ", this.pctComplete);
     },
   },
 };

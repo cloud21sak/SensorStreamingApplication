@@ -273,12 +273,12 @@ export default {
     });
 
     bus.$on("facilitystatusupdated", async (statusupdate) => {
-      console.log("Home::on::facilitystatus: ", statusupdate);
+      //console.log("Home::on::facilitystatus: ", statusupdate);
       await that.updateFacilityStatus(statusupdate);
     });
 
     bus.$on("facilityconfigupdate", async (configupdateinfo) => {
-      console.log("Home::on::facilityconfigupdate: ", configupdateinfo);
+      //console.log("Home::on::facilityconfigupdate: ", configupdateinfo);
       await that.updateFacilityConfigInfo(configupdateinfo);
     });
 
@@ -291,7 +291,7 @@ export default {
   methods: {
     // TODO: this should come from admin node.
     generateSensors() {
-      console.log("Sensor types: ", this.sensortypes);
+      //console.log("Sensor types: ", this.sensortypes);
 
       var idCount = 0;
       for (let j = 0; j < this.sensortypes.length; j++) {
@@ -306,10 +306,10 @@ export default {
           this.sensors.push(sensorObj);
         }
       }
-      console.log("Generated sensors: ", this.sensors);
+      //console.log("Generated sensors: ", this.sensors);
     },
 
-    // TODO: is this still needed
+    // TODO: is this still needed?
     resetAll() {
       this.realtimeSensorData = {};
       this.realtimeSensorDisplay = [];
@@ -331,7 +331,7 @@ export default {
         "setPctComplete",
         configupdateinfo.currentPctComplete
       );
-      console.log("pctComplete: ", this.pctComplete);
+      // console.log("pctComplete: ", this.pctComplete);
       // Convert to minutes
       this.totalRuntime = configupdateinfo.totalruntime / 60;
       console.log("totalRuntime: ", this.totalRuntime);
@@ -383,17 +383,6 @@ export default {
           sensordata: round(sensorData[sensorId], 2),
         });
       }
-      // Convert to array
-      // for (let sensorId in this.realtimeSensorData) {
-      //   intermediateSensorData.push({
-      //     sensorId,
-      //     name: this.sensors[sensorId].name,
-      //     typeId: this.sensors[sensorId].typeId,
-      //     output: this.realtimeSensorData[sensorId].output,
-      //   });
-
-      //    console.log("intermediateSensorResults: ", intermediateSensorResults);
-      // }
 
       this.realtimeSensorDisplay = intermediateSensorData;
     },

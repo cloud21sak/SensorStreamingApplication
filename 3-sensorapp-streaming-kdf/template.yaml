@@ -13,6 +13,9 @@ Parameters:
   DeliveryBucketName:
     Type: String
     Default: "sensordata-firehose-bucket1-sak"
+  RuntimeProcessBucketName:
+    Type: String
+    Default: "sensordata-runtimeprocess-bucket"
   HistoryBucketName:
     Type: String
     Default: "sensordata-history-bucket-sak"
@@ -29,6 +32,23 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Ref DeliveryBucketName
+
+  RuntimeProcessBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref RuntimeProcessBucketName
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - "*"
+            AllowedMethods:
+              - GET
+              - PUT
+              - POST
+              - DELETE
+              - HEAD
+            AllowedOrigins:
+              - "*"
 
   HistoryBucket:
     Type: AWS::S3::Bucket
@@ -71,16 +91,71 @@ Resources:
       Environment:
         Variables:
           DDB_TABLE: !Ref DynamoDBtableName
+          RuntimeProcessBucket: !Ref RuntimeProcessBucketName
+          HistoryBucket: !Ref HistoryBucketName
+
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref DynamoDBtableName
         - S3ReadPolicy:
             BucketName: !Ref DeliveryBucketName
+        - S3WritePolicy:
+            BucketName: !Ref HistoryBucketName
+        - S3WritePolicy:
+            BucketName: !Ref RuntimeProcessBucketName
       Events:
         NewObjectEvent:
           Type: S3
           Properties:
             Bucket: !Ref DeliveryBucket
+            Events: s3:ObjectCreated:*
+
+  S3DailyDataProcessStatsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3-dailydata-process-stats/
+      Handler: app.handler
+      Runtime: nodejs14.x
+      Timeout: 30
+      MemorySize: 1024
+      Environment:
+        Variables:
+          DDB_TABLE: !Ref DynamoDBtableName
+          RuntimeProcessBucket: !Ref RuntimeProcessBucketName
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DynamoDBtableName
+        - S3ReadPolicy:
+            BucketName: !Ref RuntimeProcessBucketName
+      Events:
+        NewObjectEvent:
+          Type: S3
+          Properties:
+            Bucket: !Ref RuntimeProcessBucket
+            Events: s3:ObjectCreated:*
+
+  S3CompletedProcessStatsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3-completed-process-stats/
+      Handler: app.handler
+      Runtime: nodejs14.x
+      Timeout: 30
+      MemorySize: 1024
+      Environment:
+        Variables:
+          DDB_TABLE: !Ref DynamoDBtableName
+          HistoryBucket: !Ref HistoryBucketName
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DynamoDBtableName
+        - S3ReadPolicy:
+            BucketName: !Ref HistoryBucketName
+      Events:
+        NewObjectEvent:
+          Type: S3
+          Properties:
+            Bucket: !Ref HistoryBucket
             Events: s3:ObjectCreated:*
 
   ##########################################

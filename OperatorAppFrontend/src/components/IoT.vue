@@ -71,7 +71,7 @@ export default {
     console.log("IoT mounted");
 
     try {
-      console.log("Creating mttqClient device");
+      console.log("Creating mqttClient device");
 
       var mqttClient = AWSIoTData.device({
         region: AWS.config.region,
@@ -85,7 +85,7 @@ export default {
         sessionToken: authcredentials.sessionToken,
       });
 
-      console.log("Created mttqClient device:", mqttClient);
+      console.log("Created mqttClient device:", mqttClient);
     } catch (err) {
       console.log(err);
     }
