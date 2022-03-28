@@ -2,7 +2,7 @@
  *  SPDX-License-Identifier: MIT-0
  */
 
-const { gzip, gunzip } = require("./lib/gzip");
+//const { gzip, gunzip } = require("./lib/gzip");
 
 const AWS = require("aws-sdk");
 AWS.config.region = process.env.AWS_REGION;
@@ -14,6 +14,7 @@ facilityProcessDailyData.sensorDailyData = {};
 
 // Main Lambda handler
 exports.handler = async (event) => {
+  console.log("DailyProcessStatsFunction is called");
   const object = event.Records[0];
   console.log("Bucket name:", object.s3.bucket.name);
   console.log("Bucket key:", object.s3.object.key);
@@ -32,7 +33,9 @@ exports.handler = async (event) => {
   const data = response.Body;
 
   // 1. Convert to JSON array
-  let jsonRecords = convertToJsonArray(data.toString());
+  console.log("data.toString(): ", data.toString());
+  //let jsonRecords = convertToJsonArray(data.toString());
+  let jsonRecords = JSON.parse(data.toString());
   console.log("jsonRecords: ", jsonRecords);
 
   // 2. Get facility ID and process ID from the first record:
@@ -58,17 +61,27 @@ const convertToJsonArray = (raw) => {
 
 const getDailySensorData = async (jsonRecords) => {
   jsonRecords.map((sensorDataRecord) => {
-    if (!facilityProcessDailyData.sensorDailyData.sensorDataRecord.sensorId) {
-      facilityProcessDailyData.sensorDailyData.sensorDataRecord.sensorId = {};
-      facilityProcessDailyData.sensorDailyData.sensorDataRecord.sensorId.sensorData =
-        [];
-      facilityProcessDailyData.sensorDailyData.sensorDataRecord.sensorId.name =
-        sensorDataRecord.name;
+    console.log("sensorDataRecord:", sensorDataRecord);
+    console.log(
+      "facilityProcessDailyData.sensorDailyData: ",
+      facilityProcessDailyData.sensorDailyData
+    );
+    if (
+      !(sensorDataRecord.sensorId in facilityProcessDailyData.sensorDailyData)
+    ) {
+      facilityProcessDailyData.sensorDailyData[`${sensorDataRecord.sensorId}`] =
+        {};
+      facilityProcessDailyData.sensorDailyData[
+        `${sensorDataRecord.sensorId}`
+      ].sensorData = [];
+      facilityProcessDailyData.sensorDailyData[
+        `${sensorDataRecord.sensorId}`
+      ].name = sensorDataRecord.name;
     }
 
-    facilityProcessDailyData.sensorDailyData.sensorDataRecord.sensorId.sensorData.push(
-      sensorDataRecord.sensorData
-    );
+    facilityProcessDailyData.sensorDailyData[
+      `${sensorDataRecord.sensorId}`
+    ].sensorData.push(sensorDataRecord.sensorData);
   });
 
   console.log("facilityProcessDailyData:", facilityProcessDailyData);
