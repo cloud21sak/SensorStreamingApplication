@@ -24,38 +24,38 @@ exports.handler = async (event) => {
 
   console.log(params);
   const result = await documentClient.query(params).promise();
-  console.log(result);
+  console.log("result: ", result);
 
   let statResults = [];
   result.Items.map((item) => {
-    let sensorDailyStats = [];
-    let dailyresults = JSON.parse(item.results);
-    console.log("Daily results: ", dailyresults);
-    const min_val = Math.min(...dailyresults);
-    console.log("min_val:", min_val);
-    sensorDailyStats.push(min_val);
-    const max_val = Math.max(...dailyresults);
-    console.log("max_val:", max_val);
-    sensorDailyStats.push(max_val);
-    const median_val = median(dailyresults);
-    console.log("median_val:", median_val);
-    sensorDailyStats.push(median_val);
+    // let sensorDailyStats = [];
+    // let dailyresults = JSON.parse(item.results);
+    // console.log("Daily results: ", dailyresults);
+    // const min_val = Math.min(...dailyresults);
+    // console.log("min_val:", min_val);
+    // sensorDailyStats.push(min_val);
+    // const max_val = Math.max(...dailyresults);
+    // console.log("max_val:", max_val);
+    // sensorDailyStats.push(max_val);
+    // const median_val = median(dailyresults);
+    // console.log("median_val:", median_val);
+    // sensorDailyStats.push(median_val);
     //const std_dev = math.std(item.results)
     //statResults.push(std_dev)
-    console.log("sensorDailyStats: ", sensorDailyStats);
+    // console.log("sensorDailyStats: ", sensorDailyStats);
     const statsItem = {
       sensorId: item.PK,
       ts: item.ts,
-      min_val: min_val,
-      max_val: max_val,
-      median_val: median_val,
+      min_val: item.min_val,
+      max_val: item.max_val,
+      median_val: item.median_val,
       facilityId: item.GSI,
     };
+    console.log("statsItem: ", statsItem)
     statResults.push(statsItem);
   });
 
   return statResults;
-  //  return result.Items;
 };
 
 function median(numbers) {

@@ -12,7 +12,7 @@ Parameters:
     Default: "sensordata"
   DeliveryBucketName:
     Type: String
-    Default: "sensordata-firehose-bucket1-sak"
+    Default: "sensordata-firehose-bucket-sak"
   RuntimeProcessBucketName:
     Type: String
     Default: "sensordata-runtimeprocess-bucket"

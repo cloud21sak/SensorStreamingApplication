@@ -42,7 +42,7 @@ exports.handler = async (event) => {
   }
 
   // jsonRecords = runningProcessRecords;
-  const recordsBySensorId = getRecordsBySensorId(runningProcessRecords);
+  // const recordsBySensorId = getRecordsBySensorId(runningProcessRecords);
 
   //await getFacilityProcessData(jsonRecords);
 
@@ -70,7 +70,7 @@ exports.handler = async (event) => {
   }
 
   // Save the per-second data of each sensor in DDB
-  await saveDailyDataBySensorId(recordsBySensorId);
+  // await saveDailyDataBySensorId(recordsBySensorId);
 };
 
 // Convert incoming data into a JSON array
@@ -107,12 +107,12 @@ const checkForRunningProcessRecords = (jsonRecords) => {
 };
 
 // Helper function to return distinct array of facility IDs from records
-const getFacilityIds = (jsonRecords) => {
-  const facilityIdsAll = jsonRecords.map((record) => record.facilityId);
-  console.log("facilityIdsAll", facilityIdsAll);
-  facilityIds = [...new Set(facilityIdsAll)];
-  return facilityIds;
-};
+// const getFacilityIds = (jsonRecords) => {
+//   const facilityIdsAll = jsonRecords.map((record) => record.facilityId);
+//   console.log("facilityIdsAll", facilityIdsAll);
+//   facilityIds = [...new Set(facilityIdsAll)];
+//   return facilityIds;
+// };
 
 // Load current process data per facility in the batch
 // const getCurrentProcessDataPerFacility = async (jsonRecords) => {

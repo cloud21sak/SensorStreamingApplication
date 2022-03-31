@@ -19,7 +19,8 @@ exports.handler = async (event) => {
   console.log("Bucket name:", object.s3.bucket.name);
   console.log("Bucket key:", object.s3.object.key);
 
-  // Load incoming records written by Kinesis Data Firehose from S3:
+  // Load incoming daily records written by Kinesis Data Firehose
+  // from intermediate bucket:
   const response = await s3
     .getObject({
       Bucket: object.s3.bucket.name,
@@ -33,8 +34,6 @@ exports.handler = async (event) => {
   const data = response.Body;
 
   // 1. Convert to JSON array
-  console.log("data.toString(): ", data.toString());
-  //let jsonRecords = convertToJsonArray(data.toString());
   let jsonRecords = JSON.parse(data.toString());
   console.log("jsonRecords: ", jsonRecords);
 
@@ -47,16 +46,14 @@ exports.handler = async (event) => {
 
   // 4. Calculate current cumulative stats for each sensor of the process:
   getDailySensorStats();
-};
 
-// Convert incoming data into a JSON array
-const convertToJsonArray = (raw) => {
-  let records = [];
-  // Split raw text into array using the newline character
-  const rawArray = raw.split(/\n/);
-  // Convert to JSON array, ignoring the final empty record
-  rawArray.map((item) => (item != "" ? records.push(JSON.parse(item)) : ""));
-  return records;
+  // 5. Save cumulative daily sensor stats of the running process into DDB table:
+  console.log("Saving sensor daily stats to DDB");
+  for (const [sensorId] of Object.entries(
+    facilityProcessDailyData.sensorDailyData
+  )) {
+    saveDailySensorStats(sensorId);
+  }
 };
 
 const getDailySensorData = async (jsonRecords) => {
@@ -88,9 +85,70 @@ const getDailySensorData = async (jsonRecords) => {
 };
 
 const getDailySensorStats = () => {
-  for (const [sensorId, sensorData] of Object.entries(
+  for (const [sensorId, sensorDataInfo] of Object.entries(
     facilityProcessDailyData.sensorDailyData
   )) {
-    console.log(sensorId, sensorData);
+    console.log(sensorId, sensorDataInfo);
+
+    const min_val = Math.min(...sensorDataInfo.sensorData);
+    console.log("min_val: ", min_val);
+    const max_val = Math.max(...sensorDataInfo.sensorData);
+    const median_val = median(sensorDataInfo.sensorData);
+    sensorDataInfo.min_val = min_val;
+    sensorDataInfo.max_val = max_val;
+    sensorDataInfo.median_val = median_val;
+    console.log(
+      "facilityProcessDailyData.sensorDailyData[sensorId]:",
+      sensorId,
+      facilityProcessDailyData.sensorDailyData[sensorId]
+    );
   }
+};
+
+function median(numbers) {
+  var median = 0,
+    numsLen = numbers.length;
+  numbers.sort((a, b) => a - b);
+
+  if (
+    numsLen % 2 ===
+    0 // is even
+  ) {
+    // average of two middle numbers
+    median = (numbers[numsLen / 2 - 1] + numbers[numsLen / 2]) / 2;
+  } else {
+    // is odd
+    // middle number only
+    median = numbers[(numsLen - 1) / 2];
+  }
+
+  return median;
+}
+
+const saveDailySensorStats = async (sensorId) => {
+  // TODO: refactor to use Promise.all() to perform saving to DDB in parallel
+  console.log(
+    "Saving in DDB:",
+    sensorId,
+    facilityProcessDailyData.sensorDailyData[sensorId].min_val
+  );
+  const response = await documentClient
+    .put({
+      TableName: process.env.DDB_TABLE,
+      Item: {
+        PK: `${sensorId}`,
+        SK: `dailydata`,
+        GSI: facilityProcessDailyData.facilityId,
+        min_val: facilityProcessDailyData.sensorDailyData[sensorId].min_val,
+        max_val: facilityProcessDailyData.sensorDailyData[sensorId].max_val,
+        median_val:
+          facilityProcessDailyData.sensorDailyData[sensorId].median_val,
+        name: facilityProcessDailyData.sensorDailyData[sensorId].name,
+        ts: Date.now(),
+      },
+    })
+    .promise();
+  // }
+
+  console.log("saveDailyDataBySensorId done");
 };
