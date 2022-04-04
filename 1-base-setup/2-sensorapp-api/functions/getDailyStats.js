@@ -17,7 +17,7 @@ exports.handler = async (event) => {
     IndexName: "GSI_Index",
     KeyConditionExpression: "GSI = :gsi and begins_with(SK, :sk)",
 
-    ExpressionAttributeValues: { ":gsi": facilityId, ":sk": "dailydata" },
+    ExpressionAttributeValues: { ":gsi": facilityId, ":sk": "dailystats" },
     ScanIndexForward: true,
     Limit: 200,
   };
@@ -51,7 +51,7 @@ exports.handler = async (event) => {
       median_val: item.median_val,
       facilityId: item.GSI,
     };
-    console.log("statsItem: ", statsItem)
+    console.log("statsItem: ", statsItem);
     statResults.push(statsItem);
   });
 

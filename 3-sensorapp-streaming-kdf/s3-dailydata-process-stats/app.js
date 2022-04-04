@@ -11,6 +11,7 @@ const documentClient = new AWS.DynamoDB.DocumentClient();
 
 let facilityProcessDailyData = {};
 facilityProcessDailyData.sensorDailyData = {};
+facilityProcessDailyData.sensorDailyStats = {};
 
 // Main Lambda handler
 exports.handler = async (event) => {
@@ -49,11 +50,7 @@ exports.handler = async (event) => {
 
   // 5. Save cumulative daily sensor stats of the running process into DDB table:
   console.log("Saving sensor daily stats to DDB");
-  for (const [sensorId] of Object.entries(
-    facilityProcessDailyData.sensorDailyData
-  )) {
-    saveDailySensorStats(sensorId);
-  }
+  await saveDailySensorStats();
 };
 
 const getDailySensorData = async (jsonRecords) => {
@@ -84,6 +81,7 @@ const getDailySensorData = async (jsonRecords) => {
   console.log("facilityProcessDailyData:", facilityProcessDailyData);
 };
 
+// TODO: refactor this into a separate lib module
 const getDailySensorStats = () => {
   for (const [sensorId, sensorDataInfo] of Object.entries(
     facilityProcessDailyData.sensorDailyData
@@ -94,13 +92,20 @@ const getDailySensorStats = () => {
     console.log("min_val: ", min_val);
     const max_val = Math.max(...sensorDataInfo.sensorData);
     const median_val = median(sensorDataInfo.sensorData);
-    sensorDataInfo.min_val = min_val;
-    sensorDataInfo.max_val = max_val;
-    sensorDataInfo.median_val = median_val;
+    if (!(sensorId in facilityProcessDailyData.sensorDailyStats)) {
+      facilityProcessDailyData.sensorDailyStats[`${sensorId}`] = {};
+    }
+
+    facilityProcessDailyData.sensorDailyStats[`${sensorId}`].min_val = min_val;
+    facilityProcessDailyData.sensorDailyStats[`${sensorId}`].max_val = max_val;
+    facilityProcessDailyData.sensorDailyStats[`${sensorId}`].median_val =
+      median_val;
+    facilityProcessDailyData.sensorDailyStats[`${sensorId}`].name =
+      sensorDataInfo.name;
     console.log(
-      "facilityProcessDailyData.sensorDailyData[sensorId]:",
+      "facilityProcessDailyData.sensorDailyStats[sensorId]:",
       sensorId,
-      facilityProcessDailyData.sensorDailyData[sensorId]
+      facilityProcessDailyData.sensorDailyStats[sensorId]
     );
   }
 };
@@ -125,30 +130,26 @@ function median(numbers) {
   return median;
 }
 
-const saveDailySensorStats = async (sensorId) => {
-  // TODO: refactor to use Promise.all() to perform saving to DDB in parallel
+const saveDailySensorStats = async () => {
   console.log(
-    "Saving in DDB:",
-    sensorId,
-    facilityProcessDailyData.sensorDailyData[sensorId].min_val
+    "Saving running process stats in DDB:",
+    facilityProcessDailyData.sensorDailyStats
   );
+
+  // Stringify, compress, and store as an attribute value the daily stats
+  // the running process:
   const response = await documentClient
     .put({
       TableName: process.env.DDB_TABLE,
       Item: {
-        PK: `${sensorId}`,
-        SK: `dailydata`,
+        PK: `proc-${facilityProcessDailyData.processId}`,
+        SK: `dailystats`,
         GSI: facilityProcessDailyData.facilityId,
-        min_val: facilityProcessDailyData.sensorDailyData[sensorId].min_val,
-        max_val: facilityProcessDailyData.sensorDailyData[sensorId].max_val,
-        median_val:
-          facilityProcessDailyData.sensorDailyData[sensorId].median_val,
-        name: facilityProcessDailyData.sensorDailyData[sensorId].name,
+        stats: JSON.stringify(facilityProcessDailyData.sensorDailyStats),
         ts: Date.now(),
       },
     })
     .promise();
-  // }
 
-  console.log("saveDailyDataBySensorId done");
+  console.log("saveDailySensorStats done");
 };

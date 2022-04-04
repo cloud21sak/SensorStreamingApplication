@@ -11,6 +11,7 @@ const documentClient = new AWS.DynamoDB.DocumentClient();
 
 let completedProcessData = {};
 completedProcessData.processSensorDataObj = {};
+completedProcessData.processSensorStats = {};
 
 // Main Lambda handler
 exports.handler = async (event) => {
@@ -35,12 +36,11 @@ exports.handler = async (event) => {
   // 1. Convert to JSON array
   let jsonRecords = JSON.parse(data.toString());
   console.log("jsonRecords: ", jsonRecords);
-  //   let jsonRecords = convertToJsonArray(data.toString());
-  //   console.log("jsonRecords: ", jsonRecords);
 
   // 2. Get facility ID and process ID from the first record:
   completedProcessData.facilityId = jsonRecords[0].facilityId;
   completedProcessData.processId = jsonRecords[0].processId;
+  console.log("ProcessID: ", completedProcessData.processId);
 
   // 3. Get completed process data for each sensor:
   await getProcessSensorData(jsonRecords);
@@ -50,22 +50,9 @@ exports.handler = async (event) => {
 
   // 5. Save completed process stats for each sensor to DDB table:
   console.log("Saving completed process stats for each sensor to DDB");
-  for (const [sensorId] of Object.entries(
-    completedProcessData.processSensorDataObj
-  )) {
-    saveProcessSensorStats(sensorId);
-  }
-};
 
-// Convert incoming data into a JSON array
-// const convertToJsonArray = (raw) => {
-//   let records = [];
-//   // Split raw text into array using the newline character
-//   const rawArray = raw.split(/\n/);
-//   // Convert to JSON array, ignoring the final empty record
-//   rawArray.map((item) => (item != "" ? records.push(JSON.parse(item)) : ""));
-//   return records;
-// };
+  await saveProcessSensorStats();
+};
 
 const getProcessSensorData = async (jsonRecords) => {
   jsonRecords.map((sensorDataRecord) => {
@@ -96,6 +83,7 @@ const getProcessSensorData = async (jsonRecords) => {
   console.log("completedProcessData:", completedProcessData);
 };
 
+// TODO: refactor this into a separate lib module
 const getProcessSensorStats = () => {
   for (const [sensorId, sensorDataInfo] of Object.entries(
     completedProcessData.processSensorDataObj
@@ -106,17 +94,26 @@ const getProcessSensorStats = () => {
     console.log("min_val: ", min_val);
     const max_val = Math.max(...sensorDataInfo.sensorData);
     const median_val = median(sensorDataInfo.sensorData);
-    sensorDataInfo.min_val = min_val;
-    sensorDataInfo.max_val = max_val;
-    sensorDataInfo.median_val = median_val;
+    if (!(sensorId in completedProcessData.processSensorStats)) {
+      completedProcessData.processSensorStats[`${sensorId}`] = {};
+    }
+
+    completedProcessData.processSensorStats[`${sensorId}`].min_val = min_val;
+    completedProcessData.processSensorStats[`${sensorId}`].max_val = max_val;
+    completedProcessData.processSensorStats[`${sensorId}`].median_val =
+      median_val;
+    completedProcessData.processSensorStats[`${sensorId}`].name =
+      sensorDataInfo.name;
+
     console.log(
-      "completedProcessData.processSensorDataObj[sensorId]:",
+      "completedProcessData.processSensorStats[sensorId]:",
       sensorId,
-      completedProcessData.processSensorDataObj[sensorId]
+      completedProcessData.processSensorStats[sensorId]
     );
   }
 };
 
+// TODO: refactor this into a separate lib module
 function median(numbers) {
   var median = 0,
     numsLen = numbers.length;
@@ -137,30 +134,24 @@ function median(numbers) {
   return median;
 }
 
-const saveProcessSensorStats = async (sensorId) => {
-  // TODO: refactor to use Promise.all() to perform saving to DDB in parallel
+const saveProcessSensorStats = async () => {
   console.log(
     "Saving completed process stats for each sensor to DDB:",
-    sensorId,
-    completedProcessData.processSensorDataObj[sensorId].min_val
+    completedProcessData.processId
   );
+
   const response = await documentClient
     .put({
       TableName: process.env.DDB_TABLE,
       Item: {
-        PK: `${sensorId}`,
+        PK: `proc-${completedProcessData.processId}`,
         SK: `completedstats`,
-        GSI: completedProcessData.processId,
-        min_val: completedProcessData.processSensorDataObj[sensorId].min_val,
-        max_val: completedProcessData.processSensorDataObj[sensorId].max_val,
-        median_val:
-          completedProcessData.processSensorDataObj[sensorId].median_val,
-        name: completedProcessData.processSensorDataObj[sensorId].name,
+        GSI: completedProcessData.facilityId,
+        stats: JSON.stringify(completedProcessData.processSensorStats),
         ts: Date.now(),
       },
     })
     .promise();
-  // }
 
   console.log("saveProcessSensorStats done");
 };
