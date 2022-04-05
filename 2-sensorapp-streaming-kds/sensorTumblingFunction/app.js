@@ -106,7 +106,7 @@ const getRecordsFromPayload = (event) => {
 };
 
 // Appends records to existing state, returning results
-// grouped by facilityId with latest output by sensorId
+// grouped by processId with latest data by sensorId
 const getSensorDataByProcessId = (state, jsonRecords) => {
   console.log("getSensorDataByProcessId: ", state);
   jsonRecords.map((record) => {
@@ -121,11 +121,6 @@ const getSensorDataByProcessId = (state, jsonRecords) => {
     // if (!state[record.processId][record.sensorId]) {
     //   state[record.processId][record.sensorId] = record.sensorData;
     //   return;
-    // }
-
-    // Compare state's output with record and update
-    // if (state[record.sensorId] < record.output) {
-    //   state[record.sensorId] = record.sensordata;
     // }
   });
 

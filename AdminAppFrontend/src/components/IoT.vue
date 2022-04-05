@@ -17,6 +17,7 @@ const topics = {
   facilityconfigupdate: "facility-config-update",
   sensorpublish: "sensordata-publish",
   sensorsubscribe: "sensordata-subscribe",
+  procdailystats: "process-dailystats",
 };
 
 export default {
@@ -99,6 +100,7 @@ export default {
       mqttClient.subscribe(topics.facilitycommand);
       mqttClient.subscribe(topics.sensorsubscribe);
       mqttClient.subscribe(topics.facilityconfigrequest);
+      mqttClient.subscribe(topics.procdailystats);
     });
     // Attempt to reconnect in the event of any error
     mqttClient.on("error", async function(err) {
@@ -150,7 +152,11 @@ export default {
         bus.$emit("facilitycommandreceived", payloadEnvelope);
       } else if (topic === topics.facilityconfigrequest) {
         bus.$emit("facilityconfigrequest", payloadEnvelope);
-      } else {
+      } else if (topic === topics.procdailystats) {
+        console.log("Received message for topic: ", topics.procdailystats)
+        bus.$emit("procdailystats", payloadEnvelope);
+      } 
+      else {
         bus.$emit("message", payloadEnvelope);
       }
     });

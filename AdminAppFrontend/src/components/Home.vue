@@ -281,19 +281,15 @@ export default {
         //  console.log("Received sensor stats message: ", message);
         await that.updateSensorStatsByLatestMinute(message.sensorstats);
       }
+
+      // if (message.msg === "dailystats") {
+      //   //  console.log("Received sensor stats message: ", message);
+      //   await that.updateSensorStatsByLatestMinute(message.sensorstats);
+      // }
     });
     bus.$on("stopsimulator", async () => {
       that.stopFacility();
     });
-
-    // bus.$on("sensormessage", async (sensormessage) => {
-    //   // console.log("Home::on::sensormessage: ", sensormessage);
-
-    //   // Add to realtime results
-    //   if (sensormessage.msg === "sensordata") {
-    //     await that.updateRealtimeSensorData(sensormessage.results);
-    //   }
-    // });
 
     bus.$on("facilitycommandreceived", async (receivedcommand) => {
       console.log("Home::on::facilitycommand: ", receivedcommand.command);
@@ -303,6 +299,11 @@ export default {
     bus.$on("facilityconfigrequest", async (receivedconfigrequest) => {
       console.log("Home::on::facilityconfigrequest: ");
       await that.handleConfigurationRequest(receivedconfigrequest);
+    });
+
+    bus.$on("procdailystats", async (procdailystats) => {
+      console.log("Home::on::procdailystats: ");
+      await that.updateDailyStats(procdailystats);
     });
   },
   methods: {
@@ -435,23 +436,17 @@ export default {
           sensordata: round(sensorData[sensorId], 2),
         });
       }
-      // Convert to array
-      // for (let sensorId in this.realtimeSensorData) {
-      //   intermediateSensorData.push({
-      //     sensorId,
-      //     name: this.sensors[sensorId].name,
-      //     typeId: this.sensors[sensorId].typeId,
-      //     sensordata: round(sensorData[sensorId], 2),
-      //   });
-
-      //    console.log("intermediateSensorResults: ", intermediateSensorResults);
-      // }
 
       this.realtimeSensorDisplay = intermediateSensorData;
     },
 
     async updateDailyStats(dailyStatsData) {
-      console.log("updateDailyStats 'dailyStatsData': ", dailyStatsData);
+      console.log("updateDailyStats() dailyStatsData:", dailyStatsData);
+      let processDailyDataStats = JSON.parse(dailyStatsData.stats);
+      console.log(
+        "updateDailyStats processDailyDataStats: ",
+        processDailyDataStats
+      );
       // console.log("this.dailySensorStats0: ", this.dailySensorStats);
 
       let intermediateSensorStats = [];
@@ -459,17 +454,16 @@ export default {
       // console.log("updateDailyStats: ", dailyStats);
 
       // Update daily sensor stats
-      dailyStatsData.map(
-        (item) =>
-          (this.dailySensorStats[item.sensorId] = {
-            sensorId: item.sensorId,
-            name: this.sensors[item.sensorId].name,
-            min: round(item.min_val, 2),
-            max: round(item.max_val, 2),
-            median: round(item.median_val, 2),
-            ts: item.ts,
-          })
-      );
+      for (let sensorId in processDailyDataStats) {
+        this.dailySensorStats[sensorId] = {
+          sensorId: sensorId,
+          name: processDailyDataStats[sensorId].name,
+          min: round(processDailyDataStats[sensorId].min_val, 2),
+          max: round(processDailyDataStats[sensorId].max_val, 2),
+          median: round(processDailyDataStats[sensorId].median_val, 2),
+          ts: dailyStatsData.ts,
+        };
+      }
 
       // Convert to array
       console.log("this.dailySensorStats: ", this.dailySensorStats);
@@ -481,6 +475,39 @@ export default {
       this.$store.dispatch("setDailySenorStats", intermediateSensorStats);
       //console.log("this.dailyStatsDisplay: ", this.dailyStatsDisplay);
     },
+
+    // async updateDailyStats(dailyStatsData) {
+    //   let processDailyData = JSON.parse(dailyStatsData);
+    //   console.log("updateDailyStats 'processDailyData': ", processDailyData);
+    //   // console.log("this.dailySensorStats0: ", this.dailySensorStats);
+
+    //   let intermediateSensorStats = [];
+
+    //   // console.log("updateDailyStats: ", dailyStats);
+
+    //   // Update daily sensor stats
+    //   dailyStatsData.map(
+    //     (item) =>
+    //       (this.dailySensorStats[item.sensorId] = {
+    //         sensorId: item.sensorId,
+    //         name: this.sensors[item.sensorId].name,
+    //         min: round(item.min_val, 2),
+    //         max: round(item.max_val, 2),
+    //         median: round(item.median_val, 2),
+    //         ts: item.ts,
+    //       })
+    //   );
+
+    //   // Convert to array
+    //   console.log("this.dailySensorStats: ", this.dailySensorStats);
+    //   for (let sensorId in this.dailySensorStats) {
+    //     intermediateSensorStats.push(this.dailySensorStats[sensorId]);
+    //   }
+
+    //   //  this.dailyStatsDisplay = intermediateSensorStats;
+    //   this.$store.dispatch("setDailySenorStats", intermediateSensorStats);
+    //   //console.log("this.dailyStatsDisplay: ", this.dailyStatsDisplay);
+    // },
 
     // Sensor stats by latest minute
     async updateSensorStatsByLatestMinute(sensorStatsMessage) {
@@ -579,10 +606,10 @@ export default {
       this.intervalVar = setInterval(this.nextInterval, 1000);
 
       // Get daily data every minute:
-      this.dailyDataIntervalVar = setInterval(
-        this.nextDailyDataInterval,
-        30000
-      );
+      // this.dailyDataIntervalVar = setInterval(
+      //   this.nextDailyDataInterval,
+      //   30000
+      // );
 
       // for (let sensor in this.sensors) {
       this.sensors.forEach((sensor) => {
@@ -627,10 +654,10 @@ export default {
 
       // SAK???
       // Get daily data every minute:
-      this.dailyDataIntervalVar = setInterval(
-        this.nextDailyDataInterval,
-        30000
-      );
+      // this.dailyDataIntervalVar = setInterval(
+      //   this.nextDailyDataInterval,
+      //   30000
+      // );
       // Facility was paused reset current process settings:
       console.log("Facility was paused");
     },

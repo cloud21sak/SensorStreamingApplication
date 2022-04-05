@@ -22,6 +22,12 @@ Parameters:
   DynamoDBtableName:
     Type: String
     Default: sensordata-table
+  IoTdataEndpoint:
+    Type: String
+    Default: "abc123abc123-ats.iot.us-east-2.amazonaws.com"
+  DynamoDBSensorstreamARN:
+    Type: String
+    Default: "arn:aws:dynamodb:us-east-1:732230631636:table/sensordata-table/stream/2021-08-14T10:11:51.960"
 
 Resources:
   ##########################################
@@ -158,6 +164,35 @@ Resources:
             Bucket: !Ref HistoryBucket
             Events: s3:ObjectCreated:*
 
+  PublishRunningProcessStats:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Updates IoT topics with changes to DDB table
+      CodeUri: publishRunningProcessStats/
+      Handler: app.handler
+      Runtime: nodejs14.x
+      Timeout: 10
+      # ReservedConcurrentExecutions: 1
+      MemorySize: 128
+      Environment:
+        Variables:
+          IOT_DATA_ENDPOINT: !Ref IoTdataEndpoint
+          TOPIC: "process-dailystats"
+      Policies:
+        - Statement:
+            - Sid: PublishToIotPolicy
+              Effect: Allow
+              Action:
+                - "iot:Publish"
+              Resource: "*"
+      Events:
+        Stream:
+          Type: DynamoDB
+          Properties:
+            Stream: !Ref DynamoDBSensorstreamARN
+            BatchSize: 10
+            StartingPosition: TRIM_HORIZON
+
   ##########################################
   # Kinesis Data Firehose configuration    #
   ##########################################
@@ -184,7 +219,6 @@ Resources:
         CompressionFormat: "UNCOMPRESSED"
         EncryptionConfiguration:
           NoEncryptionConfig: "NoEncryption"
-        # Prefix: fhbase/year=!{timestamp:yyyy}/month=!{timestamp:MM}/day=!{timestamp:dd}/
         Prefix: ""
         ErrorOutputPrefix: myPrefix/error=!{firehose:error-output-type}/!{timestamp:yyyy/MM/dd}
         RoleARN: !GetAtt DeliveryStreamRole.Arn
