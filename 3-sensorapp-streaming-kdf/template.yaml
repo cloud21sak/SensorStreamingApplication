@@ -193,6 +193,35 @@ Resources:
             BatchSize: 10
             StartingPosition: TRIM_HORIZON
 
+  PublishCompletedProcessInfo:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Updates IoT topics with changes to DDB table
+      CodeUri: publishCompletedProcessInfo/
+      Handler: app.handler
+      Runtime: nodejs14.x
+      Timeout: 10
+      # ReservedConcurrentExecutions: 1
+      MemorySize: 128
+      Environment:
+        Variables:
+          IOT_DATA_ENDPOINT: !Ref IoTdataEndpoint
+          TOPIC: "completed-processinfo"
+      Policies:
+        - Statement:
+            - Sid: PublishToIotPolicy
+              Effect: Allow
+              Action:
+                - "iot:Publish"
+              Resource: "*"
+      Events:
+        Stream:
+          Type: DynamoDB
+          Properties:
+            Stream: !Ref DynamoDBSensorstreamARN
+            BatchSize: 10
+            StartingPosition: TRIM_HORIZON
+
   ##########################################
   # Kinesis Data Firehose configuration    #
   ##########################################

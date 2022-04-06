@@ -105,7 +105,7 @@
     </v-row>
     <v-row>
       <!-- Realtime sensor data -->
-      <v-col cols="12" md="3">
+      <v-col cols="12" md="5">
         <v-card elevation="2">
           <v-card-title>Realtime Data</v-card-title>
           <v-data-table
@@ -121,7 +121,7 @@
         </v-card>
       </v-col>
       <!-- Stats by latest minute -->
-      <v-col cols="12" md="5">
+      <v-col cols="12" md="7">
         <v-card elevation="2">
           <v-card-title>Stats by latest minute </v-card-title>
           <v-data-table
@@ -137,12 +137,56 @@
         </v-card>
       </v-col>
       <!-- Cumulative daily stats -->
-      <v-col cols="12" md="4">
+      <!-- <v-col cols="12" md="4">
         <v-card>
           <v-card-title>Daily Stats</v-card-title>
           <v-data-table
             :headers="dailystatsheaders"
             height="400px"
+            :items="dailyStatsDisplay"
+            :items-per-page="5"
+            class="elevation-1"
+            :multi-sort="true"
+            select-row="0"
+          >
+          </v-data-table>
+        </v-card>
+      </v-col> -->
+    </v-row>
+    <v-row>
+      <!-- Cumulative daily stats -->
+      <v-col cols="12" md="6">
+        <v-card>
+          <v-card-title>Daily Stats</v-card-title>
+          <v-data-table
+            :headers="dailystatsheaders"
+            height="400px"
+            :items="dailyStatsDisplay"
+            :items-per-page="5"
+            class="elevation-1"
+            :multi-sort="true"
+            select-row="0"
+          >
+          </v-data-table>
+        </v-card>
+      </v-col>
+      <!-- Completed process stats -->
+      <v-col cols="12" md="6">
+        <v-card elevation="2">
+          <v-card-title>Completed Process Stats </v-card-title>
+
+          <v-select
+            :items="completedProcesses"
+            label="Select race"
+            dense
+            outlined
+            v-model="selectedProcessId"
+            @change="updatedProcessId"
+          ></v-select>
+
+          <v-data-table
+            :headers="dailystatsheaders"
+            height="300px"
             :items="dailyStatsDisplay"
             :items-per-page="5"
             class="elevation-1"
@@ -244,6 +288,9 @@ export default {
       //  dailyStatsDisplay: [],
       dailyDataIntervalVar: null,
       sensorsForSelectedFacility: [],
+      selectedProcessId: null,
+      completedProcesses: [],
+      statsForSelectedProcessId: [],
       resultsForSelectedFacility: {},
     };
   },
@@ -305,6 +352,11 @@ export default {
       console.log("Home::on::procdailystats: ");
       await that.updateDailyStats(procdailystats);
     });
+
+    bus.$on("completedprocinfo", async (completedprocinfo) => {
+      console.log("Home::on::completedprocinfo: ", completedprocinfo);
+      // await that.updateDailyStats(procdailystats);
+    });
   },
   methods: {
     generateSensors() {
@@ -329,6 +381,16 @@ export default {
     resetAll() {
       this.realtimeSensorData = {};
       this.realtimeSensorDisplay = [];
+    },
+
+    // "Select race" dropdown value is changed
+    async updatedProcessId() {
+      await this.updateSelectedProcessId();
+    },
+
+    async updateRaceResultsDetail() {
+      // console.log('updatedRaceId: ', this.resultsForSelectedClassId)
+      this.statsForSelectedProcessId = [];
     },
 
     // When an operator logs in, the operator app sends configuration request:
