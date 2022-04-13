@@ -146,7 +146,7 @@ export default {
       mqttClient.publish(topics.percentcompleteupdate, JSON.stringify(data));
     });
 
-    // A message has arrived - parse to determine topic
+    // A message has arrived, determine topic and notify subscribers:
     mqttClient.on("message", function(topic, payload) {
       const payloadEnvelope = JSON.parse(payload.toString());
       //  console.log("IoT::onMessage: ", topic, payloadEnvelope);

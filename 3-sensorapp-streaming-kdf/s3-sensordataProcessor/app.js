@@ -34,26 +34,36 @@ exports.handler = async (event) => {
   // Convert to JSON array
   let jsonRecords = convertToJsonArray(data.toString());
   console.log("jsonRecords: ", jsonRecords);
+  facilityProcessData = {};
 
   let runningProcessRecords = checkForRunningProcessRecords(jsonRecords);
-  if (runningProcessRecords.length === 0) {
-    console.log("No running processes");
-    return;
+  if (runningProcessRecords.length !== 0) {
+    // console.log("No running processes");
+    // return;
+
+    // jsonRecords = runningProcessRecords;
+    // const recordsBySensorId = getRecordsBySensorId(runningProcessRecords);
+
+    //await getFacilityProcessData(jsonRecords);
+
+    // Load intermediate run-time data of a running facility process
+    //await getCurrentProcessDataPerFacility(runningProcessRecords);
+
+    // Append incoming sensor data records of a running process:
+    console.log(
+      "Facility process records before append:",
+      runningProcessRecords
+    );
+    let facilityRunningProcessData = await appendToFacilityProcessData(
+      runningProcessRecords
+    );
+    console.log(
+      "Facility process data after append record:",
+      facilityRunningProcessData
+    );
+    // Save combined sensor data for a running process:
+    await saveCurrentFacilityProcessData(facilityRunningProcessData);
   }
-
-  // jsonRecords = runningProcessRecords;
-  // const recordsBySensorId = getRecordsBySensorId(runningProcessRecords);
-
-  //await getFacilityProcessData(jsonRecords);
-
-  // Load intermediate run-time data of a running facility process
-  //await getCurrentProcessDataPerFacility(runningProcessRecords);
-
-  // Append incoming sensor data records of a running process:
-  appendToFacilityProcessData(runningProcessRecords);
-
-  // Save combined sensor data for a running process:
-  await saveCurrentFacilityProcessData(runningProcessRecords);
 
   // Check for completed processes:
   console.log("Calling checkForCompletedProcessRecords()");
@@ -250,7 +260,7 @@ const saveProcessDataHistoryPerFacility = async (processDataRecord) => {
 };
 
 // Save existing facility process data for each facility ID
-const saveCurrentFacilityProcessData = async (jsonRecords) => {
+const saveCurrentFacilityProcessData = async (runningProcessData) => {
   //let facilityIds = getFacilityIds(jsonRecords);
   // await Promise.all(
   //   facilityIds.map(
@@ -264,7 +274,7 @@ const saveCurrentFacilityProcessData = async (jsonRecords) => {
 
   //await Promise.all(
   for (const [facilityId, processDataRecords] of Object.entries(
-    facilityProcessData
+    runningProcessData
   )) {
     console.log(facilityId, processDataRecords);
     await saveFacilityProcessData(facilityId, processDataRecords);
@@ -299,13 +309,53 @@ const saveFacilityProcessData = async (
       process.env.RuntimeProcessBucket
     );
 
+    let currentS3ProcessData = {};
+    currentS3ProcessData[facilityBucketFolder] = {};
+    currentS3ProcessData[facilityBucketFolder][facilityProcessBucketKey] = [];
+
+    try {
+      const response = await s3
+        .getObject({
+          Bucket: facilityBucketPath,
+          Key: facilityProcessBucketKey,
+        })
+        .promise();
+      currentS3ProcessData[facilityBucketFolder][facilityProcessBucketKey] =
+        JSON.parse(response.Body.toString());
+      console.log(
+        "currentS3ProcessData after reading S3:",
+        currentS3ProcessData
+      );
+    } catch (err) {
+      // If this 404s, it means no previous facility process data has been saved.
+      // Any other error should be logged.
+      if (!err.code === "NoSuchError") {
+        console.error("getFacilityProcessDataFromS3: ", err);
+      }
+    }
+
     console.log(
-      "Length of data to save:",
-      facilityProcessData[facilityBucketFolder][facilityProcessBucketKey].length
+      "Length of additional data to save:",
+      // processDataRecords[facilityBucketFolder][facilityProcessBucketKey].length
+      processDataRecords.length
+    );
+
+    processDataRecords.map((record) => {
+      currentS3ProcessData[facilityBucketFolder][facilityProcessBucketKey].push(
+        record
+      );
+    });
+
+    console.log(
+      "Length of total data to save:",
+      // processDataRecords[facilityBucketFolder][facilityProcessBucketKey].length
+      currentS3ProcessData[facilityBucketFolder][facilityProcessBucketKey]
+        .length
     );
 
     const Body = JSON.stringify(
-      facilityProcessData[facilityBucketFolder][facilityProcessBucketKey]
+      // processDataRecords[facilityBucketFolder][facilityProcessBucketKey]
+      currentS3ProcessData[facilityBucketFolder][facilityProcessBucketKey]
     );
 
     await s3
@@ -321,31 +371,34 @@ const saveFacilityProcessData = async (
   }
 };
 
-const appendToFacilityProcessData = async (jsonRecords) => {
+const appendToFacilityProcessData = async (runningProcessRecords) => {
   // Iterate through batch and add payload process data record
-  jsonRecords.map((record) => {
+  let runningProcessData = {};
+  runningProcessRecords.map((record) => {
     let facilityId = `facility-${record.facilityId}`;
     let processId = `process-${record.processId}`;
 
     // If sensor data for this facility process is missing, save it
-    if (!facilityProcessData[facilityId]) {
-      facilityProcessData[facilityId] = {};
-      facilityProcessData[facilityId][processId] = [];
+    if (!runningProcessData[facilityId]) {
+      runningProcessData[facilityId] = {};
+      runningProcessData[facilityId][processId] = [];
 
       console.log("In !facilityProcessData[facilityId]");
-      return facilityProcessData[facilityId][processId].push(record);
+      return runningProcessData[facilityId][processId].push(record);
     }
 
-    if (!facilityProcessData[facilityId][processId]) {
-      facilityProcessData[facilityId][processId] = [];
+    if (!runningProcessData[facilityId][processId]) {
+      runningProcessData[facilityId][processId] = [];
 
       console.log("In !facilityProcessData[facilityId][processId]");
-      return facilityProcessData[facilityId][processId].push(record);
+      return runningProcessData[facilityId][processId].push(record);
     }
 
     console.log("Append payload record: ", record);
-    return facilityProcessData[facilityId][processId].push(record);
+    return runningProcessData[facilityId][processId].push(record);
   });
+
+  return runningProcessData;
 };
 
 const saveDailyDataBySensorId = async (recordsBySensorId) => {

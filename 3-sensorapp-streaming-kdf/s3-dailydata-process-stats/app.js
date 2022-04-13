@@ -67,15 +67,19 @@ const getDailySensorData = async (jsonRecords) => {
         {};
       facilityProcessDailyData.sensorDailyData[
         `${sensorDataRecord.sensorId}`
-      ].sensorData = [];
+      ].sensorData = {};
       facilityProcessDailyData.sensorDailyData[
         `${sensorDataRecord.sensorId}`
       ].name = sensorDataRecord.name;
     }
 
+    // facilityProcessDailyData.sensorDailyData[
+    //   `${sensorDataRecord.sensorId}`
+    // ].sensorData.push(sensorDataRecord.sensorData);
+
     facilityProcessDailyData.sensorDailyData[
       `${sensorDataRecord.sensorId}`
-    ].sensorData.push(sensorDataRecord.sensorData);
+    ].sensorData[`${sensorDataRecord.second}`] = sensorDataRecord.sensorData;
   });
 
   console.log("facilityProcessDailyData:", facilityProcessDailyData);
@@ -86,12 +90,22 @@ const getDailySensorStats = () => {
   for (const [sensorId, sensorDataInfo] of Object.entries(
     facilityProcessDailyData.sensorDailyData
   )) {
-    console.log(sensorId, sensorDataInfo);
+    console.log("sensorId and sensorDataInfo:", sensorId, sensorDataInfo);
+    let sensorData = [];
+    for (let second in sensorDataInfo.sensorData) {
+      sensorData.push(sensorDataInfo.sensorData[second]);
+    }
 
-    const min_val = Math.min(...sensorDataInfo.sensorData);
+    // const min_val = Math.min(...sensorDataInfo.sensorData);
+    // console.log("min_val: ", min_val);
+    // const max_val = Math.max(...sensorDataInfo.sensorData);
+    // const median_val = median(sensorDataInfo.sensorData);
+
+    const min_val = Math.min(...sensorData);
     console.log("min_val: ", min_val);
-    const max_val = Math.max(...sensorDataInfo.sensorData);
-    const median_val = median(sensorDataInfo.sensorData);
+    const max_val = Math.max(...sensorData);
+    const median_val = median(sensorData);
+
     if (!(sensorId in facilityProcessDailyData.sensorDailyStats)) {
       facilityProcessDailyData.sensorDailyStats[`${sensorId}`] = {};
     }
@@ -133,6 +147,7 @@ function median(numbers) {
 const saveDailySensorStats = async () => {
   console.log(
     "Saving running process stats in DDB:",
+    facilityProcessDailyData.processId,
     facilityProcessDailyData.sensorDailyStats
   );
 

@@ -9,7 +9,7 @@ exports.handler = async (event) => {
   console.log(JSON.stringify(event, null, 2));
 
   // Ignore deletions
-  let messages = event.Records.filter((record) => record.eventName != "REMOVE");
+  let messages = event.Records.filter((record) => record.eventName != "REMOVE");  
 
   // Process only running process stats messages (ignore others)
   messages = messages.filter(
@@ -21,6 +21,7 @@ exports.handler = async (event) => {
 };
 
 const publishDailyStatsToIoT = async (messages) => {
+  console.log("PublishRunningProcessStats messages:", messages)
   // Get promises for IoT delivery
   const promises = messages.map(async (record) => {
     const JSONpayload = {

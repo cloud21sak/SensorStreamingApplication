@@ -174,10 +174,9 @@
       <v-col cols="12" md="6">
         <v-card elevation="2">
           <v-card-title>Completed Process Stats </v-card-title>
-
           <v-select
             :items="completedProcesses"
-            label="Select race"
+            label="Select process"
             dense
             outlined
             v-model="selectedProcessId"
@@ -270,6 +269,7 @@ export default {
 
       pctComplete: 0,
       totalRuntime: FACILITY_RUN_SECONDS / 60,
+      //totalDataPointsPerSensor: 0,
       currentProcessId: 0,
       event: "",
       intervalVar: null,
@@ -355,7 +355,7 @@ export default {
 
     bus.$on("completedprocinfo", async (completedprocinfo) => {
       console.log("Home::on::completedprocinfo: ", completedprocinfo);
-      // await that.updateDailyStats(procdailystats);
+      await that.updateCompletedProcessList(completedprocinfo);
     });
   },
   methods: {
@@ -391,6 +391,10 @@ export default {
     async updateRaceResultsDetail() {
       // console.log('updatedRaceId: ', this.resultsForSelectedClassId)
       this.statsForSelectedProcessId = [];
+    },
+
+    async updateCompletedProcessList(completedprocinfo) {
+      this.completedProcesses.push(completedprocinfo.processId);
     },
 
     // When an operator logs in, the operator app sends configuration request:
@@ -767,7 +771,48 @@ export default {
     },
 
     async nextInterval() {
-      if (this.currentSecond > FACILITY_RUN_SECONDS) return;
+      console.log("In nextInterval current second: ", this.currentSecond);
+      if (this.currentSecond > FACILITY_RUN_SECONDS + INTERVAL_SECONDS) return;
+
+      // Check if the process completed and we just need to notify the backend
+      // about that:
+      if (this.currentSecond === FACILITY_RUN_SECONDS + INTERVAL_SECONDS) {
+        console.log("Issue complete message for second:", this.currentSecond);
+        clearInterval(this.intervalVar);
+        clearInterval(this.dailyDataIntervalVar);
+        const udpatedFacilityStatus = {
+          facilityId: this.$store.getters.facilityStatus.facilityId,
+          status: "COMPLETE",
+        };
+
+        // TODO: move updating of facility status and pctcomplete into a separate function
+        this.$store.dispatch("setFacilityStatus", udpatedFacilityStatus);
+        this.$store.dispatch("setPctComplete", this.pctComplete);
+        //  console.log("pctComplete: ", this.pctComplete);
+        bus.$emit("updatepercentcomplete", {
+          facilityid: 1,
+          pctcomplete: round(this.pctComplete, 2),
+        });
+        bus.$emit("facilitystatusupdate", udpatedFacilityStatus);
+
+        // Finally, if the process is complete then send
+        // the last message for this process with event status as "complete":
+        // if (this.currentSecond === FACILITY_RUN_SECONDS) {
+        this.event = "complete";
+        const sensormessage = {
+          uuid: uuidv4(),
+          event: this.event,
+          deviceTimestamp: Date.now(),
+          second: this.currentSecond,
+          processId: this.currentProcessId,
+          facilityId: 1,
+        };
+        bus.$emit("sensorpublish", sensormessage);
+        this.currentSecond += INTERVAL_SECONDS;
+        //}
+        return;
+      }
+
       // console.log(`Second ${this.currentSecond} of ${FACILITY_RUN_SECONDS}`);
       // Interval step
       this.pctComplete = round(
@@ -777,8 +822,6 @@ export default {
 
       // console.log("this.pctComplete1:", this.pctComplete);
       // console.log("this.currentSecond:", this.currentSecond);
-
-      // for (let sensor in this.sensorsToPublish) {
       this.sensorsToPublish.forEach((sensor) => {
         //   console.log("sensor to publish: ", sensor);
         // Publish the sensor's current value
@@ -800,41 +843,43 @@ export default {
         bus.$emit("sensorpublish", sensormessage);
       });
 
-      if (this.currentSecond === FACILITY_RUN_SECONDS) {
-        clearInterval(this.intervalVar);
-        clearInterval(this.dailyDataIntervalVar);
-        const udpatedFacilityStatus = {
-          facilityId: this.$store.getters.facilityStatus.facilityId,
-          status: "COMPLETE",
-        };
+      // if (this.currentSecond === FACILITY_RUN_SECONDS) {
+      //   clearInterval(this.intervalVar);
+      //   clearInterval(this.dailyDataIntervalVar);
+      //   const udpatedFacilityStatus = {
+      //     facilityId: this.$store.getters.facilityStatus.facilityId,
+      //     status: "COMPLETE",
+      //   };
 
-        // TODO: move updating of facility status and pctcomplete into a separate function
-        this.$store.dispatch("setFacilityStatus", udpatedFacilityStatus);
-        this.$store.dispatch("setPctComplete", this.pctComplete);
-        //  console.log("pctComplete: ", this.pctComplete);
-        bus.$emit("updatepercentcomplete", {
-          facilityid: 1,
-          pctcomplete: round(this.pctComplete, 2),
-        });
-        bus.$emit("facilitystatusupdate", udpatedFacilityStatus);
+      //   // TODO: move updating of facility status and pctcomplete into a separate function
+      //   this.$store.dispatch("setFacilityStatus", udpatedFacilityStatus);
+      //   this.$store.dispatch("setPctComplete", this.pctComplete);
+      //   //  console.log("pctComplete: ", this.pctComplete);
+      //   bus.$emit("updatepercentcomplete", {
+      //     facilityid: 1,
+      //     pctcomplete: round(this.pctComplete, 2),
+      //   });
+      //   bus.$emit("facilitystatusupdate", udpatedFacilityStatus);
 
-        // Finally, check if the process is complete then send
-        // the last message for this process with event status as "complete":
-        if (this.currentSecond === FACILITY_RUN_SECONDS) {
-          this.event = "complete";
-          const sensormessage = {
-            uuid: uuidv4(),
-            event: this.event,
-            deviceTimestamp: Date.now(),
-            second: this.currentSecond,
-            processId: this.currentProcessId,
-            facilityId: 1,
-          };
-          bus.$emit("sensorpublish", sensormessage);
-        }
+      //   // Finally, check if the process is complete then send
+      //   // the last message for this process with event status as "complete":
+      //   if (this.currentSecond === FACILITY_RUN_SECONDS) {
+      //     this.event = "complete";
+      //     const sensormessage = {
+      //       uuid: uuidv4(),
+      //       event: this.event,
+      //       deviceTimestamp: Date.now(),
+      //       second: this.currentSecond,
+      //       processId: this.currentProcessId,
+      //       totalNumberOfSensors: this.sensorsToPublish.length,
+      //       totalNumberOfDataPointsPerSensor: this.totalDataPointsPerSensor,
+      //       facilityId: 1,
+      //     };
+      //     bus.$emit("sensorpublish", sensormessage);
+      //   }
 
-        return;
-      }
+      //   return;
+      // }
 
       this.$store.dispatch("setPctComplete", this.pctComplete);
       bus.$emit("updatepercentcomplete", {

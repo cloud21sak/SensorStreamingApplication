@@ -211,7 +211,8 @@ Resources:
           Projection:
             ProjectionType: "ALL"
       StreamSpecification:
-        StreamViewType: NEW_AND_OLD_IMAGES
+        StreamViewType: NEW_IMAGE
+        #StreamViewType: NEW_AND_OLD_IMAGES
 
 Outputs:
   DynamoDBSensorstreamARN:
