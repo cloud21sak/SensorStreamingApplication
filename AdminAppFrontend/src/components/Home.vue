@@ -182,11 +182,10 @@
             v-model="selectedProcessId"
             @change="updatedProcessId"
           ></v-select>
-
           <v-data-table
             :headers="dailystatsheaders"
             height="300px"
-            :items="dailyStatsDisplay"
+            :items="completedProcessStatsDisplay"
             :items-per-page="5"
             class="elevation-1"
             :multi-sort="true"
@@ -245,6 +244,9 @@ export default {
     },
     dailyStatsDisplay() {
       return this.$store.getters.dailySensorStats;
+    },
+    completedProcessStatsDisplay() {
+      return this.$store.getters.completedProcessStats;
     },
   },
   data() {
@@ -383,14 +385,61 @@ export default {
       this.realtimeSensorDisplay = [];
     },
 
-    // "Select race" dropdown value is changed
+    // User selected completed process ID from dropdown:
     async updatedProcessId() {
-      await this.updateSelectedProcessId();
+      console.log("Selected process ID:", this.selectedProcessId);
+      await this.updateSelectedProcessStats();
     },
 
-    async updateRaceResultsDetail() {
-      // console.log('updatedRaceId: ', this.resultsForSelectedClassId)
+    async updateSelectedProcessStats() {
+      console.log("updatedSelectedProcStats: ", this.statsForSelectedProcessId);
       this.statsForSelectedProcessId = [];
+
+      const URL = `${this.$store.getters.appConfiguration.APIendpoint}/dailyStats?processId=${this.selectedProcessId}`;
+
+      let response;
+      try {
+        response = await axios.get(URL, {
+          headers: {
+            Authorization: this.$store.getters.authCredentials.sessionToken,
+          },
+        });
+        //   console.log("Got response for daily data: ", response);
+      } catch (err) {
+        console.log("Getting completed process stats errror: ", err.message);
+      }
+
+      console.log("response:", response);
+      console.log("response stats:", response.data[0].stats);
+      let stringifiedStatsForSelectedProcess = response.data[0].stats;
+      let statsForSelectedProcess = JSON.parse(
+        stringifiedStatsForSelectedProcess
+      );
+
+      console.log("statsForSelectedProcess:", statsForSelectedProcess);
+
+      // Update daily sensor stats
+      for (let sensorId in statsForSelectedProcess) {
+        this.statsForSelectedProcessId.push({
+          sensorId: sensorId,
+          name: statsForSelectedProcess[sensorId].name,
+          min: round(statsForSelectedProcess[sensorId].min_val, 2),
+          max: round(statsForSelectedProcess[sensorId].max_val, 2),
+          median: round(statsForSelectedProcess[sensorId].median_val, 2),
+          ts: statsForSelectedProcess.ts,
+        });
+      }
+
+      // Convert to array
+      console.log(
+        "this.statsForSelectedProcessId: ",
+        this.statsForSelectedProcessId
+      );
+
+      this.$store.dispatch(
+        "setCompletedProcessStats",
+        this.statsForSelectedProcessId
+      );
     },
 
     async updateCompletedProcessList(completedprocinfo) {

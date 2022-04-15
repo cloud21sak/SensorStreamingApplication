@@ -206,7 +206,8 @@ Resources:
           KeySchema:
             - AttributeName: "PK"
               KeyType: "HASH"
-            - AttributeName: "GSI"
+            #- AttributeName: "GSI"
+            - AttributeName: "SK"
               KeyType: "RANGE"
           Projection:
             ProjectionType: "ALL"

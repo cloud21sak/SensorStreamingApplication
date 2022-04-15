@@ -10,14 +10,18 @@ const documentClient = new AWS.DynamoDB.DocumentClient();
 // Main Lambda handler
 exports.handler = async (event) => {
   console.log(JSON.stringify(event, null, 2));
-  const facilityId = parseInt(event.queryStringParameters.facilityId);
+  // const facilityId = parseInt(event.queryStringParameters.facilityId);
+  const processId = event.queryStringParameters.processId;
 
   const params = {
     TableName: process.env.DDB_TABLE,
-    IndexName: "GSI_Index",
-    KeyConditionExpression: "GSI = :gsi and begins_with(SK, :sk)",
+    // IndexName: "GSI_Index",
+    IndexName: "GSI_PK_Index",
+    // KeyConditionExpression: "GSI = :gsi and begins_with(SK, :sk)",
+    KeyConditionExpression: "PK = :ID and begins_with(SK, :sk)",
 
-    ExpressionAttributeValues: { ":gsi": facilityId, ":sk": "dailystats" },
+    //ExpressionAttributeValues: { ":gsi": facilityId, ":sk": "dailystats" },
+    ExpressionAttributeValues: { ":ID": processId, ":sk": "completedstats" },
     ScanIndexForward: true,
     Limit: 200,
   };
@@ -43,13 +47,20 @@ exports.handler = async (event) => {
     //const std_dev = math.std(item.results)
     //statResults.push(std_dev)
     // console.log("sensorDailyStats: ", sensorDailyStats);
+    // const statsItem = {
+    //   sensorId: item.PK,
+    //   ts: item.ts,
+    //   min_val: item.min_val,
+    //   max_val: item.max_val,
+    //   median_val: item.median_val,
+    //   facilityId: item.GSI,
+    // };
+
     const statsItem = {
-      sensorId: item.PK,
-      ts: item.ts,
-      min_val: item.min_val,
-      max_val: item.max_val,
-      median_val: item.median_val,
+      processId: item.PK,
       facilityId: item.GSI,
+      stats: item.stats,
+      ts: item.ts,
     };
     console.log("statsItem: ", statsItem);
     statResults.push(statsItem);

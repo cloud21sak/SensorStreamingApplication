@@ -336,8 +336,10 @@ const saveFacilityProcessData = async (
 
     console.log(
       "Length of additional data to save:",
+      facilityProcessBucketKey,
       // processDataRecords[facilityBucketFolder][facilityProcessBucketKey].length
-      processDataRecords.length
+      currentS3ProcessData[facilityBucketFolder][facilityProcessBucketKey]
+        .length
     );
 
     processDataRecords.map((record) => {
@@ -348,6 +350,7 @@ const saveFacilityProcessData = async (
 
     console.log(
       "Length of total data to save:",
+      facilityProcessBucketKey,
       // processDataRecords[facilityBucketFolder][facilityProcessBucketKey].length
       currentS3ProcessData[facilityBucketFolder][facilityProcessBucketKey]
         .length

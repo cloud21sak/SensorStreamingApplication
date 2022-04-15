@@ -19,6 +19,7 @@ export default new Vuex.Store({
     appconfiguration: {},
     pctComplete: 0,
     dailySensorStats: [],
+    completedProcessStats: [],
   },
   getters: {
     userToken: (state) => {
@@ -44,6 +45,9 @@ export default new Vuex.Store({
     },
     dailySensorStats: (state) => {
       return state.dailySensorStats;
+    },
+    completedProcessStats: (state) => {
+      return state.completedProcessStats;
     },
   },
   mutations: {
@@ -80,6 +84,9 @@ export default new Vuex.Store({
     updateDailySensorStats(state, dailySensorStats) {
       state.dailySensorStats = dailySensorStats;
     },
+    updateCompletedProcessStats(state, completedProcessStats) {
+      state.completedProcessStats = completedProcessStats;
+    },
   },
   actions: {
     //       updateUserToken(context, payload) => {
@@ -110,6 +117,9 @@ export default new Vuex.Store({
     },
     setDailySenorStats({ commit }, dailySensorStats) {
       commit("updateDailySensorStats", dailySensorStats);
+    },
+    setCompletedProcessStats({ commit }, completedProcessStats) {
+      commit("updateCompletedProcessStats", completedProcessStats);
     },
   },
 });
