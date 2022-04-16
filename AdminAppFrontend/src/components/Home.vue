@@ -359,6 +359,9 @@ export default {
       console.log("Home::on::completedprocinfo: ", completedprocinfo);
       await that.updateCompletedProcessList(completedprocinfo);
     });
+
+    // Get list of completed processes if there are any:
+    await this.initializeCompletedProcessList();
   },
   methods: {
     generateSensors() {
@@ -395,7 +398,7 @@ export default {
       console.log("updatedSelectedProcStats: ", this.statsForSelectedProcessId);
       this.statsForSelectedProcessId = [];
 
-      const URL = `${this.$store.getters.appConfiguration.APIendpoint}/dailyStats?processId=${this.selectedProcessId}`;
+      const URL = `${this.$store.getters.appConfiguration.APIendpoint}/processStats?processId=${this.selectedProcessId}`;
 
       let response;
       try {
@@ -404,7 +407,7 @@ export default {
             Authorization: this.$store.getters.authCredentials.sessionToken,
           },
         });
-        //   console.log("Got response for daily data: ", response);
+        //   console.log("Got response for selected process: ", response);
       } catch (err) {
         console.log("Getting completed process stats errror: ", err.message);
       }
@@ -418,7 +421,7 @@ export default {
 
       console.log("statsForSelectedProcess:", statsForSelectedProcess);
 
-      // Update daily sensor stats
+      // Update selected process stats:
       for (let sensorId in statsForSelectedProcess) {
         this.statsForSelectedProcessId.push({
           sensorId: sensorId,
@@ -441,7 +444,27 @@ export default {
         this.statsForSelectedProcessId
       );
     },
+    async initializeCompletedProcessList() {
+      const URL = `${this.$store.getters.appConfiguration.APIendpoint}/completedProcesses`;
 
+      let response;
+      try {
+        response = await axios.get(URL, {
+          headers: {
+            Authorization: this.$store.getters.authCredentials.sessionToken,
+          },
+        });
+        console.log("Got response for completed processes: ", response);
+      } catch (err) {
+        console.log("Getting completed process stats errror: ", err.message);
+      }
+
+      console.log("response:", response);
+      console.log("response processes list:", response.data);
+
+      this.completedProcesses = response.data.map((item) => item.processId);
+    },
+    // When process completes, update the completed process list:
     async updateCompletedProcessList(completedprocinfo) {
       this.completedProcesses.push(completedprocinfo.processId);
     },
