@@ -4,6 +4,7 @@ import VueRouter from "vue-router";
 import HomePage from "./components/Home.vue";
 import Login from "./components/Login.vue";
 import WelcomePage from "./components/Welcome.vue";
+import ConfigurePage from "./components/Configure.vue";
 import NotFound from "./components/NotFound.vue";
 
 Vue.use(VueRouter);
@@ -13,6 +14,7 @@ const routes = [
   { path: "/login", name: "Login", component: Login },
   { path: "/", name: "Welcome", component: WelcomePage },
   { path: "/welcome", name: "Welcome", component: WelcomePage },
+  { path: "/configure", name: "Configure", component: ConfigurePage },
   { path: "/:notFound(.*)", component: NotFound },
 ];
 
