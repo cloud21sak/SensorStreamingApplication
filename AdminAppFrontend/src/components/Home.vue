@@ -136,22 +136,6 @@
           </v-data-table>
         </v-card>
       </v-col>
-      <!-- Cumulative daily stats -->
-      <!-- <v-col cols="12" md="4">
-        <v-card>
-          <v-card-title>Daily Stats</v-card-title>
-          <v-data-table
-            :headers="dailystatsheaders"
-            height="400px"
-            :items="dailyStatsDisplay"
-            :items-per-page="5"
-            class="elevation-1"
-            :multi-sort="true"
-            select-row="0"
-          >
-          </v-data-table>
-        </v-card>
-      </v-col> -->
     </v-row>
     <v-row>
       <!-- Cumulative daily stats -->
@@ -203,11 +187,8 @@ import IoT from "./IoT.vue";
 import { bus } from "../main";
 import { v4 as uuidv4 } from "uuid";
 
-// SAK???
-//import sensors from "@/configurations/sensors.json";
 import sensorconfig from "@/configurations/sensorconfig.json";
-//import appconfig from "@/assets/appconfig.json";
-// END SAK???
+
 //import { gunzip } from "@/lib/gzip";
 import axios from "axios";
 
@@ -271,7 +252,6 @@ export default {
 
       pctComplete: 0,
       totalRuntime: FACILITY_RUN_SECONDS / 60,
-      //totalDataPointsPerSensor: 0,
       currentProcessId: 0,
       event: "",
       intervalVar: null,
@@ -281,19 +261,17 @@ export default {
       issuedcommand: null,
       sensor: {},
       sensorsToPublish: [],
-      // sensormessages: [],
       realtimeSensorData: {},
       latestMinuteSensorStats: {},
       realtimeSensorDisplay: [],
       latestMinuteSensorStatsDisplay: [],
       dailySensorStats: {},
-      //  dailyStatsDisplay: [],
       dailyDataIntervalVar: null,
       sensorsForSelectedFacility: [],
       selectedProcessId: null,
       completedProcesses: [],
       statsForSelectedProcessId: [],
-      resultsForSelectedFacility: {},
+      //  resultsForSelectedFacility: {},
     };
   },
   beforeRouteEnter(to, from, next) {
@@ -308,14 +286,13 @@ export default {
   },
   async created() {
     console.log("Home Component: created() hook called");
-    //  const storedComp = this.$store.getters.getPctComplete;
-    // console.log("storedComp: ", storedComp);
-    // if (storedComp !== null) {
-    //   this.pctComplete = storedComp.pctComplete;
-    // }
+    console.log("event bus in created beginning:", bus);
+
+    await this.initializeSensorTypesConfiguration();
 
     const that = this;
-    this.generateSensors();
+    // this.generateSensors();
+    this.sensors = this.$store.getters.sensorInstances;
 
     // When messages are received via IOT, these handlers are triggered
     bus.$on("message", async (message) => {
@@ -360,15 +337,36 @@ export default {
       await that.updateCompletedProcessList(completedprocinfo);
     });
 
+    console.log("event bus in created end:", bus);
+
     // Get list of completed processes if there are any:
     await this.initializeCompletedProcessList();
   },
+  async beforeDestroy() {
+    console.log("Home Component: beforeUnmount() hook called");
+    console.log("event bus in beforeDestroy beginning:", bus);
+
+    bus.$off("message");
+    bus.$off("stopsimulator");
+    bus.$off("procdailystats");
+    bus.$off("facilitycommandreceived");
+    bus.$off("facilityconfigrequest");
+    bus.$off("procdailystats");
+    bus.$off("completedprocinfo");
+
+    console.log("event bus in beforeDestroy end:", bus);
+  },
   methods: {
     generateSensors() {
-      console.log("Sensor types: ", this.sensortypes);
+      let sensorTypeConfigurations = this.$store.getters
+        .sensortypeConfigurations;
+      // console.log("Sensor types: ", this.sensortypes);
+      console.log("Sensor types: ", sensorTypeConfigurations);
       var idCount = 0;
-      for (let j = 0; j < this.sensortypes.length; j++) {
-        const sensortype = this.sensortypes[j];
+      // for (let j = 0; j < this.sensortypes.length; j++) {
+      //   const sensortype = this.sensortypes[j];
+      for (let j = 0; j < sensorTypeConfigurations.length; j++) {
+        const sensortype = sensorTypeConfigurations[j];
         for (let i = 0; i < sensortype.totalnumber; i++) {
           const sensorObj = {
             id: idCount++,
@@ -386,6 +384,58 @@ export default {
     resetAll() {
       this.realtimeSensorData = {};
       this.realtimeSensorDisplay = [];
+    },
+    async initializeSensorTypesConfiguration() {
+      // Check if current sensor configurations for the facility exists in the database:
+      const urlGetConfig = `${this.$store.getters.appConfiguration.APIendpoint}/facilitysensorconfig?facilityId=${sensorconfig.facilityId}`;
+
+      var response;
+      try {
+        response = await axios.get(urlGetConfig, {
+          headers: {
+            Authorization: this.$store.getters.authCredentials.sessionToken,
+          },
+        });
+        console.log("Got response for sensor configuration: ", response);
+        if (response.data.length === 0) {
+          // Store sensor configurations for the facility in the database:
+          try {
+            const urlPostConfig = `${this.$store.getters.appConfiguration.APIendpoint}/savefacilitysensorconfig?facilityId=${sensorconfig.facilityId}`;
+            const response = await axios.post(urlPostConfig, {
+              headers: {
+                Authorization: this.$store.getters.authCredentials.sessionToken,
+              },
+              payload: {
+                sensortypes: sensorconfig.sensortypes,
+              },
+            });
+            console.log("response after post: ", response);
+          } catch (err) {
+            console.log("error saving sensor configuration:", err);
+          }
+        } else {
+          sensorconfig.sensortypes = [];
+          console.log("response data[0]: ", response.data[0]);
+          let sensortypes = JSON.parse(response.data[0].sensortypes);
+          sensortypes.map((sensortype) => {
+            sensorconfig.sensortypes.push(sensortype);
+          });
+        }
+        //  console.log("response sensor types:", response.data[0].sensortypes);
+      } catch (err) {
+        console.log("Getting daily data errror: ", err.message);
+      }
+
+      let sensortypeConfigurations = [];
+      sensorconfig.sensortypes.map((sensortype) => {
+        sensortypeConfigurations.push(sensortype);
+      });
+      console.log("sensortypeConfigurations: ", sensortypeConfigurations);
+      // Update vuex state for sensor type configurations:
+      this.$store.dispatch(
+        "setConfiguredSensorTypes",
+        sensortypeConfigurations
+      );
     },
 
     // User selected completed process ID from dropdown:
@@ -559,13 +609,6 @@ export default {
         if (!this.sensors[sensorId]) {
           continue;
         }
-        //   console.log("sensor current sensordata update by id: ",this.sensors[sensorId]);
-        // this.realtimeSensorData[sensorId] = {
-        //   sensorId: sensorId,
-        //   name: this.sensors[sensorId].name,
-        //   typeId: this.sensors[sensorId].typeId,
-        //   sensordata: round(sensorData[sensorId], 2),
-        // };
 
         intermediateSensorData.push({
           sensorId,
@@ -613,39 +656,6 @@ export default {
       this.$store.dispatch("setDailySenorStats", intermediateSensorStats);
       //console.log("this.dailyStatsDisplay: ", this.dailyStatsDisplay);
     },
-
-    // async updateDailyStats(dailyStatsData) {
-    //   let processDailyData = JSON.parse(dailyStatsData);
-    //   console.log("updateDailyStats 'processDailyData': ", processDailyData);
-    //   // console.log("this.dailySensorStats0: ", this.dailySensorStats);
-
-    //   let intermediateSensorStats = [];
-
-    //   // console.log("updateDailyStats: ", dailyStats);
-
-    //   // Update daily sensor stats
-    //   dailyStatsData.map(
-    //     (item) =>
-    //       (this.dailySensorStats[item.sensorId] = {
-    //         sensorId: item.sensorId,
-    //         name: this.sensors[item.sensorId].name,
-    //         min: round(item.min_val, 2),
-    //         max: round(item.max_val, 2),
-    //         median: round(item.median_val, 2),
-    //         ts: item.ts,
-    //       })
-    //   );
-
-    //   // Convert to array
-    //   console.log("this.dailySensorStats: ", this.dailySensorStats);
-    //   for (let sensorId in this.dailySensorStats) {
-    //     intermediateSensorStats.push(this.dailySensorStats[sensorId]);
-    //   }
-
-    //   //  this.dailyStatsDisplay = intermediateSensorStats;
-    //   this.$store.dispatch("setDailySenorStats", intermediateSensorStats);
-    //   //console.log("this.dailyStatsDisplay: ", this.dailyStatsDisplay);
-    // },
 
     // Sensor stats by latest minute
     async updateSensorStatsByLatestMinute(sensorStatsMessage) {
@@ -740,6 +750,9 @@ export default {
       this.pctComplete = 0;
       this.sensorsToPublish.length = 0;
       this.event = "update";
+      // We need to set sensors every time before starting a new process in case
+      // the configuration has been updated.
+      this.sensors = this.$store.getters.sensorInstances;
 
       this.intervalVar = setInterval(this.nextInterval, 1000);
 
@@ -749,7 +762,6 @@ export default {
       //   30000
       // );
 
-      // for (let sensor in this.sensors) {
       this.sensors.forEach((sensor) => {
         this.sensor = new Sensor(sensor);
         {
@@ -800,47 +812,47 @@ export default {
       console.log("Facility was paused");
     },
 
-    async nextDailyDataInterval() {
-      console.log("nextDailyDataInterval() was called");
-      // Facility is stopped
-      if (this.currentSecond > FACILITY_RUN_SECONDS) return;
-      if (this.currentSecond === FACILITY_RUN_SECONDS) {
-        clearInterval(this.dailyDataIntervalVar);
-      }
-      const URL = `${this.$store.getters.appConfiguration.APIendpoint}/dailyStats?facilityId=1`;
-      // console.log("Getting daily data at: ", URL);
-      // console.log(
-      //   "Session token: ", this.$store.getters.authCredentials.sessionToken
-      // Vue.prototype.$appConfig.credentials.sessionToken
-      //);
-      var response;
-      try {
-        response = await axios.get(URL, {
-          headers: {
-            Authorization: this.$store.getters.authCredentials.sessionToken,
-          },
-        });
-        //   console.log("Got response for daily data: ", response);
-      } catch (err) {
-        console.log("Getting daily data errror: ", err.message);
-      }
+    // async nextDailyDataInterval() {
+    //   console.log("nextDailyDataInterval() was called");
+    //   // Facility is stopped
+    //   if (this.currentSecond > FACILITY_RUN_SECONDS) return;
+    //   if (this.currentSecond === FACILITY_RUN_SECONDS) {
+    //     clearInterval(this.dailyDataIntervalVar);
+    //   }
+    //   const URL = `${this.$store.getters.appConfiguration.APIendpoint}/dailyStats?facilityId=1`;
+    //   // console.log("Getting daily data at: ", URL);
+    //   // console.log(
+    //   //   "Session token: ", this.$store.getters.authCredentials.sessionToken
+    //   // Vue.prototype.$appConfig.credentials.sessionToken
+    //   //);
+    //   var response;
+    //   try {
+    //     response = await axios.get(URL, {
+    //       headers: {
+    //         Authorization: this.$store.getters.authCredentials.sessionToken,
+    //       },
+    //     });
+    //     //   console.log("Got response for daily data: ", response);
+    //   } catch (err) {
+    //     console.log("Getting daily data errror: ", err.message);
+    //   }
 
-      this.sensorsForSelectedFacility = [];
-      this.sensorsForSelectedFacility = response.data.map(
-        (item) => item.sensorId
-      );
-      this.resultsForSelectedFacility = response.data;
-      // console.log(
-      //   "Updated daily facility sensors :",
-      //   this.sensorsForSelectedFacility
-      // );
-      // console.log(
-      //   "Updated daily facility data :",
-      //   this.resultsForSelectedFacility
-      // );
+    //   this.sensorsForSelectedFacility = [];
+    //   this.sensorsForSelectedFacility = response.data.map(
+    //     (item) => item.sensorId
+    //   );
+    //   this.resultsForSelectedFacility = response.data;
+    //   // console.log(
+    //   //   "Updated daily facility sensors :",
+    //   //   this.sensorsForSelectedFacility
+    //   // );
+    //   // console.log(
+    //   //   "Updated daily facility data :",
+    //   //   this.resultsForSelectedFacility
+    //   // );
 
-      this.updateDailyStats(this.resultsForSelectedFacility);
-    },
+    //   this.updateDailyStats(this.resultsForSelectedFacility);
+    // },
 
     async nextInterval() {
       console.log("In nextInterval current second: ", this.currentSecond);
@@ -897,7 +909,8 @@ export default {
       this.sensorsToPublish.forEach((sensor) => {
         //   console.log("sensor to publish: ", sensor);
         // Publish the sensor's current value
-        const sensorData = simulateSensorData(1, 100);
+        // const sensorData = simulateSensorData(1, 100);
+        const sensorData = simulateSensorData(sensor.minval, sensor.maxval);
         // console.log("sensordata: ", sensorData);
         // console.log("sensor name: ", this.sensors[sensor]);
         const sensormessage = {
@@ -914,44 +927,6 @@ export default {
 
         bus.$emit("sensorpublish", sensormessage);
       });
-
-      // if (this.currentSecond === FACILITY_RUN_SECONDS) {
-      //   clearInterval(this.intervalVar);
-      //   clearInterval(this.dailyDataIntervalVar);
-      //   const udpatedFacilityStatus = {
-      //     facilityId: this.$store.getters.facilityStatus.facilityId,
-      //     status: "COMPLETE",
-      //   };
-
-      //   // TODO: move updating of facility status and pctcomplete into a separate function
-      //   this.$store.dispatch("setFacilityStatus", udpatedFacilityStatus);
-      //   this.$store.dispatch("setPctComplete", this.pctComplete);
-      //   //  console.log("pctComplete: ", this.pctComplete);
-      //   bus.$emit("updatepercentcomplete", {
-      //     facilityid: 1,
-      //     pctcomplete: round(this.pctComplete, 2),
-      //   });
-      //   bus.$emit("facilitystatusupdate", udpatedFacilityStatus);
-
-      //   // Finally, check if the process is complete then send
-      //   // the last message for this process with event status as "complete":
-      //   if (this.currentSecond === FACILITY_RUN_SECONDS) {
-      //     this.event = "complete";
-      //     const sensormessage = {
-      //       uuid: uuidv4(),
-      //       event: this.event,
-      //       deviceTimestamp: Date.now(),
-      //       second: this.currentSecond,
-      //       processId: this.currentProcessId,
-      //       totalNumberOfSensors: this.sensorsToPublish.length,
-      //       totalNumberOfDataPointsPerSensor: this.totalDataPointsPerSensor,
-      //       facilityId: 1,
-      //     };
-      //     bus.$emit("sensorpublish", sensormessage);
-      //   }
-
-      //   return;
-      // }
 
       this.$store.dispatch("setPctComplete", this.pctComplete);
       bus.$emit("updatepercentcomplete", {

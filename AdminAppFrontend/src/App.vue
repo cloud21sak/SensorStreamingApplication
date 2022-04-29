@@ -18,7 +18,11 @@
       </v-btn>
       <v-btn
         v-model="isLoggedIn"
-        v-if="isLoggedIn"
+        v-if="
+          (facilitystatus.status === 'IDLE' ||
+            facilitystatus.status === 'COMPLETE') &&
+            isLoggedIn
+        "
         key="Configure"
         color="white"
         text

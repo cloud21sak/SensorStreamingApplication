@@ -21,6 +21,8 @@ const topics = {
   completedprocinfo: "completed-processinfo",
 };
 
+let mqttClient = null;
+
 export default {
   name: "IoT",
   methods: {
@@ -75,7 +77,8 @@ export default {
     try {
       console.log("Creating mqttClient device");
 
-      var mqttClient = AWSIoTData.device({
+      //var mqttClient = AWSIoTData.device({
+      mqttClient = AWSIoTData.device({
         region: AWS.config.region,
         host: this.$store.getters.appConfiguration.iotHost, //can be queried using 'aws iot describe-endpoint --endpoint-type iot:Data-ATS' - doesn't work with just 'describe-endpoint'
         clientId: "sensordata-" + Math.floor(Math.random() * 100000 + 1),
@@ -164,6 +167,21 @@ export default {
         bus.$emit("message", payloadEnvelope);
       }
     });
+  },
+  async beforeDestroy() {
+    console.log("IoT Component: beforeDestroy() hook called");
+    mqttClient.unsubscribe(topics.facilitycommand);
+    mqttClient.unsubscribe(topics.sensorsubscribe);
+    mqttClient.unsubscribe(topics.facilityconfigrequest);
+    mqttClient.unsubscribe(topics.procdailystats);
+    mqttClient.unsubscribe(topics.completedprocinfo);
+
+    bus.$off("sensorpublish");
+    bus.$off("facilitycommandissued");
+    bus.$off("facilitystatusupdate");
+    bus.$off("facilityconfigpublish");
+    bus.$off("updatepercentcomplete");
+    //mqttClient.off("message");
   },
 };
 </script>

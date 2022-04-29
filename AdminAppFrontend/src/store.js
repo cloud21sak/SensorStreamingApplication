@@ -20,6 +20,8 @@ export default new Vuex.Store({
     pctComplete: 0,
     dailySensorStats: [],
     completedProcessStats: [],
+    configuredSensorTypes: [],
+    sensorInstances: [],
   },
   getters: {
     userToken: (state) => {
@@ -48,6 +50,12 @@ export default new Vuex.Store({
     },
     completedProcessStats: (state) => {
       return state.completedProcessStats;
+    },
+    configuredSensorTypes: (state) => {
+      return state.configuredSensorTypes;
+    },
+    sensorInstances: (state) => {
+      return state.sensorInstances;
     },
   },
   mutations: {
@@ -87,6 +95,15 @@ export default new Vuex.Store({
     updateCompletedProcessStats(state, completedProcessStats) {
       state.completedProcessStats = completedProcessStats;
     },
+    updateConfiguredSensorTypes(state, configuredSensorTypes) {
+      state.configuredSensorTypes = [];
+      configuredSensorTypes.map((sensorType) => {
+        state.configuredSensorTypes.push(sensorType);
+      });
+    },
+    updateGeneratedSensorInstances(state, generatedSensors) {
+      state.sensorInstances = generatedSensors;
+    },
   },
   actions: {
     //       updateUserToken(context, payload) => {
@@ -120,6 +137,33 @@ export default new Vuex.Store({
     },
     setCompletedProcessStats({ commit }, completedProcessStats) {
       commit("updateCompletedProcessStats", completedProcessStats);
+    },
+    setConfiguredSensorTypes({ commit }, configuredSensorTypes) {
+      commit("updateConfiguredSensorTypes", configuredSensorTypes);
+
+      // Generate sensor instances based on updated sensor type configurations:
+      console.log("this.state:", this.state);
+      let sensorTypeConfigurations = this.state.configuredSensorTypes;
+      // console.log("Sensor types: ", this.sensortypes);
+      console.log("Sensor types: ", sensorTypeConfigurations);
+      var idCount = 0;
+      let sensors = [];
+      for (let j = 0; j < sensorTypeConfigurations.length; j++) {
+        const sensortype = sensorTypeConfigurations[j];
+        for (let i = 0; i < sensortype.totalnumber; i++) {
+          const sensorObj = {
+            id: idCount++,
+            name: sensortype.name + "_" + i,
+            typeId: sensortype.typeId,
+            minval: sensortype.minval,
+            maxval: sensortype.maxval,
+          };
+          // console.log("sensorObj: ", sensorObj);
+          sensors.push(sensorObj);
+        }
+      }
+      console.log("Generated sensors: ", sensors);
+      commit("updateGeneratedSensorInstances", sensors);
     },
   },
 });

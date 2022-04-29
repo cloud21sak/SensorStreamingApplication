@@ -244,13 +244,6 @@ export default {
 
       this.isLoading = false;
     },
-    // switchAuthMode() {
-    //   if (this.mode === "login") {
-    //     this.mode = "signup";
-    //   } else {
-    //     this.mode = "login";
-    //   }
-    // },
     handleError() {
       this.error = null;
     },

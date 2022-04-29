@@ -65,7 +65,7 @@
           >
           <v-data-table
             :headers="sensorConfigHeaders"
-            :items="sensortypeConfigurations"
+            :items="sensortypeConfigurationsDisplay"
             :items-per-page="5"
             class="elevation-1"
             :multi-sort="true"
@@ -87,11 +87,11 @@ import sensorconfig from "@/configurations/sensorconfig.json";
 
 export default {
   name: "Configure",
-  // computed: {
-  //   selectedSensortypeToEdit() {
-  //     return this.selectedSensortype;
-  //   },
-  // },
+  computed: {
+    sensortypeConfigurationsDisplay() {
+      return this.$store.getters.configuredSensorTypes;
+    },
+  },
   data() {
     return {
       sensorConfigHeaders: [
@@ -108,53 +108,71 @@ export default {
   async created() {
     console.log("Configure component: created() hook called");
     // Check if current sensor configurations for the facility exists in the database:
-    const urlGetConfig = `${this.$store.getters.appConfiguration.APIendpoint}/facilitysensorconfig?facilityId=${sensorconfig.facilityId}`;
+    // const urlGetConfig = `${this.$store.getters.appConfiguration.APIendpoint}/facilitysensorconfig?facilityId=${sensorconfig.facilityId}`;
 
-    var response;
-    try {
-      response = await axios.get(urlGetConfig, {
-        headers: {
-          Authorization: this.$store.getters.authCredentials.sessionToken,
-        },
+    // var response;
+    // try {
+    //   response = await axios.get(urlGetConfig, {
+    //     headers: {
+    //       Authorization: this.$store.getters.authCredentials.sessionToken,
+    //     },
+    //   });
+    //   console.log("Got response for sensor configuration: ", response);
+    //   if (response.data.length === 0) {
+    //     // Store sensor configurations for the facility in the database:
+    //     try {
+    //       const urlPostConfig = `${this.$store.getters.appConfiguration.APIendpoint}/savefacilitysensorconfig?facilityId=${sensorconfig.facilityId}`;
+    //       const response = await axios.post(urlPostConfig, {
+    //         headers: {
+    //           Authorization: this.$store.getters.authCredentials.sessionToken,
+    //         },
+    //         payload: {
+    //           sensortypes: sensorconfig.sensortypes,
+    //         },
+    //       });
+    //       console.log("response after post: ", response);
+    //     } catch (err) {
+    //       console.log("error saving sensor configuration:", err);
+    //     }
+    //   } else {
+    //     sensorconfig.sensortypes = [];
+    //     console.log("response data[0]: ", response.data[0]);
+    //     let sensortypes = JSON.parse(response.data[0].sensortypes);
+    //     sensortypes.map((sensortype) => {
+    //       sensorconfig.sensortypes.push(sensortype);
+    //     });
+    //   }
+    //   //  console.log("response sensor types:", response.data[0].sensortypes);
+    // } catch (err) {
+    //   console.log("Getting daily data errror: ", err.message);
+    // }
+
+    // sensorconfig.sensortypes.map((sensortype) => {
+    //   this.sensortypeConfigurations.push(sensortype);
+    // });
+
+    // console.log(
+    //   "this.sensortypeConfigurations: ",
+    //   this.sensortypeConfigurations
+    // );
+
+    // Check if sensor type configurations is not set in the store,
+    // then set it to the default settings:
+    if (this.$store.getters.configuredSensorTypes.length === 0) {
+      console.log(
+        "No confgirued sensor types in the store, using default configuration"
+      );
+      sensorconfig.sensortypes.map((sensorType) => {
+        this.sensortypeConfigurations.push(sensorType);
       });
-      console.log("Got response for sensor configuration: ", response);
-      if (response.data.length === 0) {
-        // Store sensor configurations for the facility in the database:
-        try {
-          const urlPostConfig = `${this.$store.getters.appConfiguration.APIendpoint}/savefacilitysensorconfig?facilityId=${sensorconfig.facilityId}`;
-          const response = await axios.post(urlPostConfig, {
-            headers: {
-              Authorization: this.$store.getters.authCredentials.sessionToken,
-            },
-            payload: {
-              sensortypes: sensorconfig.sensortypes,
-            },
-          });
-          console.log("response after post: ", response);
-        } catch (err) {
-          console.log("error saving sensor configuration:", err);
-        }
-      } else {
-        sensorconfig.sensortypes = [];
-        console.log("response data[0]: ", response.data[0]);
-        let sensortypes = JSON.parse(response.data[0].sensortypes);
-        sensortypes.map((sensortype) => {
-          sensorconfig.sensortypes.push(sensortype);
-        });
-      }
-      //  console.log("response sensor types:", response.data[0].sensortypes);
-    } catch (err) {
-      console.log("Getting daily data errror: ", err.message);
+    } else {
+      // Note that this.$store.getters.configuredSensorTypes should already be set,
+      // since it gets initialized in Home.vue component:
+      this.$store.getters.configuredSensorTypes.map((sensorType) => {
+        this.sensortypeConfigurations.push(sensorType);
+      });
     }
 
-    sensorconfig.sensortypes.map((sensortype) => {
-      this.sensortypeConfigurations.push(sensortype);
-    });
-
-    console.log(
-      "this.sensortypeConfigurations: ",
-      this.sensortypeConfigurations
-    );
     this.selectedSensortype = {
       typeId: this.sensortypeConfigurations[0].typeId,
       name: this.sensortypeConfigurations[0].name,
@@ -166,26 +184,26 @@ export default {
   },
 
   methods: {
-    getSensorConfiguration() {
-      console.log("Sensor types: ", this.sensortypes);
-      var idCount = 0;
-      for (let j = 0; j < this.sensortypes.length; j++) {
-        const sensortype = this.sensortypes[j];
-        for (let i = 0; i < sensortype.totalnumber; i++) {
-          const sensorObj = {
-            id: idCount++,
-            name: sensortype.name + "_" + i,
-            typeId: sensortype.typeId,
-          };
-          // console.log("sensorObj: ", sensorObj);
-          this.sensors.push(sensorObj);
-        }
-      }
-      console.log("Generated sensors: ", this.sensors);
-    },
+    // getSensorConfiguration() {
+    //   console.log("Sensor types: ", this.sensortypes);
+    //   var idCount = 0;
+    //   for (let j = 0; j < this.sensortypes.length; j++) {
+    //     const sensortype = this.sensortypes[j];
+    //     for (let i = 0; i < sensortype.totalnumber; i++) {
+    //       const sensorObj = {
+    //         id: idCount++,
+    //         name: sensortype.name + "_" + i,
+    //         typeId: sensortype.typeId,
+    //       };
+    //       // console.log("sensorObj: ", sensorObj);
+    //       this.sensors.push(sensorObj);
+    //     }
+    //   }
+    //   console.log("Generated sensors: ", this.sensors);
+    // },
     selectSensorTypeRow(event) {
       console.log("Selected row: ", event);
-      console.log("sensorconfig.sensortypes before:", sensorconfig.sensortypes);
+      //  console.log("sensorconfig.sensortypes before:", sensorconfig.sensortypes);
       console.log(
         "this.sensortypeConfigurations before:",
         this.sensortypeConfigurations
@@ -203,33 +221,64 @@ export default {
     onSaveSensorConfiguration() {
       console.log("save selected sensor type :", this.selectedSensortype);
 
-      console.log("sensorconfig.sensortypes mapping:");
-      sensorconfig.sensortypes.map((x, i) => {
+      // console.log("sensorconfig.sensortypes mapping:");
+      // sensorconfig.sensortypes.map((x, i) => {
+      //   console.log(`x: ${x} i: ${i}`);
+      // });
+
+      console.log("this.sensortypeConfigurations mapping:");
+      this.sensortypeConfigurations.map((x, i) => {
         console.log(`x: ${x} i: ${i}`);
       });
 
-      let filteredValue = sensorconfig.sensortypes
+      // let filteredValue = sensorconfig.sensortypes
+      //   .map((x, i) => [i, x])
+      //   .filter((x) => x[1].typeId == this.selectedSensortype.typeId);
+      // console.log("fileterdValue: ", filteredValue);
+
+      let filteredValue = this.sensortypeConfigurations
         .map((x, i) => [i, x])
         .filter((x) => x[1].typeId == this.selectedSensortype.typeId);
       console.log("fileterdValue: ", filteredValue);
 
-      sensorconfig.sensortypes[
-        sensorconfig.sensortypes
+      // sensorconfig.sensortypes[
+      //   sensorconfig.sensortypes
+      //     .map((x, i) => [i, x])
+      //     .filter((x) => x[1].typeId == this.selectedSensortype.typeId)[0][0]
+      // ] = this.selectedSensortype;
+
+      this.sensortypeConfigurations[
+        this.sensortypeConfigurations
           .map((x, i) => [i, x])
           .filter((x) => x[1].typeId == this.selectedSensortype.typeId)[0][0]
-      ] = this.selectedSensortype;
+      ] = {
+        typeId: this.selectedSensortype.typeId,
+        name: this.selectedSensortype.name,
+        minval: this.selectedSensortype.minval,
+        maxval: this.selectedSensortype.maxval,
+        totalnumber: this.selectedSensortype.totalnumber,
+      };
+
       console.log(
-        "updated sensorconfig.sensortypes:",
-        sensorconfig.sensortypes
+        "updated this.sensortypeConfigurations:",
+        this.sensortypeConfigurations
       );
 
-      this.sensortypeConfigurations = [];
-      sensorconfig.sensortypes.map((sensortype) => {
-        this.sensortypeConfigurations.push(sensortype);
-      });
+      // this.sensortypeConfigurations = [];
+      // sensorconfig.sensortypes.map((sensortype) => {
+      //   this.sensortypeConfigurations.push(sensortype);
+      // });
 
       let result = this.updateSensorConfiguration();
+      this.$store.dispatch(
+        "setConfiguredSensorTypes",
+        this.sensortypeConfigurations
+      );
       console.log("Saved sensor configuration status: ", result);
+      console.log(
+        "this.sensortypeConfigurationsDisplay",
+        this.sensortypeConfigurationsDisplay
+      );
     },
     async updateSensorConfiguration() {
       // Store sensor configurations for the facility in the database:
@@ -240,7 +289,8 @@ export default {
             Authorization: this.$store.getters.authCredentials.sessionToken,
           },
           payload: {
-            sensortypes: sensorconfig.sensortypes,
+            //sensortypes: sensorconfig.sensortypes,
+            sensortypes: this.sensortypeConfigurations,
           },
         });
         console.log("response after post: ", response);
