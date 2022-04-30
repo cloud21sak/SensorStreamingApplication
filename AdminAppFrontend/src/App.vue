@@ -18,21 +18,6 @@
       </v-btn>
       <v-btn
         v-model="isLoggedIn"
-        v-if="
-          (facilitystatus.status === 'IDLE' ||
-            facilitystatus.status === 'COMPLETE') &&
-            isLoggedIn
-        "
-        key="Configure"
-        color="white"
-        text
-        rounded
-        to="/configure"
-      >
-        Configure
-      </v-btn>
-      <v-btn
-        v-model="isLoggedIn"
         v-if="isLoggedIn"
         key="Home"
         color="white"
@@ -41,6 +26,21 @@
         to="/home"
       >
         Dashboard
+      </v-btn>
+      <v-btn
+        v-model="isLoggedIn"
+        v-if="isLoggedIn"
+        :disabled="
+          facilitystatus.status !== 'IDLE' &&
+            facilitystatus.status !== 'COMPLETE'
+        "
+        key="Configure"
+        color="white"
+        text
+        rounded
+        to="/configure"
+      >
+        Configure
       </v-btn>
       <v-btn
         v-model="isLoggedIn"
@@ -80,6 +80,7 @@ export default {
   name: "App",
   computed: {
     facilitystatus() {
+      console.log("facility status: ", this.$store.getters.facilityStatus);
       return this.$store.getters.facilityStatus;
     },
     isLoggedIn() {

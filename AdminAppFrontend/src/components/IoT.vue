@@ -181,7 +181,6 @@ export default {
     bus.$off("facilitystatusupdate");
     bus.$off("facilityconfigpublish");
     bus.$off("updatepercentcomplete");
-    //mqttClient.off("message");
   },
 };
 </script>
