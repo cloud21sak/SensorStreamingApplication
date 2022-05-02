@@ -6,7 +6,7 @@
         <h1>Facility 1</h1>
         <v-row dense>
           <!-- Facility Dashboard -->
-          <v-col>
+          <v-col cols="12" md="6">
             <v-card elevation="2">
               <v-card-actions>
                 <!-- Facility control buttons  -->
@@ -55,7 +55,17 @@
           </v-col>
           <!-- Sensor data -->
           <!-- TODO: is this needed? -->
-          <v-col cols="12" md="4"> </v-col>
+          <v-col cols="12" md="4">
+            <v-card v-if="facilitystatus.status !== 'IDLE'">
+              <v-card-title>Current process ID:</v-card-title>
+              <v-card-text class="display-2">
+                <v-text-field
+                  v-model="currentProcessId"
+                  readonly
+                ></v-text-field>
+              </v-card-text>
+            </v-card>
+          </v-col>
         </v-row>
         <v-row>
           <v-col cols="12" md="4">
@@ -623,16 +633,23 @@ export default {
 
     async updateDailyStats(dailyStatsData) {
       console.log("updateDailyStats() dailyStatsData:", dailyStatsData);
+
+      // Check to make sure these are daily stats of the current process.
+      // Note that here we check to make sure that we don't display daily data
+      // of the process which was stopped before it completed.
+      if (dailyStatsData.processId !== `proc-${this.currentProcessId}`) {
+        console.log("Current process ID doesn't match the dailyStatsData");
+        return;
+      }
+
       let processDailyDataStats = JSON.parse(dailyStatsData.stats);
       console.log(
         "updateDailyStats processDailyDataStats: ",
         processDailyDataStats
       );
-      // console.log("this.dailySensorStats0: ", this.dailySensorStats);
+      // console.log("this.dailySensorStats: ", this.dailySensorStats);
 
       let intermediateSensorStats = [];
-
-      // console.log("updateDailyStats: ", dailyStats);
 
       // Update daily sensor stats
       for (let sensorId in processDailyDataStats) {
@@ -800,59 +817,9 @@ export default {
       console.log("Facility was paused");
     },
     resumeFacility() {
+      console.log("Resume facility process");
       this.intervalVar = setInterval(this.nextInterval, 1000);
-
-      // SAK???
-      // Get daily data every minute:
-      // this.dailyDataIntervalVar = setInterval(
-      //   this.nextDailyDataInterval,
-      //   30000
-      // );
-      // Facility was paused reset current process settings:
-      console.log("Facility was paused");
     },
-
-    // async nextDailyDataInterval() {
-    //   console.log("nextDailyDataInterval() was called");
-    //   // Facility is stopped
-    //   if (this.currentSecond > FACILITY_RUN_SECONDS) return;
-    //   if (this.currentSecond === FACILITY_RUN_SECONDS) {
-    //     clearInterval(this.dailyDataIntervalVar);
-    //   }
-    //   const URL = `${this.$store.getters.appConfiguration.APIendpoint}/dailyStats?facilityId=1`;
-    //   // console.log("Getting daily data at: ", URL);
-    //   // console.log(
-    //   //   "Session token: ", this.$store.getters.authCredentials.sessionToken
-    //   // Vue.prototype.$appConfig.credentials.sessionToken
-    //   //);
-    //   var response;
-    //   try {
-    //     response = await axios.get(URL, {
-    //       headers: {
-    //         Authorization: this.$store.getters.authCredentials.sessionToken,
-    //       },
-    //     });
-    //     //   console.log("Got response for daily data: ", response);
-    //   } catch (err) {
-    //     console.log("Getting daily data errror: ", err.message);
-    //   }
-
-    //   this.sensorsForSelectedFacility = [];
-    //   this.sensorsForSelectedFacility = response.data.map(
-    //     (item) => item.sensorId
-    //   );
-    //   this.resultsForSelectedFacility = response.data;
-    //   // console.log(
-    //   //   "Updated daily facility sensors :",
-    //   //   this.sensorsForSelectedFacility
-    //   // );
-    //   // console.log(
-    //   //   "Updated daily facility data :",
-    //   //   this.resultsForSelectedFacility
-    //   // );
-
-    //   this.updateDailyStats(this.resultsForSelectedFacility);
-    // },
 
     async nextInterval() {
       console.log("In nextInterval current second: ", this.currentSecond);

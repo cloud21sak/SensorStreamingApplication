@@ -96,11 +96,6 @@ const getDailySensorStats = () => {
       sensorData.push(sensorDataInfo.sensorData[second]);
     }
 
-    // const min_val = Math.min(...sensorDataInfo.sensorData);
-    // console.log("min_val: ", min_val);
-    // const max_val = Math.max(...sensorDataInfo.sensorData);
-    // const median_val = median(sensorDataInfo.sensorData);
-
     const min_val = Math.min(...sensorData);
     console.log("min_val: ", min_val);
     const max_val = Math.max(...sensorData);
