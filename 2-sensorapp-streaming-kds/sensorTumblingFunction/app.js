@@ -3,6 +3,7 @@
  */
 
 const AWS = require("aws-sdk");
+const iotdata = new AWS.IotData({ endpoint: process.env.IOT_DATA_ENDPOINT });
 AWS.config.region = process.env.AWS_REGION;
 const documentClient = new AWS.DynamoDB.DocumentClient();
 
@@ -25,69 +26,53 @@ exports.handler = async (event) => {
 
   state = getSensorDataByProcessId(state, jsonRecords);
   //console.log(JSON.stringify(state, null, 2))
-  // If tumbling window is not configured, save and exit
+  // If tumbling window is not configured, publish and exit
   if (event.window === undefined) {
-    return await saveCurrentSensorData(state);
+    console.log("Tumbling window is not configured!");
+    // return await saveCurrentSensorData(state);
+    return await publishToIoT(state);
   }
 
-  // If tumbling window is configured, save to DDB on the
-  // final invoke window
+  // If tumbling window is configured, publish to IoT endpoint on the
+  // final invoke window:
   if (event.isFinalInvokeForWindow) {
-    await saveCurrentSensorData(state);
+    console.log("Final invoke state: ", JSON.stringify(state, null, 2));
+    // await saveCurrentSensorData(state);
+    await publishToIoT(state);
   } else {
-    //	console.log('Returning state: ', JSON.stringify(state, null, 2))
+    console.log("Returning state: ", JSON.stringify(state, null, 2));
     return { state };
   }
 };
 
-// Helper function - decimal rounding
-const round = (value, decimals) => {
-  return Number(Math.round(value + "e" + decimals) + "e-" + decimals);
-};
-
-// Save latest process sensor data to DDB table
-const saveCurrentSensorData = async (processSensorData) => {
-  //	console.log('Saving to DDB:', processSensorData)
-  let paramsArr = [];
-
-  // Retrieve existing sensor data of the process and add new data:
+const publishToIoT = async (processSensorData) => {
+  let promises = [];
   for (let processId in processSensorData) {
-    //	console.log('Saving :', processId, processSensorData[processId])
+    const JSONpayload = {
+      msg: "sensordata",
+      facilityId: processMap[processId],
+      processId: `process-${processId}`,
+      ts: Date.now(),
+      sensordata: JSON.stringify(processSensorData[processId]),
+    };
 
-    // Get existing state from DDB
-    const data = await documentClient
-      .get({
-        TableName: process.env.DDB_TABLE,
-        Key: {
-          PK: `process-${processId}`,
-          SK: `results`,
-        },
+    let promise = iotdata
+      .publish({
+        topic: process.env.TOPIC,
+        qos: 0,
+        payload: JSON.stringify(JSONpayload),
       })
       .promise();
-
-    let results = data.Item ? JSON.parse(data.Item.results) : {};
-
-    // Add latest results to existing state
-    for (let sensorId in processSensorData[processId]) {
-      results[sensorId] = processSensorData[processId][sensorId];
-    }
-
-    // Save latest sensor data back to DDB table
-    const response = await documentClient
-      .put({
-        TableName: process.env.DDB_TABLE,
-        Item: {
-          PK: `process-${processId}`,
-          SK: `results`,
-          GSI: processMap[processId],
-          results: JSON.stringify(results),
-          ts: Date.now(),
-        },
-      })
-      .promise();
+    promises.push(promise);
   }
 
-  console.log("saveCurrentSensorData done");
+  // Wait for all promises to be settled
+  const results = await Promise.allSettled(promises);
+
+  // Log out any rejected results
+  results.map((result) =>
+    result.status === "rejected" ? console.log(result) : null
+  );
 };
 
 // Convert event payload to JSON records
@@ -105,8 +90,7 @@ const getRecordsFromPayload = (event) => {
   return jsonRecords;
 };
 
-// Appends records to existing state, returning results
-// grouped by processId with latest data by sensorId
+// Process records and return sensor data grouped by processId:
 const getSensorDataByProcessId = (state, jsonRecords) => {
   console.log("getSensorDataByProcessId: ", state);
   jsonRecords.map((record) => {
@@ -115,14 +99,13 @@ const getSensorDataByProcessId = (state, jsonRecords) => {
       state[record.processId] = {};
     }
 
+    // NOTE: This is here for demonstration purposes only. In case the tumbling window
+    // is configured, here we can do additional processing based on the previous state.
+    // For example, if we need to perform some calculation or aggregation of sensor data
+    // based on certain time window.
     state[record.processId][record.sensorId] = record.sensorData;
-
-    // Add sensorId if not in state
-    // if (!state[record.processId][record.sensorId]) {
-    //   state[record.processId][record.sensorId] = record.sensorData;
-    //   return;
-    // }
   });
 
+  // TODO: we don't need to return here
   return state;
 };

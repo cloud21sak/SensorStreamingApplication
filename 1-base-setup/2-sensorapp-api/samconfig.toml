@@ -3,7 +3,7 @@ version = 0.1
 [default.deploy]
 [default.deploy.parameters]
 stack_name = "sensorapp-streaming-api"
-s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-1jtgg21hvv5dg"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-fm17kikslgwf"
 s3_prefix = "sensorapp-streaming-api"
 region = "us-east-1"
 confirm_changeset = true

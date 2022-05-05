@@ -254,7 +254,7 @@ export default {
 
       if (message.msg === "sensordata") {
         // console.log("Received sensor data message: ", message);
-        await that.updateRealtimeSensorData(message.results);
+        await that.updateRealtimeSensorData(message.sensordata);
       }
 
       if (message.msg === "sensorstats") {
@@ -263,14 +263,14 @@ export default {
       }
     });
 
-    bus.$on("sensormessage", async (sensormessage) => {
-      //  console.log("Home::on::sensormessage: ", sensormessage);
+    // bus.$on("sensormessage", async (sensormessage) => {
+    //   //  console.log("Home::on::sensormessage: ", sensormessage);
 
-      // Update realtime data
-      if (sensormessage.msg === "results") {
-        await that.updateRealtimeSensorData(sensormessage.results);
-      }
-    });
+    //   // Update realtime data
+    //   if (sensormessage.msg === "results") {
+    //     await that.updateRealtimeSensorData(sensormessage.results);
+    //   }
+    // });
 
     bus.$on("facilitystatusupdated", async (statusupdate) => {
       //console.log("Home::on::facilitystatus: ", statusupdate);
@@ -280,6 +280,11 @@ export default {
     bus.$on("facilityconfigupdate", async (configupdateinfo) => {
       //console.log("Home::on::facilityconfigupdate: ", configupdateinfo);
       await that.updateFacilityConfigInfo(configupdateinfo);
+    });
+
+    bus.$on("procdailystats", async (procdailystats) => {
+      console.log("Home::on::procdailystats: ");
+      await that.updateDailyStats(procdailystats);
     });
 
     bus.$on("updatepercentcomplete", async (percentCompleteUpdate) => {
@@ -388,30 +393,46 @@ export default {
     },
 
     async updateDailyStats(dailyStatsData) {
-      // console.log("updateDailyStats 'dailyStatsData': ", dailyStatsData);
+      console.log("updateDailyStats() dailyStatsData:", dailyStatsData);
 
-      //let dailyStats = JSON.parse(dailyStatsData);
+      // Check to make sure these are daily stats of the current process.
+      // Note that here we check to make sure that we don't display daily data
+      // of the process which was stopped before it completed.
+      if (dailyStatsData.processId !== `proc-${this.currentProcessId}`) {
+        console.log("Current process ID doesn't match the dailyStatsData");
+        return;
+      }
+
+      let processDailyDataStats = JSON.parse(dailyStatsData.stats);
+      console.log(
+        "updateDailyStats processDailyDataStats: ",
+        processDailyDataStats
+      );
+      // console.log("this.dailySensorStats: ", this.dailySensorStats);
+
       let intermediateSensorStats = [];
 
       // Update daily sensor stats
-      dailyStatsData.map(
-        (item) =>
-          (this.dailySensorStats[item.sensorId] = {
-            sensorId: item.sensorId,
-            name: this.sensors[item.sensorId].name,
-            min: round(item.min_val, 2),
-            max: round(item.max_val, 2),
-            median: round(item.median_val, 2),
-            ts: item.ts,
-          })
-      );
+      for (let sensorId in processDailyDataStats) {
+        this.dailySensorStats[sensorId] = {
+          sensorId: sensorId,
+          name: processDailyDataStats[sensorId].name,
+          min: round(processDailyDataStats[sensorId].min_val, 2),
+          max: round(processDailyDataStats[sensorId].max_val, 2),
+          median: round(processDailyDataStats[sensorId].median_val, 2),
+          ts: dailyStatsData.ts,
+        };
+      }
 
       // Convert to array
+      console.log("this.dailySensorStats: ", this.dailySensorStats);
       for (let sensorId in this.dailySensorStats) {
         intermediateSensorStats.push(this.dailySensorStats[sensorId]);
       }
 
+      //  this.dailyStatsDisplay = intermediateSensorStats;
       this.$store.dispatch("setDailySenorStats", intermediateSensorStats);
+      //console.log("this.dailyStatsDisplay: ", this.dailyStatsDisplay);
     },
 
     // Sensor stats by latest minute

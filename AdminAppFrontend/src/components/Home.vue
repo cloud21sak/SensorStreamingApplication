@@ -280,8 +280,7 @@ export default {
       sensorsForSelectedFacility: [],
       selectedProcessId: null,
       completedProcesses: [],
-      statsForSelectedProcessId: [],
-      //  resultsForSelectedFacility: {},
+      statsForSelectedProcessId: [],      
     };
   },
   beforeRouteEnter(to, from, next) {
@@ -310,7 +309,7 @@ export default {
 
       if (message.msg === "sensordata") {
         // console.log("Received sensor data message: ", message);
-        await that.updateRealtimeSensorData(message.results);
+        await that.updateRealtimeSensorData(message.sensordata);
       }
 
       if (message.msg === "sensorstats") {
@@ -518,8 +517,7 @@ export default {
       } catch (err) {
         console.log("Getting completed process stats errror: ", err.message);
       }
-
-      console.log("response:", response);
+      
       console.log("response processes list:", response.data);
 
       this.completedProcesses = response.data.map((item) => item.processId);
