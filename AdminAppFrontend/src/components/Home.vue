@@ -24,7 +24,11 @@
                 >
                 <v-btn
                   color="orange"
-                  v-if="facilitystatus.status === 'RUNNING'"
+                  v-if="
+                    facilitystatus.status === 'RUNNING' ||
+                      facilitystatus.status === 'COMPLETING'
+                  "
+                  :disabled="facilitystatus.status === 'COMPLETING'"
                   elevation="2"
                   outlined
                   @click="onPause()"
@@ -42,8 +46,10 @@
                   color="red"
                   v-if="
                     facilitystatus.status === 'RUNNING' ||
-                      facilitystatus.status === 'PAUSED'
+                      facilitystatus.status === 'PAUSED' ||
+                      facilitystatus.status === 'COMPLETING'
                   "
+                  :disabled="facilitystatus.status === 'COMPLETING'"
                   elevation="2"
                   outlined
                   @click="onStop()"
@@ -280,7 +286,7 @@ export default {
       sensorsForSelectedFacility: [],
       selectedProcessId: null,
       completedProcesses: [],
-      statsForSelectedProcessId: [],      
+      statsForSelectedProcessId: [],
     };
   },
   beforeRouteEnter(to, from, next) {
@@ -517,7 +523,7 @@ export default {
       } catch (err) {
         console.log("Getting completed process stats errror: ", err.message);
       }
-      
+
       console.log("response processes list:", response.data);
 
       this.completedProcesses = response.data.map((item) => item.processId);
@@ -525,6 +531,13 @@ export default {
     // When process completes, update the completed process list:
     async updateCompletedProcessList(completedprocinfo) {
       this.completedProcesses.push(completedprocinfo.processId);
+
+      // Set the status of the current process to "COMPLETE":
+      const udpatedFacilityStatus = {
+        facilityId: this.$store.getters.facilityStatus.facilityId,
+        status: "COMPLETE",
+      };
+      this.$store.dispatch("setFacilityStatus", udpatedFacilityStatus);
     },
 
     // When an operator logs in, the operator app sends configuration request:
@@ -667,7 +680,6 @@ export default {
         intermediateSensorStats.push(this.dailySensorStats[sensorId]);
       }
 
-      //  this.dailyStatsDisplay = intermediateSensorStats;
       this.$store.dispatch("setDailySenorStats", intermediateSensorStats);
       //console.log("this.dailyStatsDisplay: ", this.dailyStatsDisplay);
     },
@@ -781,8 +793,6 @@ export default {
         this.sensor = new Sensor(sensor);
         {
           console.log("sensor:", sensor);
-          console.log("sensorId:", sensor.id);
-          console.log("sensorName:", sensor.name);
         }
         this.sensorsToPublish.push(this.sensor);
       });
@@ -831,7 +841,8 @@ export default {
         clearInterval(this.dailyDataIntervalVar);
         const udpatedFacilityStatus = {
           facilityId: this.$store.getters.facilityStatus.facilityId,
-          status: "COMPLETE",
+          //status: "COMPLETE",
+          status: "COMPLETING",
         };
 
         // TODO: move updating of facility status and pctcomplete into a separate function
@@ -846,7 +857,6 @@ export default {
 
         // Finally, if the process is complete then send
         // the last message for this process with event status as "complete":
-        // if (this.currentSecond === FACILITY_RUN_SECONDS) {
         this.event = "complete";
         const sensormessage = {
           uuid: uuidv4(),
@@ -858,7 +868,7 @@ export default {
         };
         bus.$emit("sensorpublish", sensormessage);
         this.currentSecond += INTERVAL_SECONDS;
-        //}
+
         return;
       }
 
@@ -874,7 +884,6 @@ export default {
       this.sensorsToPublish.forEach((sensor) => {
         //   console.log("sensor to publish: ", sensor);
         // Publish the sensor's current value
-        // const sensorData = simulateSensorData(1, 100);
         const sensorData = simulateSensorData(sensor.minval, sensor.maxval);
         // console.log("sensordata: ", sensorData);
         // console.log("sensor name: ", this.sensors[sensor]);

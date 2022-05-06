@@ -24,7 +24,11 @@
                 >
                 <v-btn
                   color="orange"
-                  v-if="facilitystatus.status === 'RUNNING'"
+                  v-if="
+                    facilitystatus.status === 'RUNNING' ||
+                      facilitystatus.status === 'COMPLETING'
+                  "
+                  :disabled="facilitystatus.status === 'COMPLETING'"
                   elevation="2"
                   outlined
                   @click="onPause()"
@@ -42,8 +46,10 @@
                   color="red"
                   v-if="
                     facilitystatus.status === 'RUNNING' ||
-                      facilitystatus.status === 'PAUSED'
+                      facilitystatus.status === 'PAUSED' ||
+                      facilitystatus.status === 'COMPLETING'
                   "
+                  :disabled="facilitystatus.status === 'COMPLETING'"
                   elevation="2"
                   outlined
                   @click="onStop()"
