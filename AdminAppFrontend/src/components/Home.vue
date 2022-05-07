@@ -12,15 +12,23 @@
                 <!-- Facility control buttons  -->
                 <v-btn
                   color="green"
+                  v-if="facilitystatus.status === 'IDLE' && isLoggedIn"
+                  elevation="2"
+                  outlined
+                  @click="onStart()"
+                  >Launch Facility</v-btn
+                >
+                <v-btn
+                  color="blue"
                   v-if="
-                    (facilitystatus.status === 'IDLE' ||
+                    (facilitystatus.status === 'STOPPED' ||
                       facilitystatus.status === 'COMPLETE') &&
                       isLoggedIn
                   "
                   elevation="2"
                   outlined
-                  @click="onStart()"
-                  >Launch Facility</v-btn
+                  @click="onReset()"
+                  >Reset Facility</v-btn
                 >
                 <v-btn
                   color="orange"
@@ -63,9 +71,10 @@
           <!-- TODO: is this needed? -->
           <v-col cols="12" md="4">
             <v-card v-if="facilitystatus.status !== 'IDLE'">
-              <v-card-title>Current process ID:</v-card-title>
+              <!-- <v-card-title>Current process ID:</v-card-title> -->
               <v-card-text class="display-2">
                 <v-text-field
+                  label="Current process ID:"
                   v-model="currentProcessId"
                   readonly
                 ></v-text-field>
@@ -185,7 +194,7 @@
           <v-data-table
             :headers="dailystatsheaders"
             height="300px"
-            :items="completedProcessStatsDisplay"
+            :items="completedProcessInfoDisplay.completedProcessStats"
             :items-per-page="5"
             class="elevation-1"
             :multi-sort="true"
@@ -236,14 +245,20 @@ export default {
     isLoggedIn() {
       return this.$store.getters.isAuthenticated;
     },
+    currentProcessId() {
+      return this.$store.getters.getCurrentProcessId;
+    },
     currentPctComplete() {
       return this.$store.getters.getPctComplete;
     },
     dailyStatsDisplay() {
       return this.$store.getters.dailySensorStats;
     },
-    completedProcessStatsDisplay() {
-      return this.$store.getters.completedProcessStats;
+    // completedProcessStatsDisplay() {
+    //   return this.$store.getters.completedProcessStats;
+    // },
+    completedProcessInfoDisplay() {
+      return this.$store.getters.completedProcessInfo;
     },
   },
   data() {
@@ -268,7 +283,7 @@ export default {
 
       pctComplete: 0,
       totalRuntime: FACILITY_RUN_SECONDS / 60,
-      currentProcessId: 0,
+    processId: 0,
       event: "",
       intervalVar: null,
       sensors: [],
@@ -282,7 +297,7 @@ export default {
       realtimeSensorDisplay: [],
       latestMinuteSensorStatsDisplay: [],
       dailySensorStats: {},
-      dailyDataIntervalVar: null,
+      //    dailyDataIntervalVar: null,
       sensorsForSelectedFacility: [],
       selectedProcessId: null,
       completedProcesses: [],
@@ -308,6 +323,9 @@ export default {
     const that = this;
     // this.generateSensors();
     this.sensors = this.$store.getters.sensorInstances;
+
+    // Set selected process from the vuex store:
+    this.selectedProcessId = this.$store.getters.completedProcessInfo.selectedProcessId;
 
     // When messages are received via IOT, these handlers are triggered
     bus.$on("message", async (message) => {
@@ -504,10 +522,17 @@ export default {
         this.statsForSelectedProcessId
       );
 
-      this.$store.dispatch(
-        "setCompletedProcessStats",
-        this.statsForSelectedProcessId
-      );
+      // this.$store.dispatch(
+      //   "setCompletedProcessStats",
+      //   this.statsForSelectedProcessId
+      // );
+
+      const selectedProcessInfo = {
+        selectedProcessId: this.selectedProcessId,
+        completedProcessStats: this.statsForSelectedProcessId,
+      };
+
+      this.$store.dispatch("setCompletedProcessInfo", selectedProcessInfo);
     },
     async initializeCompletedProcessList() {
       const URL = `${this.$store.getters.appConfiguration.APIendpoint}/completedProcesses`;
@@ -580,7 +605,7 @@ export default {
             facilitystatus.status === "RUNNING" ||
             facilitystatus.status === "PAUSED"
           ) {
-            // Transition to 'idle' state:
+            // Transition to 'STOPPED' state:
             this.stopFacility();
             // const udpatedFacilityStatus = {
             //   facilityId: facilitystatus.facilityId,
@@ -611,6 +636,22 @@ export default {
             const udpatedFacilityStatus = {
               facilityId: facilitystatus.facilityId,
               status: "RUNNING",
+            };
+            this.$store.dispatch("setFacilityStatus", udpatedFacilityStatus);
+            bus.$emit("facilitystatusupdate", udpatedFacilityStatus);
+          }
+          break;
+        case "reset":
+          if (
+            facilitystatus.status === "STOPPED" ||
+            facilitystatus.status === "COMPLETE"
+          ) {
+            // Transition to 'IDLE' state:
+            this.resetFacility();
+
+            const udpatedFacilityStatus = {
+              facilityId: facilitystatus.facilityId,
+              status: "IDLE",
             };
             this.$store.dispatch("setFacilityStatus", udpatedFacilityStatus);
             bus.$emit("facilitystatusupdate", udpatedFacilityStatus);
@@ -770,10 +811,23 @@ export default {
       console.log("Issued resume command: ", facilityCommand);
       bus.$emit("facilitycommandissued", facilityCommand);
     },
+    onReset() {
+      console.log("reset command issued");
+
+      this.issuedcommand = "reset";
+      const facilityCommand = {
+        command: this.issuedcommand,
+        facilityId: 1,
+      };
+
+      console.log("Issued reset command: ", facilityCommand);
+      bus.$emit("facilitycommandissued", facilityCommand);
+    },
     launchFacility() {
       console.log("Start facility");
       this.currentSecond = 540;
-      this.currentProcessId = Date.now();
+      this.processId = Date.now();
+      this.$store.dispatch("setCurrentProcessId", this.processId);
       this.pctComplete = 0;
       this.sensorsToPublish.length = 0;
       this.event = "update";
@@ -802,31 +856,50 @@ export default {
 
     stopFacility() {
       clearInterval(this.intervalVar);
-      clearInterval(this.dailyDataIntervalVar);
+      //  clearInterval(this.dailyDataIntervalVar);
       // Facility was stopped, reset current process settings:
-      this.pctComplete = 0;
-      this.currentSecond = 0;
+      // this.pctComplete = 0;
+      // this.currentSecond = 0;
       this.sensorsToPublish.length = 0;
       const udpatedFacilityStatus = {
         facilityId: this.$store.getters.facilityStatus.facilityId,
-        status: "IDLE",
+        status: "STOPPED",
       };
       this.$store.dispatch("setFacilityStatus", udpatedFacilityStatus);
 
       this.$store.dispatch("setPctComplete", this.pctComplete);
-      this.$store.dispatch("setDailySenorStats", []);
+      //this.$store.dispatch("setDailySenorStats", []);
       bus.$emit("facilitystatusupdate", udpatedFacilityStatus);
       console.log("Facility was stopped");
     },
     pauseFacility() {
       clearInterval(this.intervalVar);
-      clearInterval(this.dailyDataIntervalVar);
+      //  clearInterval(this.dailyDataIntervalVar);
       // Facility was paused, reset current process settings:
       console.log("Facility was paused");
     },
     resumeFacility() {
       console.log("Resume facility process");
       this.intervalVar = setInterval(this.nextInterval, 1000);
+    },
+    resetFacility() {
+      clearInterval(this.intervalVar);
+
+      // Reset current process settings:
+      this.pctComplete = 0;
+      this.currentSecond = 0;
+      this.processId = 0;
+      this.sensorsToPublish.length = 0;
+      const udpatedFacilityStatus = {
+        facilityId: this.$store.getters.facilityStatus.facilityId,
+        status: "IDLE",
+      };
+      this.$store.dispatch("setFacilityStatus", udpatedFacilityStatus);
+      this.$store.dispatch("setCurrentProcessId", this.processId);
+      this.$store.dispatch("setPctComplete", this.pctComplete);
+      this.$store.dispatch("setDailySenorStats", []);
+      bus.$emit("facilitystatusupdate", udpatedFacilityStatus);
+      console.log("Facility was reset");
     },
 
     async nextInterval() {
@@ -838,7 +911,7 @@ export default {
       if (this.currentSecond === FACILITY_RUN_SECONDS + INTERVAL_SECONDS) {
         console.log("Issue complete message for second:", this.currentSecond);
         clearInterval(this.intervalVar);
-        clearInterval(this.dailyDataIntervalVar);
+        //  clearInterval(this.dailyDataIntervalVar);
         const udpatedFacilityStatus = {
           facilityId: this.$store.getters.facilityStatus.facilityId,
           //status: "COMPLETE",
@@ -863,7 +936,7 @@ export default {
           event: this.event,
           deviceTimestamp: Date.now(),
           second: this.currentSecond,
-          processId: this.currentProcessId,
+          processId: this.processId,
           facilityId: 1,
         };
         bus.$emit("sensorpublish", sensormessage);
@@ -879,7 +952,6 @@ export default {
         2
       );
 
-      // console.log("this.pctComplete1:", this.pctComplete);
       // console.log("this.currentSecond:", this.currentSecond);
       this.sensorsToPublish.forEach((sensor) => {
         //   console.log("sensor to publish: ", sensor);
@@ -894,7 +966,7 @@ export default {
           second: this.currentSecond,
           name: sensor.name,
           sensorId: sensor.id,
-          processId: this.currentProcessId,
+          processId: this.processId,
           facilityId: 1,
           sensorData: sensorData,
         };

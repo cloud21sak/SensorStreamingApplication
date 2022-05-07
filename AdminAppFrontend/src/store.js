@@ -18,8 +18,13 @@ export default new Vuex.Store({
     authcredentials: {},
     appconfiguration: {},
     pctComplete: 0,
+    currentProcessId: 0,
     dailySensorStats: [],
-    completedProcessStats: [],
+    completedProcessInfo: {
+      selectedProcessId: null,
+      completedProcessStats: [],
+    },
+    //  completedProcessStats: [],
     configuredSensorTypes: [],
     sensorInstances: [],
   },
@@ -45,11 +50,17 @@ export default new Vuex.Store({
     getPctComplete: (state) => {
       return state.pctComplete;
     },
+    getCurrentProcessId: (state) => {
+      return state.currentProcessId;
+    },
     dailySensorStats: (state) => {
       return state.dailySensorStats;
     },
-    completedProcessStats: (state) => {
-      return state.completedProcessStats;
+    // completedProcessStats: (state) => {
+    //   return state.completedProcessStats;
+    // },
+    completedProcessInfo: (state) => {
+      return state.completedProcessInfo;
     },
     configuredSensorTypes: (state) => {
       return state.configuredSensorTypes;
@@ -89,11 +100,17 @@ export default new Vuex.Store({
     updatePctComplete(state, pctComplete) {
       state.pctComplete = pctComplete;
     },
+    updateCurrentProcessId(state, currentProcessId) {
+      state.currentProcessId = currentProcessId;
+    },
     updateDailySensorStats(state, dailySensorStats) {
       state.dailySensorStats = dailySensorStats;
     },
-    updateCompletedProcessStats(state, completedProcessStats) {
-      state.completedProcessStats = completedProcessStats;
+    // updateCompletedProcessStats(state, completedProcessStats) {
+    //   state.completedProcessStats = completedProcessStats;
+    // },
+    updateCompletedProcessInfo(state, completedProcessInfo) {
+      state.completedProcessInfo = completedProcessInfo;
     },
     updateConfiguredSensorTypes(state, configuredSensorTypes) {
       state.configuredSensorTypes = [];
@@ -132,11 +149,17 @@ export default new Vuex.Store({
     setPctComplete({ commit }, pctComplete) {
       commit("updatePctComplete", pctComplete);
     },
+    setCurrentProcessId({ commit }, currentProcessId) {
+      commit("updateCurrentProcessId", currentProcessId);
+    },
     setDailySenorStats({ commit }, dailySensorStats) {
       commit("updateDailySensorStats", dailySensorStats);
     },
-    setCompletedProcessStats({ commit }, completedProcessStats) {
-      commit("updateCompletedProcessStats", completedProcessStats);
+    // setCompletedProcessStats({ commit }, completedProcessStats) {
+    //   commit("updateCompletedProcessStats", completedProcessStats);
+    // },
+    setCompletedProcessInfo({ commit }, completedProcessInfo) {
+      commit("updateCompletedProcessInfo", completedProcessInfo);
     },
     setConfiguredSensorTypes({ commit }, configuredSensorTypes) {
       commit("updateConfiguredSensorTypes", configuredSensorTypes);

@@ -32,7 +32,8 @@
         v-if="isLoggedIn"
         :disabled="
           facilitystatus.status !== 'IDLE' &&
-            facilitystatus.status !== 'COMPLETE'
+            facilitystatus.status !== 'COMPLETE' &&
+            facilitystatus.status !== 'STOPPED'
         "
         key="Configure"
         color="white"

@@ -12,15 +12,23 @@
                 <!-- Facility control buttons  -->
                 <v-btn
                   color="green"
+                  v-if="facilitystatus.status === 'IDLE' && isLoggedIn"
+                  elevation="2"
+                  outlined
+                  @click="onStart()"
+                  >Launch Facility</v-btn
+                >
+                <v-btn
+                  color="blue"
                   v-if="
-                    (facilitystatus.status === 'IDLE' ||
+                    (facilitystatus.status === 'STOPPED' ||
                       facilitystatus.status === 'COMPLETE') &&
                       isLoggedIn
                   "
                   elevation="2"
                   outlined
-                  @click="onStart()"
-                  >Launch Facility</v-btn
+                  @click="onReset()"
+                  >Reset Facility</v-btn
                 >
                 <v-btn
                   color="orange"
@@ -352,14 +360,14 @@ export default {
       console.log("currentStatus:", currentStatus);
       console.log("updateFacilityStatus() - status", statusupdate);
 
-      if (statusupdate.status === "RUNNING") {
-        this.dailyDataIntervalVar = setInterval(
-          this.nextDailyDataInterval,
-          30000
-        );
-      } else {
-        clearInterval(this.dailyDataIntervalVar);
-      }
+      // if (statusupdate.status === "RUNNING") {
+      //   this.dailyDataIntervalVar = setInterval(
+      //     this.nextDailyDataInterval,
+      //     30000
+      //   );
+      // } else {
+      //   clearInterval(this.dailyDataIntervalVar);
+      // }
 
       this.$store.dispatch("setFacilityStatus", statusupdate);
     },
@@ -531,7 +539,18 @@ export default {
       console.log("Issued resume command: ", facilityCommand);
       bus.$emit("facilitycommandissued", facilityCommand);
     },
+    onReset() {
+      console.log("reset command issued");
 
+      this.issuedcommand = "reset";
+      const facilityCommand = {
+        command: this.issuedcommand,
+        facilityId: 1,
+      };
+
+      console.log("Issued reset command: ", facilityCommand);
+      bus.$emit("facilitycommandissued", facilityCommand);
+    },
     async nextDailyDataInterval() {
       console.log("nextDailyDataInterval() was called");
       console.log(
