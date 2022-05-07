@@ -412,12 +412,7 @@ export default {
       }
       console.log("Generated sensors: ", this.sensors);
     },
-
-    // TODO: is this still needed
-    resetAll() {
-      this.realtimeSensorData = {};
-      this.realtimeSensorDisplay = [];
-    },
+        
     async initializeSensorTypesConfiguration() {
       // Check if current sensor configurations for the facility exists in the database:
       const urlGetConfig = `${this.$store.getters.appConfiguration.APIendpoint}/facilitysensorconfig?facilityId=${sensorconfig.facilityId}`;

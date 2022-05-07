@@ -328,12 +328,6 @@ export default {
       //console.log("Generated sensors: ", this.sensors);
     },
 
-    // TODO: is this still needed?
-    resetAll() {
-      this.realtimeSensorData = {};
-      this.realtimeSensorDisplay = [];
-    },
-
     async updateFacilityConfigInfo(configupdateinfo) {
       this.$store.dispatch("setFacilityStatus", configupdateinfo.currentStatus);
       console.log("Facility status: ", configupdateinfo.currentStatus.status);
