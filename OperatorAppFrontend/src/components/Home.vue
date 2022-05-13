@@ -6,7 +6,7 @@
         <h1>Facility 1</h1>
         <v-row dense>
           <!-- Facility Dashboard -->
-          <v-col>
+          <v-col cols="12" md="6">
             <v-card elevation="2">
               <v-card-actions>
                 <!-- Facility control buttons  -->
@@ -63,13 +63,23 @@
                   @click="onStop()"
                   >Stop Facility</v-btn
                 >
-                <v-list-item align="left"> </v-list-item>
+                <!-- <v-list-item align="left"> </v-list-item> -->
               </v-card-actions>
             </v-card>
           </v-col>
           <!-- Sensor data -->
-          <!-- TODO: is this needed? -->
-          <v-col cols="12" md="4"> </v-col>
+          <v-col cols="12" md="4">
+            <v-card v-if="facilitystatus.status !== 'IDLE'">
+              <!-- <v-card-title>Current process ID:</v-card-title> -->
+              <v-card-text class="display-2">
+                <v-text-field
+                  label="Current process ID:"
+                  v-model="currentProcessId"
+                  readonly
+                ></v-text-field>
+              </v-card-text>
+            </v-card>
+          </v-col>
         </v-row>
         <v-row>
           <v-col cols="12" md="4">
@@ -119,7 +129,7 @@
     </v-row>
     <v-row>
       <!-- Realtime sensor data -->
-      <v-col cols="12" md="3">
+      <v-col cols="12" md="5">
         <v-card elevation="2">
           <v-card-title>Realtime Data</v-card-title>
           <v-data-table
@@ -135,7 +145,7 @@
         </v-card>
       </v-col>
       <!-- Stats by latest minute -->
-      <v-col cols="12" md="5">
+      <v-col cols="12" md="7">
         <v-card elevation="2">
           <v-card-title>Stats by latest minute </v-card-title>
           <v-data-table
@@ -150,14 +160,40 @@
           </v-data-table>
         </v-card>
       </v-col>
+    </v-row>
+    <v-row>
       <!-- Cumulative daily stats -->
-      <v-col cols="12" md="4">
+      <v-col cols="12" md="6">
         <v-card>
           <v-card-title>Daily Stats</v-card-title>
           <v-data-table
             :headers="dailystatsheaders"
             height="400px"
             :items="dailyStatsDisplay"
+            :items-per-page="5"
+            class="elevation-1"
+            :multi-sort="true"
+            select-row="0"
+          >
+          </v-data-table>
+        </v-card>
+      </v-col>
+      <!-- Completed process stats -->
+      <v-col cols="12" md="6">
+        <v-card elevation="2">
+          <v-card-title>Completed Process Stats </v-card-title>
+          <v-select
+            :items="completedProcesses"
+            label="Select process"
+            dense
+            outlined
+            v-model="selectedProcessId"
+            @change="updatedProcessId"
+          ></v-select>
+          <v-data-table
+            :headers="dailystatsheaders"
+            height="300px"
+            :items="completedProcessInfoDisplay.completedProcessStats"
             :items-per-page="5"
             class="elevation-1"
             :multi-sort="true"
@@ -199,11 +235,17 @@ export default {
     isLoggedIn() {
       return this.$store.getters.isAuthenticated;
     },
+    currentProcessId() {
+      return this.$store.getters.getCurrentProcessId;
+    },
     currentPctComplete() {
       return this.$store.getters.getPctComplete;
     },
     dailyStatsDisplay() {
       return this.$store.getters.dailySensorStats;
+    },
+    completedProcessInfoDisplay() {
+      return this.$store.getters.completedProcessInfo;
     },
   },
   data() {
@@ -228,6 +270,7 @@ export default {
 
       pctComplete: 0,
       totalRuntime: 0,
+      processId: 0,
       event: "",
       sensors: [],
       sensortypes: sensorconfig.sensortypes,
@@ -240,9 +283,10 @@ export default {
       realtimeSensorDisplay: [],
       latestMinuteSensorStatsDisplay: [],
       dailySensorStats: {},
-      dailyDataIntervalVar: null,
-      sensorsForSelectedFacility: [],
-      resultsForSelectedFacility: {},
+      // dailyDataIntervalVar: null,
+      selectedProcessId: null,
+      completedProcesses: [],
+      statsForSelectedProcessId: [],
     };
   },
   beforeRouteEnter(to, from, next) {
@@ -260,7 +304,9 @@ export default {
     const that = this;
 
     // TODO: configuration info should come from admin node
-    this.generateSensors();
+    //this.generateSensors();
+
+    this.selectedProcessId = this.$store.getters.completedProcessInfo.selectedProcessId;
 
     // When messages are received via IOT, these handlers are triggered
     bus.$on("message", async (message) => {
@@ -296,9 +342,22 @@ export default {
       await that.updateFacilityConfigInfo(configupdateinfo);
     });
 
+    bus.$on("sensorInstanceInfoUpdate", async (sensorInstanceInfoUpdate) => {
+      console.log(
+        "Home::on::sensorInstanceInfoUpdate: ",
+        sensorInstanceInfoUpdate
+      );
+      await that.updateSensorInstanceInfo(sensorInstanceInfoUpdate);
+    });
+
     bus.$on("procdailystats", async (procdailystats) => {
       console.log("Home::on::procdailystats: ");
       await that.updateDailyStats(procdailystats);
+    });
+
+    bus.$on("completedprocinfo", async (completedprocinfo) => {
+      console.log("Home::on::completedprocinfo: ", completedprocinfo);
+      await that.updateCompletedProcessList(completedprocinfo);
     });
 
     bus.$on("updatepercentcomplete", async (percentCompleteUpdate) => {
@@ -306,6 +365,33 @@ export default {
       that.pctComplete = percentCompleteUpdate.pctcomplete;
       that.$store.dispatch("setPctComplete", that.pctComplete);
     });
+
+    bus.$on("updateCurrentProcessId", async (currentProcessIdUpdate) => {
+      console.log(
+        "Home::on::updateSelectedProcessId: ",
+        currentProcessIdUpdate
+      );
+      that.processId = currentProcessIdUpdate;
+      that.$store.dispatch("setCurrentProcessId", that.processId);
+    });
+
+    // Get list of completed processes if there are any:
+    await this.initializeCompletedProcessList();
+  },
+  async beforeDestroy() {
+    console.log("Home Component: beforeUnmount() hook called");
+    console.log("event bus in beforeDestroy beginning:", bus);
+
+    bus.$off("message");
+    bus.$off("facilitystatusupdated");
+    bus.$off("facilitycommandreceived");
+    bus.$off("facilityconfigupdate");
+    bus.$off("sensorInstanceInfoUpdate");
+    bus.$off("procdailystats");
+    bus.$off("completedprocinfo");
+    bus.$off("updateCurrentProcessId");
+
+    console.log("event bus in beforeDestroy end:", bus);
   },
   methods: {
     // TODO: this should come from admin node.
@@ -348,6 +434,28 @@ export default {
       // Convert to minutes
       this.totalRuntime = configupdateinfo.totalruntime / 60;
       console.log("totalRuntime: ", this.totalRuntime);
+      // Set current process ID:
+      this.processId = configupdateinfo.currentProcessId;
+      this.$store.dispatch(
+        "setCurrentProcessId",
+        configupdateinfo.currentProcessId
+      );
+    },
+    async updateSensorInstanceInfo(sensorInstanceInfoUpdate) {
+      this.sensors.length = 0;
+      console.log("updateSensorInstanceInfo:", sensorInstanceInfoUpdate);
+
+      sensorInstanceInfoUpdate.map((sensorInstance) => {
+        const sensorObj = {
+          id: sensorInstance.Id,
+          name: sensorInstance.name,
+          typeId: sensorInstance.typeId,
+          minval: sensorInstance.minval,
+          maxval: sensorInstance.maxval,
+        };
+        this.sensors.push(sensorObj);
+      });
+      this.$store.dispatch("setSensorInstances", this.sensors);
     },
     async updateFacilityStatus(statusupdate) {
       const currentStatus = this.$store.getters.facilityStatus;
@@ -365,11 +473,105 @@ export default {
 
       this.$store.dispatch("setFacilityStatus", statusupdate);
     },
+    async initializeCompletedProcessList() {
+      const URL = `${this.$store.getters.appConfiguration.APIendpoint}/completedProcesses`;
+
+      let response;
+      try {
+        response = await axios.get(URL, {
+          headers: {
+            Authorization: this.$store.getters.authCredentials.sessionToken,
+          },
+        });
+        console.log("Got response for completed processes: ", response);
+      } catch (err) {
+        console.log("Getting completed process stats errror: ", err.message);
+      }
+
+      console.log("response processes list:", response.data);
+
+      this.completedProcesses = response.data.map((item) => item.processId);
+    },
+    // When process completes, update the completed process list:
+    async updateCompletedProcessList(completedprocinfo) {
+      this.completedProcesses.push(completedprocinfo.processId);
+
+      // Set the status of the current process to "COMPLETE":
+      const udpatedFacilityStatus = {
+        facilityId: this.$store.getters.facilityStatus.facilityId,
+        status: "COMPLETE",
+      };
+      this.$store.dispatch("setFacilityStatus", udpatedFacilityStatus);
+    },
+
+    // User selected completed process ID from dropdown:
+    async updatedProcessId() {
+      console.log("Selected process ID:", this.selectedProcessId);
+      await this.updateSelectedProcessStats();
+    },
+
+    async updateSelectedProcessStats() {
+      console.log("updatedSelectedProcStats: ", this.statsForSelectedProcessId);
+      this.statsForSelectedProcessId = [];
+
+      const URL = `${this.$store.getters.appConfiguration.APIendpoint}/processStats?processId=${this.selectedProcessId}`;
+
+      let response;
+      try {
+        response = await axios.get(URL, {
+          headers: {
+            Authorization: this.$store.getters.authCredentials.sessionToken,
+          },
+        });
+        //   console.log("Got response for selected process: ", response);
+      } catch (err) {
+        console.log("Getting completed process stats errror: ", err.message);
+      }
+
+      console.log("response:", response);
+      console.log("response stats:", response.data[0].stats);
+      let stringifiedStatsForSelectedProcess = response.data[0].stats;
+      let statsForSelectedProcess = JSON.parse(
+        stringifiedStatsForSelectedProcess
+      );
+
+      console.log("statsForSelectedProcess:", statsForSelectedProcess);
+
+      // Update selected process stats:
+      for (let sensorId in statsForSelectedProcess) {
+        this.statsForSelectedProcessId.push({
+          sensorId: sensorId,
+          name: statsForSelectedProcess[sensorId].name,
+          min: round(statsForSelectedProcess[sensorId].min_val, 2),
+          max: round(statsForSelectedProcess[sensorId].max_val, 2),
+          median: round(statsForSelectedProcess[sensorId].median_val, 2),
+          ts: statsForSelectedProcess.ts,
+        });
+      }
+
+      // Convert to array
+      console.log(
+        "this.statsForSelectedProcessId: ",
+        this.statsForSelectedProcessId
+      );
+
+      // this.$store.dispatch(
+      //   "setCompletedProcessStats",
+      //   this.statsForSelectedProcessId
+      // );
+
+      const selectedProcessInfo = {
+        selectedProcessId: this.selectedProcessId,
+        completedProcessStats: this.statsForSelectedProcessId,
+      };
+
+      this.$store.dispatch("setCompletedProcessInfo", selectedProcessInfo);
+    },
+
     // Update real-time sensor data panel:
     async updateRealtimeSensorData(sensormessage) {
       let sensorData = JSON.parse(sensormessage);
       let intermediateSensorData = [];
-      // console.log("updateRealtimeSensorData is called!!!");
 
       // console.log("updateRealtimeSensorData: ", sensorData);
 

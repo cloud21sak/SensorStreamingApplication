@@ -63,12 +63,11 @@
                   @click="onStop()"
                   >Stop Facility</v-btn
                 >
-                <v-list-item align="left"> </v-list-item>
+                <!-- <v-list-item align="left"> </v-list-item> -->
               </v-card-actions>
             </v-card>
           </v-col>
           <!-- Sensor data -->
-          <!-- TODO: is this needed? -->
           <v-col cols="12" md="4">
             <v-card v-if="facilitystatus.status !== 'IDLE'">
               <!-- <v-card-title>Current process ID:</v-card-title> -->
@@ -283,7 +282,7 @@ export default {
 
       pctComplete: 0,
       totalRuntime: FACILITY_RUN_SECONDS / 60,
-    processId: 0,
+      processId: 0,
       event: "",
       intervalVar: null,
       sensors: [],
@@ -321,7 +320,6 @@ export default {
     await this.initializeSensorTypesConfiguration();
 
     const that = this;
-    // this.generateSensors();
     this.sensors = this.$store.getters.sensorInstances;
 
     // Set selected process from the vuex store:
@@ -346,9 +344,9 @@ export default {
       //   await that.updateSensorStatsByLatestMinute(message.sensorstats);
       // }
     });
-    bus.$on("stopsimulator", async () => {
-      that.stopFacility();
-    });
+    // bus.$on("stopsimulator", async () => {
+    //   that.stopFacility();
+    // });
 
     bus.$on("facilitycommandreceived", async (receivedcommand) => {
       console.log("Home::on::facilitycommand: ", receivedcommand.command);
@@ -359,6 +357,21 @@ export default {
       console.log("Home::on::facilityconfigrequest: ");
       await that.handleConfigurationRequest(receivedconfigrequest);
     });
+
+    bus.$on("sensorInstanceInfoRequest", async (sensorInstanceInfoRequest) => {
+      console.log("Home::on::sensorInstanceInfoRequest: ");
+      await that.handleSensorInstanceInfoRequest(sensorInstanceInfoRequest);
+    });
+
+    // bus.$on(
+    //   "currentProcessIdRequest",
+    //   async (receivedCurrentProcessIdRequest) => {
+    //     console.log("Home::on::currentProcessIdRequest: ");
+    //     await that.handleCurrentProcessIdRequest(
+    //       receivedCurrentProcessIdRequest
+    //     );
+    //   }
+    // );
 
     bus.$on("procdailystats", async (procdailystats) => {
       console.log("Home::on::procdailystats: ");
@@ -381,9 +394,9 @@ export default {
 
     bus.$off("message");
     bus.$off("stopsimulator");
-    bus.$off("procdailystats");
     bus.$off("facilitycommandreceived");
     bus.$off("facilityconfigrequest");
+    bus.$off("sensorInstanceInfoRequest");
     bus.$off("procdailystats");
     bus.$off("completedprocinfo");
 
@@ -412,7 +425,7 @@ export default {
       }
       console.log("Generated sensors: ", this.sensors);
     },
-        
+
     async initializeSensorTypesConfiguration() {
       // Check if current sensor configurations for the facility exists in the database:
       const urlGetConfig = `${this.$store.getters.appConfiguration.APIendpoint}/facilitysensorconfig?facilityId=${sensorconfig.facilityId}`;
@@ -451,7 +464,7 @@ export default {
         }
         //  console.log("response sensor types:", response.data[0].sensortypes);
       } catch (err) {
-        console.log("Getting daily data errror: ", err.message);
+        console.log("Failed to read sensor configuration: ", err.message);
       }
 
       let sensortypeConfigurations = [];
@@ -567,9 +580,25 @@ export default {
         totalruntime: FACILITY_RUN_SECONDS,
         currentPctComplete: round(this.pctComplete, 2),
         currentStatus: this.facilitystatus,
+        currentProcessId: this.currentProcessId,
       };
       bus.$emit("facilityconfigpublish", facilityconfiguration);
     },
+
+    // When an operator logs in, the operator app sends configuration request:
+    async handleSensorInstanceInfoRequest(sensorInstanceInfoRequest) {
+      console.log("Sensor instance info request:", sensorInstanceInfoRequest);
+
+      bus.$emit("sensorInstanceInfoPublish", this.sensors);
+    },
+    // async handleCurrentProcessIdRequest(receivedCurrentProcessIdRequest) {
+    //   console.log(
+    //     "Current process ID request:",
+    //     receivedCurrentProcessIdRequest
+    //   );
+
+    //   bus.$emit("currentProcessIdPublish", this.currentProcessId);
+    // },
     async executeCommand(receivedcommand) {
       const facilitystatus = this.$store.getters.facilityStatus;
       console.log("currentStatus:", facilitystatus);
@@ -591,6 +620,7 @@ export default {
               status: "RUNNING",
             };
             this.$store.dispatch("setFacilityStatus", udpatedFacilityStatus);
+            bus.$emit("currentProcessIdPublish", this.currentProcessId);
             bus.$emit("facilitystatusupdate", udpatedFacilityStatus);
           }
           break;

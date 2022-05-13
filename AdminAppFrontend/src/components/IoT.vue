@@ -15,6 +15,10 @@ const topics = {
   facilitycommand: "facility-command",
   facilityconfigrequest: "facility-config-request",
   facilityconfigupdate: "facility-config-update",
+  sensorInstanceInfoRequest: "sensor-info-request",
+  sensorInstanceInfoUpdate: "sensor-instance-update",
+  currentProcessIdRequest: "current-procid-request",
+  currentProcessIdUpdate: "current-procid-update",
   sensorpublish: "sensordata-publish",
   sensorsubscribe: "sensordata-subscribe",
   procdailystats: "process-dailystats",
@@ -77,7 +81,6 @@ export default {
     try {
       console.log("Creating mqttClient device");
 
-      //var mqttClient = AWSIoTData.device({
       mqttClient = AWSIoTData.device({
         region: AWS.config.region,
         host: this.$store.getters.appConfiguration.iotHost, //can be queried using 'aws iot describe-endpoint --endpoint-type iot:Data-ATS' - doesn't work with just 'describe-endpoint'
@@ -104,6 +107,8 @@ export default {
       mqttClient.subscribe(topics.facilitycommand);
       mqttClient.subscribe(topics.sensorsubscribe);
       mqttClient.subscribe(topics.facilityconfigrequest);
+      mqttClient.subscribe(topics.sensorInstanceInfoRequest);
+      //  mqttClient.subscribe(topics.currentProcessIdRequest);
       mqttClient.subscribe(topics.procdailystats);
       mqttClient.subscribe(topics.completedprocinfo);
     });
@@ -145,8 +150,18 @@ export default {
       mqttClient.publish(topics.facilityconfigupdate, JSON.stringify(data));
     });
 
+    // User requested list of facility sensor instances:
+    bus.$on("sensorInstanceInfoPublish", async (data) => {
+      console.log("Sensor instance info to publish: ", data);
+      mqttClient.publish(topics.sensorInstanceInfoUpdate, JSON.stringify(data));
+    });
+
     bus.$on("updatepercentcomplete", async (data) => {
       mqttClient.publish(topics.percentcompleteupdate, JSON.stringify(data));
+    });
+
+    bus.$on("currentProcessIdPublish", async (data) => {
+      mqttClient.publish(topics.currentProcessIdUpdate, JSON.stringify(data));
     });
 
     // A message has arrived, determine topic and notify subscribers:
@@ -157,6 +172,10 @@ export default {
         bus.$emit("facilitycommandreceived", payloadEnvelope);
       } else if (topic === topics.facilityconfigrequest) {
         bus.$emit("facilityconfigrequest", payloadEnvelope);
+      } else if (topic === topics.sensorInstanceInfoRequest) {
+        bus.$emit("sensorInstanceInfoRequest", payloadEnvelope);
+        // } else if (topic === topics.currentProcessIdRequest) {
+        //   bus.$emit("currentProcessIdRequest", payloadEnvelope);
       } else if (topic === topics.procdailystats) {
         console.log("Received message for topic: ", topics.procdailystats);
         bus.$emit("procdailystats", payloadEnvelope);
@@ -173,6 +192,8 @@ export default {
     mqttClient.unsubscribe(topics.facilitycommand);
     mqttClient.unsubscribe(topics.sensorsubscribe);
     mqttClient.unsubscribe(topics.facilityconfigrequest);
+    mqttClient.unsubscribe(topics.sensorInstanceInfoRequest);
+    // mqttClient.unsubscribe(topics.currentProcessIdRequest);
     mqttClient.unsubscribe(topics.procdailystats);
     mqttClient.unsubscribe(topics.completedprocinfo);
 
@@ -180,6 +201,8 @@ export default {
     bus.$off("facilitycommandissued");
     bus.$off("facilitystatusupdate");
     bus.$off("facilityconfigpublish");
+    bus.$off("sensorInstanceInfoPublish");
+    bus.$off("currentProcessIdPublish");
     bus.$off("updatepercentcomplete");
   },
 };

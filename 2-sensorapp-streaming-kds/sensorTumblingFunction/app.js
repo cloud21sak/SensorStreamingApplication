@@ -24,7 +24,7 @@ exports.handler = async (event) => {
   );
   console.log(JSON.stringify(jsonRecords, null, 2));
 
-  state = getSensorDataByProcessId(state, jsonRecords);
+  getSensorDataByProcessId(state, jsonRecords);
   //console.log(JSON.stringify(state, null, 2))
   // If tumbling window is not configured, publish and exit
   if (event.window === undefined) {
@@ -52,7 +52,6 @@ const publishToIoT = async (processSensorData) => {
       msg: "sensordata",
       facilityId: processMap[processId],
       processId: `process-${processId}`,
-      ts: Date.now(),
       sensordata: JSON.stringify(processSensorData[processId]),
     };
 
@@ -84,7 +83,6 @@ const getRecordsFromPayload = (event) => {
     const buffer = Buffer.from(record.kinesis.data, "base64").toString();
     const jsonRecord = JSON.parse(buffer);
 
-    // jsonRecord.output = jsonRecord.sensorData;
     jsonRecords.push(jsonRecord);
   });
   return jsonRecords;
@@ -101,11 +99,11 @@ const getSensorDataByProcessId = (state, jsonRecords) => {
 
     // NOTE: This is here for demonstration purposes only. In case the tumbling window
     // is configured, here we can do additional processing based on the previous state.
-    // For example, if we need to perform some calculation or aggregation of sensor data
-    // based on certain time window.
+    // For example, if we need to perform some calculation or aggregation of sensor
+    // data based on certain time window.
     state[record.processId][record.sensorId] = record.sensorData;
   });
 
   // TODO: we don't need to return here
-  return state;
+  //return state;
 };

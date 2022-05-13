@@ -18,7 +18,14 @@ export default new Vuex.Store({
     authcredentials: {},
     appconfiguration: {},
     pctComplete: 0,
+    currentProcessId: 0,
     dailySensorStats: [],
+    completedProcessInfo: {
+      selectedProcessId: null,
+      completedProcessStats: [],
+    },
+    // configuredSensorTypes: [],
+    sensorInstances: [],
   },
   getters: {
     userToken: (state) => {
@@ -42,17 +49,26 @@ export default new Vuex.Store({
     getPctComplete: (state) => {
       return state.pctComplete;
     },
+    getCurrentProcessId: (state) => {
+      return state.currentProcessId;
+    },
     dailySensorStats: (state) => {
       return state.dailySensorStats;
     },
+    completedProcessInfo: (state) => {
+      return state.completedProcessInfo;
+    },
+    sensorInstances: (state) => {
+      return state.sensorInstances;
+    },
   },
   mutations: {
-    //       userTokenUpdate: (state, payload) => {
-    //           state.idToken = payload;
-    //       }
     updateAppConfiguration(state, appconfiguration) {
       state.appconfiguration = appconfiguration;
       console.log("App configuration was set:", state.appconfiguration);
+    },
+    updateSensorInstances(state, sensorInstances) {
+      state.sensorInstances = sensorInstances;
     },
     updateFacilityStatus(state, facilityStatus) {
       state.facilitystatus = facilityStatus;
@@ -77,17 +93,22 @@ export default new Vuex.Store({
     updatePctComplete(state, pctComplete) {
       state.pctComplete = pctComplete;
     },
+    updateCurrentProcessId(state, currentProcessId) {
+      state.currentProcessId = currentProcessId;
+    },
     updateDailySensorStats(state, dailySensorStats) {
       state.dailySensorStats = dailySensorStats;
     },
+    updateCompletedProcessInfo(state, completedProcessInfo) {
+      state.completedProcessInfo = completedProcessInfo;
+    },
   },
   actions: {
-    //       updateUserToken(context, payload) => {
-    //           context.dispatch()
-    //       }
-
     setFacilityStatus({ commit }, facilityStatus) {
       commit("updateFacilityStatus", facilityStatus);
+    },
+    setSensorInstances({ commit }, sensorInstances) {
+      commit("updateSensorInstances", sensorInstances);
     },
     setAppConfiguration({ commit }, appconfig) {
       commit("updateAppConfiguration", appconfig);
@@ -108,8 +129,14 @@ export default new Vuex.Store({
     setPctComplete({ commit }, pctComplete) {
       commit("updatePctComplete", pctComplete);
     },
+    setCurrentProcessId({ commit }, currentProcessId) {
+      commit("updateCurrentProcessId", currentProcessId);
+    },
     setDailySenorStats({ commit }, dailySensorStats) {
       commit("updateDailySensorStats", dailySensorStats);
+    },
+    setCompletedProcessInfo({ commit }, completedProcessInfo) {
+      commit("updateCompletedProcessInfo", completedProcessInfo);
     },
   },
 });

@@ -70,9 +70,6 @@ export default new Vuex.Store({
     },
   },
   mutations: {
-    //       userTokenUpdate: (state, payload) => {
-    //           state.idToken = payload;
-    //       }
     updateAppConfiguration(state, appconfiguration) {
       state.appconfiguration = appconfiguration;
       console.log("App configuration was set:", state.appconfiguration);
@@ -123,10 +120,6 @@ export default new Vuex.Store({
     },
   },
   actions: {
-    //       updateUserToken(context, payload) => {
-    //           context.dispatch()
-    //       }
-
     setFacilityStatus({ commit }, facilityStatus) {
       commit("updateFacilityStatus", facilityStatus);
     },
@@ -155,9 +148,6 @@ export default new Vuex.Store({
     setDailySenorStats({ commit }, dailySensorStats) {
       commit("updateDailySensorStats", dailySensorStats);
     },
-    // setCompletedProcessStats({ commit }, completedProcessStats) {
-    //   commit("updateCompletedProcessStats", completedProcessStats);
-    // },
     setCompletedProcessInfo({ commit }, completedProcessInfo) {
       commit("updateCompletedProcessInfo", completedProcessInfo);
     },
