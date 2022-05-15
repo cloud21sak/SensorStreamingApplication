@@ -330,7 +330,7 @@ export default {
       // console.log("Home::on::message: ", message);
 
       if (message.msg === "sensordata") {
-        // console.log("Received sensor data message: ", message);
+        //console.log("Received sensor data message: ", message);
         await that.updateRealtimeSensorData(message.sensordata);
       }
 
@@ -689,7 +689,15 @@ export default {
       let sensorData = JSON.parse(sensormessage);
       let intermediateSensorData = [];
 
-      //  console.log("updateRealtimeSensorData: ", sensorData);
+      // console.log("updateRealtimeSensorData: ", sensorData);
+      console.log("this.facilitystatus:", this.facilitystatus);
+
+      if (
+        this.facilitystatus.status === "COMPLETING" ||
+        this.facilitystatus.status === "COMPLETE"
+      ) {
+        return;
+      }
 
       // Update internal realtime sensor data
       for (let sensorId in sensorData) {
@@ -713,7 +721,7 @@ export default {
 
       // Check to make sure these are daily stats of the current process.
       // Note that here we check to make sure that we don't display daily data
-      // of the process which was stopped before it completed.
+      // of the previous process which was stopped before it completed.
       if (dailyStatsData.processId !== `proc-${this.currentProcessId}`) {
         console.log("Current process ID doesn't match the dailyStatsData");
         return;
@@ -885,7 +893,7 @@ export default {
       // Facility was stopped, reset current process settings:
       // this.pctComplete = 0;
       // this.currentSecond = 0;
-      this.sensorsToPublish.length = 0;
+      // this.sensorsToPublish.length = 0;
       const udpatedFacilityStatus = {
         facilityId: this.$store.getters.facilityStatus.facilityId,
         status: "STOPPED",
@@ -910,10 +918,11 @@ export default {
     resetFacility() {
       clearInterval(this.intervalVar);
 
-      // Reset current process settings:
+      // Reset current process info:
       this.pctComplete = 0;
       this.currentSecond = 0;
       this.processId = 0;
+      this.realtimeSensorDisplay = [];
       this.sensorsToPublish.length = 0;
       const udpatedFacilityStatus = {
         facilityId: this.$store.getters.facilityStatus.facilityId,
@@ -923,7 +932,10 @@ export default {
       this.$store.dispatch("setCurrentProcessId", this.processId);
       this.$store.dispatch("setPctComplete", this.pctComplete);
       this.$store.dispatch("setDailySenorStats", []);
+      // Update all subscribers that facility was reset:
       bus.$emit("facilitystatusupdate", udpatedFacilityStatus);
+      // bus.$emit("updatepercentcomplete", this.pctComplete);
+      // bus.$emit("currentProcessIdPublish", this.processId);
       console.log("Facility was reset");
     },
 

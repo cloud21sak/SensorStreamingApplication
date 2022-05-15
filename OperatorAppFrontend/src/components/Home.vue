@@ -283,7 +283,6 @@ export default {
       realtimeSensorDisplay: [],
       latestMinuteSensorStatsDisplay: [],
       dailySensorStats: {},
-      // dailyDataIntervalVar: null,
       selectedProcessId: null,
       completedProcesses: [],
       statsForSelectedProcessId: [],
@@ -303,9 +302,6 @@ export default {
     console.log("Home Component: created() hook called");
     const that = this;
 
-    // TODO: configuration info should come from admin node
-    //this.generateSensors();
-
     this.selectedProcessId = this.$store.getters.completedProcessInfo.selectedProcessId;
 
     // When messages are received via IOT, these handlers are triggered
@@ -322,15 +318,6 @@ export default {
         await that.updateSensorStatsByLatestMinute(message.sensorstats);
       }
     });
-
-    // bus.$on("sensormessage", async (sensormessage) => {
-    //   //  console.log("Home::on::sensormessage: ", sensormessage);
-
-    //   // Update realtime data
-    //   if (sensormessage.msg === "results") {
-    //     await that.updateRealtimeSensorData(sensormessage.results);
-    //   }
-    // });
 
     bus.$on("facilitystatusupdated", async (statusupdate) => {
       //console.log("Home::on::facilitystatus: ", statusupdate);
@@ -394,37 +381,10 @@ export default {
     console.log("event bus in beforeDestroy end:", bus);
   },
   methods: {
-    // TODO: this should come from admin node.
-    generateSensors() {
-      //console.log("Sensor types: ", this.sensortypes);
-
-      var idCount = 0;
-      for (let j = 0; j < this.sensortypes.length; j++) {
-        const sensortype = this.sensortypes[j];
-        for (let i = 0; i < sensortype.totalnumber; i++) {
-          const sensorObj = {
-            id: idCount++,
-            name: sensortype.name + "_" + i,
-            typeId: sensortype.typeId,
-          };
-          //console.log("sensorObj: ", sensorObj);
-          this.sensors.push(sensorObj);
-        }
-      }
-      //console.log("Generated sensors: ", this.sensors);
-    },
-
     async updateFacilityConfigInfo(configupdateinfo) {
       this.$store.dispatch("setFacilityStatus", configupdateinfo.currentStatus);
       console.log("Facility status: ", configupdateinfo.currentStatus.status);
-      // if (configupdateinfo.currentStatus.status === "RUNNING") {
-      //   this.dailyDataIntervalVar = setInterval(
-      //     this.nextDailyDataInterval,
-      //     30000
-      //   );
-      // } else {
-      //   clearInterval(this.dailyDataIntervalVar);
-      // }
+
       this.pctComplete = configupdateinfo.currentPctComplete;
       this.$store.dispatch(
         "setPctComplete",
@@ -462,14 +422,16 @@ export default {
       console.log("currentStatus:", currentStatus);
       console.log("updateFacilityStatus() - status", statusupdate);
 
-      // if (statusupdate.status === "RUNNING") {
-      //   this.dailyDataIntervalVar = setInterval(
-      //     this.nextDailyDataInterval,
-      //     30000
-      //   );
-      // } else {
-      //   clearInterval(this.dailyDataIntervalVar);
-      // }
+      // If facility status transitioned to 'IDLE',
+      // reset current process info:
+      if (statusupdate.status === "IDLE") {
+        this.processId = 0;
+        this.pctComplete = 0;
+        this.realtimeSensorDisplay = [];
+        this.$store.dispatch("setCurrentProcessId", this.processId);
+        this.$store.dispatch("setPctComplete", this.pctComplete);
+        this.$store.dispatch("setDailySenorStats", []);
+      }
 
       this.$store.dispatch("setFacilityStatus", statusupdate);
     },
@@ -555,11 +517,6 @@ export default {
         this.statsForSelectedProcessId
       );
 
-      // this.$store.dispatch(
-      //   "setCompletedProcessStats",
-      //   this.statsForSelectedProcessId
-      // );
-
       const selectedProcessInfo = {
         selectedProcessId: this.selectedProcessId,
         completedProcessStats: this.statsForSelectedProcessId,
@@ -575,21 +532,21 @@ export default {
 
       // console.log("updateRealtimeSensorData: ", sensorData);
 
+      if (
+        this.facilitystatus.status === "COMPLETING" ||
+        this.facilitystatus.status === "COMPLETE"
+      ) {
+        return;
+      }
+
       // TODO: refactor to use one message per facility and set current second
       // on the facility instead of on each sensor message:
 
       // Update internal realtime sensor data
       for (let sensorId in sensorData) {
-        // if (!this.sensors[sensorId]) {
-        //   continue;
-        // }
-        //   console.log("sensor current result update by id: ",this.sensors[sensorId]);
-        // this.realtimeSensorData[sensorId] = {
-        //   sensorId: sensorId,
-        //   name: this.sensors[sensorId].name,
-        //   typeId: this.sensors[sensorId].typeId,
-        //   output: round(sensorData[sensorId], 2),
-        // };
+        if (!this.sensors[sensorId]) {
+          continue;
+        }
 
         intermediateSensorData.push({
           sensorId,
@@ -607,7 +564,7 @@ export default {
 
       // Check to make sure these are daily stats of the current process.
       // Note that here we check to make sure that we don't display daily data
-      // of the process which was stopped before it completed.
+      // of the previous process which was stopped before it completed.
       if (dailyStatsData.processId !== `proc-${this.currentProcessId}`) {
         console.log("Current process ID doesn't match the dailyStatsData");
         return;
@@ -640,7 +597,6 @@ export default {
         intermediateSensorStats.push(this.dailySensorStats[sensorId]);
       }
 
-      //  this.dailyStatsDisplay = intermediateSensorStats;
       this.$store.dispatch("setDailySenorStats", intermediateSensorStats);
       //console.log("this.dailyStatsDisplay: ", this.dailyStatsDisplay);
     },
@@ -746,48 +702,6 @@ export default {
 
       console.log("Issued reset command: ", facilityCommand);
       bus.$emit("facilitycommandissued", facilityCommand);
-    },
-    async nextDailyDataInterval() {
-      console.log("nextDailyDataInterval() was called");
-      console.log(
-        "Current facility status: ",
-        this.$store.getters.facilityStatus
-      );
-
-      const URL = `${this.$store.getters.appConfiguration.APIendpoint}/dailyStats?facilityId=1`;
-      console.log("Getting daily data at: ", URL);
-      // console.log(
-      //   "Session token: ",
-      //   this.$store.getters.authCredentials.sessionToken
-
-      //);
-      var response;
-      try {
-        response = await axios.get(URL, {
-          headers: {
-            Authorization: this.$store.getters.authCredentials.sessionToken,
-          },
-        });
-        // console.log("Got response for daily data: ", response);
-      } catch (err) {
-        console.log("Getting daily data errror: ", err.message);
-      }
-
-      this.sensorsForSelectedFacility = [];
-      this.sensorsForSelectedFacility = response.data.map(
-        (item) => item.sensorId
-      );
-      this.resultsForSelectedFacility = response.data;
-      // console.log(
-      //   "Updated daily facility sensors :",
-      //   this.sensorsForSelectedFacility
-      // );
-      // console.log(
-      //   "Updated daily facility data :",
-      //   this.resultsForSelectedFacility
-      // );
-
-      this.updateDailyStats(this.resultsForSelectedFacility);
     },
   },
 };

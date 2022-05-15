@@ -25,6 +25,7 @@ const topics = {
   completedprocinfo: "completed-processinfo",
 };
 
+let mqttClient = null;
 export default {
   name: "IoT",
   methods: {
@@ -79,7 +80,7 @@ export default {
     try {
       console.log("Creating mqttClient device");
 
-      var mqttClient = AWSIoTData.device({
+      mqttClient = AWSIoTData.device({
         region: AWS.config.region,
         host: this.$store.getters.appConfiguration.iotHost, //can be queried using 'aws iot describe-endpoint --endpoint-type iot:Data-ATS'
         clientId: "sensordata-" + Math.floor(Math.random() * 100000 + 1),
