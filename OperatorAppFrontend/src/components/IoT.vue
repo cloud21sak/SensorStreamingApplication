@@ -63,6 +63,9 @@ export default {
       });
     },
   },
+  created: async function() {
+    console.log("IoT hook called: 'created'!");
+  },
   mounted: async function() {
     //console.log("IoT Component, $appConfig: ", this.$appConfig);
     console.log(
@@ -121,11 +124,8 @@ export default {
         topics.sensorInstanceInfoRequest,
         JSON.stringify(payload)
       );
-      // mqttClient.publish(
-      //   topics.currentProcessIdRequest,
-      //   JSON.stringify(payload)
-      // );
     });
+
     // Attempt to reconnect in the event of any error
     mqttClient.on("error", async function(err) {
       console.log("mqttClient error:", err);
@@ -164,7 +164,7 @@ export default {
     mqttClient.on("message", function(topic, payload) {
       const payloadEnvelope = JSON.parse(payload.toString());
 
-      // console.log("IoT::onMessage: ", topic, payloadEnvelope);
+      console.log("IoT::onMessage: ", topic, payloadEnvelope);
 
       if (topic === topics.facilitystatus) {
         bus.$emit("facilitystatusupdated", payloadEnvelope);
@@ -193,10 +193,12 @@ export default {
   },
   async beforeDestroy() {
     console.log("IoT Component: beforeDestroy() hook called");
-    mqttClient.unsubscribe(topics.facilitycommand);
+
     mqttClient.unsubscribe(topics.sensorsubscribe);
+    mqttClient.unsubscribe(topics.facilitystatus);
     mqttClient.unsubscribe(topics.facilityconfigUpdate);
     mqttClient.unsubscribe(topics.sensorInstanceInfoUpdate);
+    mqttClient.unsubscribe(topics.percentcompleteupdate);
     mqttClient.unsubscribe(topics.currentProcessIdUpdate);
     mqttClient.unsubscribe(topics.procdailystats);
     mqttClient.unsubscribe(topics.completedprocinfo);

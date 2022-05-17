@@ -85,9 +85,10 @@
 <script>
 import axios from "axios";
 import sensorconfig from "@/configurations/sensorconfig.json";
+
 // Libraries
 // const Sensor = require("@/lib/sensor");
-// import appStore from "../store";
+import appStore from "../store";
 
 export default {
   name: "Configure",
@@ -109,7 +110,16 @@ export default {
       isConfigChanged: false,
     };
   },
+  beforeRouteEnter(to, from, next) {
+    console.log("Store instance: ", appStore);
 
+    if (!appStore.getters.isAuthenticated) {
+      next("/login");
+    } else {
+      console.log("Configure Component, user authenticated!");
+      next(true);
+    }
+  },
   async created() {
     console.log("Configure component: created() hook called");
 

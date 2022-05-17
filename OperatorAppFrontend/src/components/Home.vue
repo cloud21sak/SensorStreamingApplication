@@ -12,7 +12,12 @@
                 <!-- Facility control buttons  -->
                 <v-btn
                   color="green"
-                  v-if="facilitystatus.status === 'IDLE' && isLoggedIn"
+                  v-if="
+                    (facilitystatus.status === 'IDLE' ||
+                      facilitystatus.status === 'IDLE-OFFLINE') &&
+                      isLoggedIn
+                  "
+                  :disabled="facilitystatus.status === 'IDLE-OFFLINE'"
                   elevation="2"
                   outlined
                   @click="onStart()"
@@ -22,8 +27,14 @@
                   color="blue"
                   v-if="
                     (facilitystatus.status === 'STOPPED' ||
-                      facilitystatus.status === 'COMPLETE') &&
+                      facilitystatus.status === 'COMPLETE' ||
+                      facilitystatus.status === 'STOPPED-OFFLINE' ||
+                      facilitystatus.status === 'COMPLETE-OFFLINE') &&
                       isLoggedIn
+                  "
+                  :disabled="
+                    facilitystatus.status === 'STOPPED-OFFLINE' ||
+                      facilitystatus.status === 'COMPLETE-OFFLINE'
                   "
                   elevation="2"
                   outlined
@@ -34,9 +45,15 @@
                   color="orange"
                   v-if="
                     facilitystatus.status === 'RUNNING' ||
-                      facilitystatus.status === 'COMPLETING'
+                      facilitystatus.status === 'COMPLETING' ||
+                      facilitystatus.status === 'RUNNING-OFFLINE' ||
+                      facilitystatus.status === 'COMPLETING-OFFLINE'
                   "
-                  :disabled="facilitystatus.status === 'COMPLETING'"
+                  :disabled="
+                    facilitystatus.status === 'COMPLETING' ||
+                      facilitystatus.status === 'RUNNING-OFFLINE' ||
+                      facilitystatus.status === 'COMPLETING-OFFLINE'
+                  "
                   elevation="2"
                   outlined
                   @click="onPause()"
@@ -44,7 +61,11 @@
                 >
                 <v-btn
                   color="orange"
-                  v-if="facilitystatus.status === 'PAUSED'"
+                  v-if="
+                    facilitystatus.status === 'PAUSED' ||
+                      facilitystatus.status === 'PAUSED-OFFLINE'
+                  "
+                  :disabled="facilitystatus.status === 'PAUSED-OFFLINE'"
                   elevation="2"
                   outlined
                   @click="onResume()"
@@ -55,9 +76,17 @@
                   v-if="
                     facilitystatus.status === 'RUNNING' ||
                       facilitystatus.status === 'PAUSED' ||
-                      facilitystatus.status === 'COMPLETING'
+                      facilitystatus.status === 'COMPLETING' ||
+                      facilitystatus.status === 'RUNNING-OFFLINE' ||
+                      facilitystatus.status === 'PAUSED-OFFLINE' ||
+                      facilitystatus.status === 'COMPLETING-OFFLINE'
                   "
-                  :disabled="facilitystatus.status === 'COMPLETING'"
+                  :disabled="
+                    facilitystatus.status === 'COMPLETING' ||
+                      facilitystatus.status === 'RUNNING-OFFLINE' ||
+                      facilitystatus.status === 'PAUSED-OFFLINE' ||
+                      facilitystatus.status === 'COMPLETING-OFFLINE'
+                  "
                   elevation="2"
                   outlined
                   @click="onStop()"
@@ -298,6 +327,9 @@ export default {
       next(true);
     }
   },
+  async mounted() {
+    console.log("Home component: mounted!");
+  },
   async created() {
     console.log("Home Component: created() hook called");
     const that = this;
@@ -320,7 +352,7 @@ export default {
     });
 
     bus.$on("facilitystatusupdated", async (statusupdate) => {
-      //console.log("Home::on::facilitystatus: ", statusupdate);
+      console.log("Home::on::facilitystatus: ", statusupdate);
       await that.updateFacilityStatus(statusupdate);
     });
 

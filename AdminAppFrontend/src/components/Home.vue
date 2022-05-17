@@ -110,7 +110,7 @@
                   readonly
                 ></v-text-field>
               </v-card-text>
-              <!-- Progress bar showing % complete of total facility runtime process-->
+              <!-- Progress bar showing % complete of facility runtime process-->
               <v-progress-linear
                 color="blue"
                 buffer-value="0"
@@ -296,7 +296,6 @@ export default {
       realtimeSensorDisplay: [],
       latestMinuteSensorStatsDisplay: [],
       dailySensorStats: {},
-      //    dailyDataIntervalVar: null,
       sensorsForSelectedFacility: [],
       selectedProcessId: null,
       completedProcesses: [],
@@ -338,15 +337,7 @@ export default {
         //  console.log("Received sensor stats message: ", message);
         await that.updateSensorStatsByLatestMinute(message.sensorstats);
       }
-
-      // if (message.msg === "dailystats") {
-      //   //  console.log("Received sensor stats message: ", message);
-      //   await that.updateSensorStatsByLatestMinute(message.sensorstats);
-      // }
     });
-    // bus.$on("stopsimulator", async () => {
-    //   that.stopFacility();
-    // });
 
     bus.$on("facilitycommandreceived", async (receivedcommand) => {
       console.log("Home::on::facilitycommand: ", receivedcommand.command);
@@ -363,16 +354,6 @@ export default {
       await that.handleSensorInstanceInfoRequest(sensorInstanceInfoRequest);
     });
 
-    // bus.$on(
-    //   "currentProcessIdRequest",
-    //   async (receivedCurrentProcessIdRequest) => {
-    //     console.log("Home::on::currentProcessIdRequest: ");
-    //     await that.handleCurrentProcessIdRequest(
-    //       receivedCurrentProcessIdRequest
-    //     );
-    //   }
-    // );
-
     bus.$on("procdailystats", async (procdailystats) => {
       console.log("Home::on::procdailystats: ");
       await that.updateDailyStats(procdailystats);
@@ -383,14 +364,64 @@ export default {
       await that.updateCompletedProcessList(completedprocinfo);
     });
 
+    // const facilitystatus = this.$store.getters.facilityStatus;
+    // const udpatedFacilityStatus = {
+    //   facilityId: facilitystatus.facilityId,
+    //   status: "IDLE",
+    // };
+    // this.$store.dispatch("setFacilityStatus", udpatedFacilityStatus);
+    // bus.$emit("facilitystatusupdate", udpatedFacilityStatus);
+    this.resetFacility();
+    bus.$emit("sensorInstanceInfoPublish", this.sensors);
+
     console.log("event bus in created end:", bus);
 
     // Get list of completed processes if there are any:
     await this.initializeCompletedProcessList();
   },
+  // async mounted() {
+  //   console.log("Home Component: mounted() hook called");
+  //   const facilitystatus = this.$store.getters.facilityStatus;
+  //   const udpatedFacilityStatus = {
+  //     facilityId: facilitystatus.facilityId,
+  //     status: "IDLE",
+  //   };
+  //   this.$store.dispatch("setFacilityStatus", udpatedFacilityStatus);
+  //   bus.$emit("facilitystatusupdate", udpatedFacilityStatus);
+  // },
   async beforeDestroy() {
     console.log("Home Component: beforeUnmount() hook called");
     console.log("event bus in beforeDestroy beginning:", bus);
+
+    let offlineStatus = "";
+    const facilitystatus = this.$store.getters.facilityStatus;
+    switch (facilitystatus.status) {
+      case "IDLE":
+        offlineStatus = "IDLE-OFFLINE";
+        break;
+      case "RUNNING":
+        offlineStatus = "RUNNING-OFFLINE";
+        break;
+      case "STOPPED":
+        offlineStatus = "STOPPED-OFFLINE";
+        break;
+      case "PAUSED":
+        offlineStatus = "PAUSED-OFFLINE";
+        break;
+      case "COMPLETE":
+        offlineStatus = "COMPLETE-OFFLINE";
+        break;
+      case "COMPLETING":
+        offlineStatus = "COMPLETING-OFFLINE";
+        break;
+    }
+
+    const udpatedFacilityStatus = {
+      facilityId: facilitystatus.facilityId,
+      status: offlineStatus,
+    };
+    this.$store.dispatch("setFacilityStatus", udpatedFacilityStatus);
+    bus.$emit("facilitystatusupdate", udpatedFacilityStatus);
 
     bus.$off("message");
     bus.$off("stopsimulator");

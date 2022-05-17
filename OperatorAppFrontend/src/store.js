@@ -12,7 +12,7 @@ export default new Vuex.Store({
     user: null,
     facilitystatus: {
       facilityId: null,
-      status: "IDLE",
+      status: "OFFLINE",
     },
     isAuthenticated: false,
     authcredentials: {},
