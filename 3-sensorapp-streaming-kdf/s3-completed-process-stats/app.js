@@ -15,6 +15,8 @@ completedProcessData.processSensorStats = {};
 
 // Main Lambda handler
 exports.handler = async (event) => {
+  console.log(JSON.stringify(event, null, 2));
+  
   const object = event.Records[0];
   console.log("CompletedProcessStatsFunction is called");
   console.log("Bucket name:", object.s3.bucket.name);

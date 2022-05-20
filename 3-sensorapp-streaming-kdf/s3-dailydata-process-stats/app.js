@@ -15,6 +15,8 @@ facilityProcessDailyData.sensorDailyStats = {};
 
 // Main Lambda handler
 exports.handler = async (event) => {
+  console.log(JSON.stringify(event, null, 2));
+
   console.log("DailyProcessStatsFunction is called");
   const object = event.Records[0];
   console.log("Bucket name:", object.s3.bucket.name);

@@ -9,11 +9,13 @@ AWS.config.region = process.env.AWS_REGION;
 const s3 = new AWS.S3();
 const documentClient = new AWS.DynamoDB.DocumentClient();
 
-let sensorMap = {};
+//let sensorMap = {};
 let facilityProcessData = {};
 
 // Main Lambda handler
 exports.handler = async (event) => {
+  console.log(JSON.stringify(event, null, 2));
+
   const object = event.Records[0];
   console.log("Bucket name:", object.s3.bucket.name);
   console.log("Bucket key:", object.s3.object.key);

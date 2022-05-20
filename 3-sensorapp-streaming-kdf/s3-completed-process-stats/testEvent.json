@@ -1,0 +1,38 @@
+{
+  "Records": [
+    {
+      "eventVersion": "2.1",
+      "eventSource": "aws:s3",
+      "awsRegion": "us-east-1",
+      "eventTime": "2022-05-19T23:46:24.380Z",
+      "eventName": "ObjectCreated:Put",
+      "userIdentity": {
+        "principalId": "AWS:AROASKILN3SYLJ7UK4NYH:sensorapp-firehose-stack-S3SensorProcessorFunction-HQ5ezmL7bVEw"
+      },
+      "requestParameters": {
+        "sourceIPAddress": "3.93.71.8"
+      },
+      "responseElements": {
+        "x-amz-request-id": "25N18HCYG6F15M8R",
+        "x-amz-id-2": "0kg9pb+3PXy6XX9vvLNKqcm95bidwrIyVt2Magr0X8dT9a0V8X3bWp4MqcDtxPeMCPEc6GbeWsUpzeyI5U8xfVEMMbzDvj2s"
+      },
+      "s3": {
+        "s3SchemaVersion": "1.0",
+        "configurationId": "f29f9617-c3df-4e0d-9055-e89dec4ae86b",
+        "bucket": {
+          "name": "sensordata-history-bucket-sak",
+          "ownerIdentity": {
+            "principalId": "A2Z9VQNP0SW7YN"
+          },
+          "arn": "arn:aws:s3:::sensordata-history-bucket-sak"
+        },
+        "object": {
+          "key": "facility-1/process-1653001170323",
+          "size": 198106,
+          "eTag": "701f209e381922e43c283df72e5ace86",
+          "sequencer": "006286D6D02BAD78E4"
+        }
+      }
+    }
+  ]
+}

@@ -12,7 +12,7 @@ let processMap = {};
 // Main Lambda handler
 exports.handler = async (event) => {
   console.log(`Received sensor data: ${event.Records.length} messages`);
-  // console.log(JSON.stringify(event, null, 2))
+  console.log(JSON.stringify(event, null, 2))
 
   // Retrieve existing state passed during tumbling window
   let state = event.state || {};
