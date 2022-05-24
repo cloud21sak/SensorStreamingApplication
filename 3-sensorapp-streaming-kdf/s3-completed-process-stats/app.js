@@ -7,7 +7,7 @@
 const AWS = require("aws-sdk");
 AWS.config.region = process.env.AWS_REGION;
 const s3 = new AWS.S3();
-const documentClient = new AWS.DynamoDB.DocumentClient();
+let documentClient = undefined;
 
 let completedProcessData = {};
 completedProcessData.processSensorDataObj = {};
@@ -16,7 +16,10 @@ completedProcessData.processSensorStats = {};
 // Main Lambda handler
 exports.handler = async (event) => {
   console.log(JSON.stringify(event, null, 2));
-  
+
+  //var s3 = new AWS.S3();
+  documentClient = new AWS.DynamoDB.DocumentClient();
+
   const object = event.Records[0];
   console.log("CompletedProcessStatsFunction is called");
   console.log("Bucket name:", object.s3.bucket.name);

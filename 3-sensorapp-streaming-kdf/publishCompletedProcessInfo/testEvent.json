@@ -1,16 +1,16 @@
 {
   "Records": [
     {
-      "eventID": "0284542a2785a78d0b92d90348da5eb6",
-      "eventName": "MODIFY",
+      "eventID": "9d7e0e46fee49d0469bf0879f19d843a",
+      "eventName": "INSERT",
       "eventVersion": "1.1",
       "eventSource": "aws:dynamodb",
       "awsRegion": "us-east-1",
       "dynamodb": {
-        "ApproximateCreationDateTime": 1653003626,
+        "ApproximateCreationDateTime": 1653003987,
         "Keys": {
           "SK": {
-            "S": "dailystats"
+            "S": "completedstats"
           },
           "PK": {
             "S": "proc-1653001170323"
@@ -18,10 +18,10 @@
         },
         "NewImage": {
           "stats": {
-            "S": "{\"0\":{\"min_val\":4.6235998426249925,\"max_val\":99.56501335871535,\"median_val\":49.33136524626151,\"name\":\"temperature_0\"},\"1\":{\"min_val\":0.8948977521902046,\"max_val\":96.14166104854544,\"median_val\":43.48917756530841,\"name\":\"temperature_1\"},\"2\":{\"min_val\":1.8344313453757755,\"max_val\":99.63986336606551,\"median_val\":53.828115966656284,\"name\":\"temperature_2\"},\"3\":{\"min_val\":1.5463139946838123,\"max_val\":99.51828934697002,\"median_val\":62.21190166514603,\"name\":\"temperature_3\"},\"4\":{\"min_val\":2.7219765755846614,\"max_val\":93.39749556201566,\"median_val\":47.431618486911084,\"name\":\"temperature_4\"},\"5\":{\"min_val\":2.2748489886774914,\"max_val\":99.44805188656454,\"median_val\":41.414389751316435,\"name\":\"pressure_0\"},\"6\":{\"min_val\":0.7161078778359364,\"max_val\":98.4929852584731,\"median_val\":46.62321116342261,\"name\":\"pressure_1\"},\"7\":{\"min_val\":5.5255714652787,\"max_val\":99.39265166002092,\"median_val\":48.0984899253587,\"name\":\"pressure_2\"},\"8\":{\"min_val\":6.209423548962012,\"max_val\":99.78949768245269,\"median_val\":59.20210594073587,\"name\":\"pressure_3\"},\"9\":{\"min_val\":4.378839323112782,\"max_val\":97.28633883054314,\"median_val\":51.55748907367297,\"name\":\"pressure_4\"},\"10\":{\"min_val\":1.175692488182456,\"max_val\":96.15077936285626,\"median_val\":30.40598617883695,\"name\":\"humidity_0\"},\"11\":{\"min_val\":1.6551405281670428,\"max_val\":99.98492890260553,\"median_val\":41.16452546741976,\"name\":\"humidity_1\"},\"12\":{\"min_val\":0.09532165416337168,\"max_val\":96.96850410564998,\"median_val\":41.621747774443094,\"name\":\"humidity_2\"},\"13\":{\"min_val\":1.1607135601561458,\"max_val\":99.15975969789388,\"median_val\":34.98561182352087,\"name\":\"humidity_3\"},\"14\":{\"min_val\":3.001819610515244,\"max_val\":99.04806463707617,\"median_val\":51.431958339161945,\"name\":\"humidity_4\"}}"
+            "S": "{\"0\":{\"min_val\":4.514576601895204,\"max_val\":99.56501335871535,\"median_val\":51.258196333533505,\"name\":\"temperature_0\"},\"1\":{\"min_val\":0.8948977521902046,\"max_val\":96.74220922038641,\"median_val\":49.04868400996485,\"name\":\"temperature_1\"},\"2\":{\"min_val\":0.7402780621615257,\"max_val\":99.63986336606551,\"median_val\":55.878266495662764,\"name\":\"temperature_2\"},\"3\":{\"min_val\":1.0518851668290585,\"max_val\":99.51828934697002,\"median_val\":51.64107676823071,\"name\":\"temperature_3\"},\"4\":{\"min_val\":2.2550706365455975,\"max_val\":98.02686311905558,\"median_val\":47.320158151685355,\"name\":\"temperature_4\"},\"5\":{\"min_val\":2.2748489886774914,\"max_val\":99.44805188656454,\"median_val\":42.58512851011611,\"name\":\"pressure_0\"},\"6\":{\"min_val\":0.7161078778359364,\"max_val\":98.4929852584731,\"median_val\":45.00841591142901,\"name\":\"pressure_1\"},\"7\":{\"min_val\":2.652700845154099,\"max_val\":99.39265166002092,\"median_val\":47.42063159185539,\"name\":\"pressure_2\"},\"8\":{\"min_val\":0.6028825733110699,\"max_val\":99.78949768245269,\"median_val\":62.031910334885424,\"name\":\"pressure_3\"},\"9\":{\"min_val\":3.8447053556833533,\"max_val\":97.28633883054314,\"median_val\":55.332430970969185,\"name\":\"pressure_4\"},\"10\":{\"min_val\":0.16119646560417422,\"max_val\":97.19715960747514,\"median_val\":31.845630240124855,\"name\":\"humidity_0\"},\"11\":{\"min_val\":0.39563810768170615,\"max_val\":99.98492890260553,\"median_val\":43.58931404667699,\"name\":\"humidity_1\"},\"12\":{\"min_val\":0.09532165416337168,\"max_val\":96.99771909001345,\"median_val\":45.3135580315815,\"name\":\"humidity_2\"},\"13\":{\"min_val\":1.1607135601561458,\"max_val\":99.15975969789388,\"median_val\":36.288790039420896,\"name\":\"humidity_3\"},\"14\":{\"min_val\":3.001819610515244,\"max_val\":99.04806463707617,\"median_val\":51.431958339161945,\"name\":\"humidity_4\"}}"
           },
           "SK": {
-            "S": "dailystats"
+            "S": "completedstats"
           },
           "PK": {
             "S": "proc-1653001170323"
@@ -30,11 +30,11 @@
             "N": "1"
           },
           "ts": {
-            "N": "1653003626477"
+            "N": "1653003987626"
           }
         },
-        "SequenceNumber": "3000000000067573897161",
-        "SizeBytes": 1812,
+        "SequenceNumber": "3500000000067574121758",
+        "SizeBytes": 1829,
         "StreamViewType": "NEW_IMAGE"
       },
       "eventSourceARN": "arn:aws:dynamodb:us-east-1:159474638000:table/sensordata-table/stream/2022-05-19T21:24:39.191"

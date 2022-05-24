@@ -1,0 +1,68 @@
+[
+  {
+    "uuid": "fd1317cf-8c8a-4ad7-b054-67dde840d217",
+    "event": "update",
+    "deviceTimestamp": 1653273998800,
+    "second": 540,
+    "name": "pressure_3",
+    "sensorId": 8,
+    "processId": 1653273997780,
+    "facilityId": 1,
+    "sensorData": 82.00565988920141
+  },
+  {
+    "uuid": "85ee1013-997d-48d4-8b80-665c30bce87c",
+    "event": "update",
+    "deviceTimestamp": 1653273998807,
+    "second": 540,
+    "name": "humidity_2",
+    "sensorId": 12,
+    "processId": 1653273997780,
+    "facilityId": 1,
+    "sensorData": 79.19704521381266
+  },
+  {
+    "uuid": "0a4916bd-0f85-49b9-9919-0a8162862512",
+    "event": "update",
+    "deviceTimestamp": 1653273998795,
+    "second": 540,
+    "name": "temperature_4",
+    "sensorId": 4,
+    "processId": 1653273997780,
+    "facilityId": 1,
+    "sensorData": 75.51682308362533
+  },
+  {
+    "uuid": "054539a9-6f17-4f99-afb1-1e458b6d7d3a",
+    "event": "update",
+    "deviceTimestamp": 1653273998805,
+    "second": 540,
+    "name": "humidity_0",
+    "sensorId": 10,
+    "processId": 1653273997780,
+    "facilityId": 1,
+    "sensorData": 95.8091184276819
+  },
+  {
+    "uuid": "ea171a36-0258-4186-9675-4be0c6af7646",
+    "event": "update",
+    "deviceTimestamp": 1653273998799,
+    "second": 540,
+    "name": "pressure_2",
+    "sensorId": 7,
+    "processId": 1653273997780,
+    "facilityId": 1,
+    "sensorData": 55.512743723150535
+  },
+  {
+    "uuid": "38396e42-9bd6-4434-8b4f-b0c46b491077",
+    "event": "update",
+    "deviceTimestamp": 1653273998796,
+    "second": 540,
+    "name": "pressure_0",
+    "sensorId": 5,
+    "processId": 1653273997780,
+    "facilityId": 1,
+    "sensorData": 99.76175137399714
+  }
+]
