@@ -20,14 +20,14 @@ process.env.localTest = true;
 process.env.DDB_TABLE = "sensordata-table";
 
 // Lambda handler
-const { handler } = require("./app");
+const { handler } = require("../app");
 
 const main = async () => {
   console.time("localTest");
-  
+
   // Testing lambda function:
   console.dir(await handler(event));
-  
+
   // Delete the test resources:
   await deleteResourcesForTest();
 
