@@ -20,7 +20,7 @@ exports.handler = async (event) => {
   console.log("Bucket name:", object.s3.bucket.name);
   console.log("Bucket key:", object.s3.object.key);
 
-  // Load incoming records written by Kinesis Data Firehose from S3:
+  // Load incoming records from S3 bucket written by Kinesis Data Firehose:
   const response = await s3
     .getObject({
       Bucket: object.s3.bucket.name,
@@ -40,17 +40,6 @@ exports.handler = async (event) => {
 
   let runningProcessRecords = checkForRunningProcessRecords(jsonRecords);
   if (runningProcessRecords.length !== 0) {
-    // console.log("No running processes");
-    // return;
-
-    // jsonRecords = runningProcessRecords;
-    // const recordsBySensorId = getRecordsBySensorId(runningProcessRecords);
-
-    //await getFacilityProcessData(jsonRecords);
-
-    // Load intermediate run-time data of a running facility process
-    //await getCurrentProcessDataPerFacility(runningProcessRecords);
-
     // Append incoming sensor data records of a running process:
     console.log(
       "Facility process records before append:",
@@ -80,9 +69,6 @@ exports.handler = async (event) => {
     // Save completed process data into the history bucket:
     await saveCompletedProcessData(completedFacilityProcessRecords);
   }
-
-  // Save the per-second data of each sensor in DDB
-  // await saveDailyDataBySensorId(recordsBySensorId);
 };
 
 // Convert incoming data into a JSON array
@@ -118,26 +104,6 @@ const checkForRunningProcessRecords = (jsonRecords) => {
   return runningProcessRecords;
 };
 
-// Helper function to return distinct array of facility IDs from records
-// const getFacilityIds = (jsonRecords) => {
-//   const facilityIdsAll = jsonRecords.map((record) => record.facilityId);
-//   console.log("facilityIdsAll", facilityIdsAll);
-//   facilityIds = [...new Set(facilityIdsAll)];
-//   return facilityIds;
-// };
-
-// Load current process data per facility in the batch
-// const getCurrentProcessDataPerFacility = async (jsonRecords) => {
-//   // Return list of facility IDs referenced in this batch of sensor data records
-//   let facilityIds = getFacilityIds(jsonRecords);
-//   await Promise.all(
-//     facilityIds.map(
-//       async (facilityId) => await getFacilityProcessData(facilityId)
-//     )
-//   );
-//   console.log("getCurrentProcessDataPerFacility done");
-// };
-
 const getCurrentProcessDataPerFacility = async (jsonRecords) => {
   // Get running process data per facility:
   await Promise.all(
@@ -145,29 +111,6 @@ const getCurrentProcessDataPerFacility = async (jsonRecords) => {
   );
   console.log("getCurrentProcessDataPerFacility done");
 };
-
-// Load intermediate sensor data for a process running in a facility:
-// const getFacilityProcessData = async (facilityId) => {
-//   // Load current facility process data from S3
-//   console.log("getFacilityProcessData: ", facilityId);
-//   try {
-//     const response = await s3
-//       .getObject({
-//         Bucket: process.env.RuntimeProcessBucket,
-//         Key: `facility-${facilityId}`,
-//       })
-//       .promise();
-//     facilityProcessData[`facility-${facilityId}`] = JSON.parse(
-//       response.Body.toString()
-//     );
-//   } catch (err) {
-//     // If this 404s, it means no previous facility process data has been saved.
-//     // Any other error should be logged.
-//     if (!err.code === "NoSuchError") {
-//       console.error("getFacilityProcessDataFromS3: ", err);
-//     }
-//   }
-// };
 
 const getFacilityProcessData = async (processDataRecord) => {
   // Load current facility process data from S3
@@ -339,7 +282,6 @@ const saveFacilityProcessData = async (
     console.log(
       "Length of additional data to save:",
       facilityProcessBucketKey,
-      // processDataRecords[facilityBucketFolder][facilityProcessBucketKey].length
       currentS3ProcessData[facilityBucketFolder][facilityProcessBucketKey]
         .length
     );
@@ -353,13 +295,11 @@ const saveFacilityProcessData = async (
     console.log(
       "Length of total data to save:",
       facilityProcessBucketKey,
-      // processDataRecords[facilityBucketFolder][facilityProcessBucketKey].length
       currentS3ProcessData[facilityBucketFolder][facilityProcessBucketKey]
         .length
     );
 
     const Body = JSON.stringify(
-      // processDataRecords[facilityBucketFolder][facilityProcessBucketKey]
       currentS3ProcessData[facilityBucketFolder][facilityProcessBucketKey]
     );
 
@@ -395,7 +335,7 @@ const appendToFacilityProcessData = async (runningProcessRecords) => {
     if (!runningProcessData[facilityId][processId]) {
       runningProcessData[facilityId][processId] = [];
 
-      console.log("In !facilityProcessData[facilityId][processId]");
+      console.log("In !runningProcessData[facilityId][processId]");
       return runningProcessData[facilityId][processId].push(record);
     }
 

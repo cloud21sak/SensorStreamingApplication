@@ -1,0 +1,83 @@
+const AWS = require("aws-sdk");
+const event = require("./testEvent.json");
+
+// Mock environment variables
+process.env.AWS_REGION = "us-east-1";
+AWS.config.region = process.env.AWS_REGION;
+process.env.localTest = true;
+
+const s3 = new AWS.S3();
+// S3 test bucket info
+const runtimeBucketName = "sensordata-runtimeprocess-bucket";
+process.env.RuntimeProcessBucket = runtimeBucketName;
+//const runtimeBucketKey = "facility-1/process-1653480073085";
+const firehoseBucketName = event.Records[0].s3.bucket.name;
+const firehoseBucketKey = event.Records[0].s3.object.key;
+const testDataFile = "/testData.json";
+
+const main = async () => {
+  //async function initResourcesForTest() {
+  console.log(
+    `Initializing test resources: Firehose S3 bucket: ${firehoseBucketName}, runtime S3 bucket: ${runtimeBucketName}`
+  );
+
+  // Create the parameters for calling createBucket
+  var firehoseBucketParams = {
+    Bucket: firehoseBucketName,
+  };
+
+  // Check if test bucket exists
+  try {
+    const data = await s3.headBucket(firehoseBucketParams).promise();
+    console.log("firehoseBucket headBucket data: ", data);
+  } catch (err) {
+    const result = await s3.createBucket(firehoseBucketParams).promise();
+    console.log("firehoseBucket createBucket result: ", result);
+  }
+
+  // Upload test data to firehose S3 bucket:
+  // Configure the file stream and obtain the upload parameters
+  var fs = require("fs");
+  var path = require("path");
+
+  console.log("process arguments:", process.argv);
+
+  var testFilePath = path.join(__dirname, testDataFile);
+  console.log("testFilePath: ", testFilePath);
+
+  var fileStream = fs.createReadStream(testFilePath);
+  fileStream.on("error", function (err) {
+    console.log("File Error", err);
+  });
+
+  var uploadParams = { Bucket: "", Key: "", Body: "" };
+  uploadParams.Bucket = firehoseBucketName;
+  uploadParams.Key = firehoseBucketKey;
+  uploadParams.Body = fileStream;
+
+  try {
+    const result = await s3.upload(uploadParams).promise();
+    console.log("s3 upload result: ", result);
+  } catch (err) {
+    console.log("s3 upload error: ", err);
+  }
+
+  // Check if runtime process bucket exists:
+  // Create the parameters for calling runtime process bucket:
+  var runtimeBucketParams = {
+    Bucket: runtimeBucketName,
+  };
+
+  try {
+    const data = await s3.headBucket(runtimeBucketParams).promise();
+    console.log("runtimeBucket headBucket data: ", data);
+  } catch (err) {
+    const result = await s3.createBucket(runtimeBucketParams).promise();
+    console.log("runtime createBucket result: ", result);
+  }
+
+  console.log("Test resources have been created!");
+};
+
+//module.exports = { initResourcesForTest };
+main().catch((error) => console.error(error));
