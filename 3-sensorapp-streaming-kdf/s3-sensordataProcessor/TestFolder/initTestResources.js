@@ -7,18 +7,20 @@ AWS.config.region = process.env.AWS_REGION;
 process.env.localTest = true;
 
 const s3 = new AWS.S3();
+
 // S3 test bucket info
 const runtimeBucketName = "sensordata-runtimeprocess-bucket";
+const historyBucketName = "sensordata-history-bucket-sak";
 process.env.RuntimeProcessBucket = runtimeBucketName;
-//const runtimeBucketKey = "facility-1/process-1653480073085";
+process.env.HistoryBucket = historyBucketName;
 const firehoseBucketName = event.Records[0].s3.bucket.name;
 const firehoseBucketKey = event.Records[0].s3.object.key;
-const testDataFile = "/testData.json";
+const testDataFile = "/testData.txt";
 
 const main = async () => {
   //async function initResourcesForTest() {
   console.log(
-    `Initializing test resources: Firehose S3 bucket: ${firehoseBucketName}, runtime S3 bucket: ${runtimeBucketName}`
+    `Initializing test resources: Firehose S3 bucket: ${firehoseBucketName}, runtime S3 bucket: ${runtimeBucketName}, history S3 bucket: ${historyBucketName}`
   );
 
   // Create the parameters for calling createBucket
@@ -74,6 +76,20 @@ const main = async () => {
   } catch (err) {
     const result = await s3.createBucket(runtimeBucketParams).promise();
     console.log("runtime createBucket result: ", result);
+  }
+
+  // Check if history bucket exists:
+  // Create the parameters for calling history bucket:
+  var historyBucketParams = {
+    Bucket: historyBucketName,
+  };
+
+  try {
+    const data = await s3.headBucket(historyBucketParams).promise();
+    console.log("history bucket headBucket data: ", data);
+  } catch (err) {
+    const result = await s3.createBucket(historyBucketParams).promise();
+    console.log("history bucket createBucket result: ", result);
   }
 
   console.log("Test resources have been created!");

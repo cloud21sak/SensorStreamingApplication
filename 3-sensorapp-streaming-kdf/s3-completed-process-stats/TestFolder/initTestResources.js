@@ -9,7 +9,7 @@ process.env.localTest = true;
 const s3 = new AWS.S3();
 // S3 test bucket info
 const testBucketName = "sensordata-history-bucket-sak";
-const testBucketKey = "facility-1/process-1653001170323";
+const testBucketKey = "facility-1/process-1654083155416";
 const testDataFile = "/testData.json";
 
 // Test DynamoDb table info:

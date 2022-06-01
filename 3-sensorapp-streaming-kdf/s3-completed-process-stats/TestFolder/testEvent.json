@@ -27,7 +27,7 @@
           "arn": "arn:aws:s3:::sensordata-history-bucket-sak"
         },
         "object": {
-          "key": "facility-1/process-1653001170323",
+          "key": "facility-1/process-1654083155416",
           "size": 198106,
           "eTag": "701f209e381922e43c283df72e5ace86",
           "sequencer": "006286D6D02BAD78E4"

@@ -4,21 +4,21 @@
       "eventVersion": "2.1",
       "eventSource": "aws:s3",
       "awsRegion": "us-east-1",
-      "eventTime": "2022-05-19T23:44:23.744Z",
+      "eventTime": "2022-06-01T11:33:54.759Z",
       "eventName": "ObjectCreated:Put",
       "userIdentity": {
-        "principalId": "AWS:AROASKILN3SYHOQLUQZBE:AWSFirehoseToS3"
+        "principalId": "AWS:AROASKILN3SYBYQJXR6DB:AWSFirehoseToS3"
       },
       "requestParameters": {
-        "sourceIPAddress": "3.238.175.72"
+        "sourceIPAddress": "52.207.234.87"
       },
       "responseElements": {
-        "x-amz-request-id": "Q4HEKY614NFYRDS4",
-        "x-amz-id-2": "If4ZKlVuV91+ZyQ9L/SLhkEz926qs6eABFc7V2ZkVQ9TB+Z4iCuU2CE8No2y3dYIDqHO2yLLxs+j/i6UEUUmW4ne36+Yr8Lz"
+        "x-amz-request-id": "A55B8D62Z4AV713G",
+        "x-amz-id-2": "0IYQgMVP7p2B+XfdOMpxa2xbS4uVQYWTgphkTOffveQWNFyxgDnjrg1d9/vMTKqLsD24aTmakuUrihlSftoqqYA37vH5LIrB"
       },
       "s3": {
         "s3SchemaVersion": "1.0",
-        "configurationId": "1344be83-a924-45a3-b9d7-4fa3d06d6278",
+        "configurationId": "93f99411-387b-46a2-8d91-28f9a4458a29",
         "bucket": {
           "name": "sensordata-firehose-bucket-sak",
           "ownerIdentity": {
@@ -27,10 +27,10 @@
           "arn": "arn:aws:s3:::sensordata-firehose-bucket-sak"
         },
         "object": {
-          "key": "2022/05/19/23/sensordata-data-firehose-1-2022-05-19-23-43-05-e5926938-002e-4cd3-978c-cc489f4018e5",
-          "size": 4541,
-          "eTag": "593c9cab7147b5dff6f98c45cd3651e6",
-          "sequencer": "006286D657B136160E"
+          "key": "2022/06/01/11/sensordata-data-firehose-1-2022-06-01-11-32-36-0d74e85f-2cd5-40f0-836c-d97b70770247",
+          "size": 197849,
+          "eTag": "8f0acc6e4eeb1bef5e27aeed39c327f8",
+          "sequencer": "0062974EA2AB4EE4F7"
         }
       }
     }

@@ -27,7 +27,7 @@
           "arn": "arn:aws:s3:::sensordata-runtimeprocess-bucket"
         },
         "object": {
-          "key": "facility-1/process-1653480073085",
+          "key": "facility-1/process-1654083155416",
           "size": 198106,
           "eTag": "701f209e381922e43c283df72e5ace86",
           "sequencer": "006286D6D00263C8C3"
