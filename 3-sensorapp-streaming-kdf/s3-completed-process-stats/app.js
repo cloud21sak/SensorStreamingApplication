@@ -51,7 +51,7 @@ exports.handler = async (event) => {
   await getProcessSensorData(jsonRecords);
 
   // 4. Calculate completed process stats for each sensor:
-  getProcessSensorStats();
+  await getProcessSensorStats();
 
   // 5. Save completed process stats for each sensor to DDB table:
   console.log("Saving completed process stats for each sensor to DDB");
@@ -60,40 +60,48 @@ exports.handler = async (event) => {
 };
 
 const getProcessSensorData = async (jsonRecords) => {
-  jsonRecords.map((sensorDataRecord) => {
-    console.log("sensorDataRecord:", sensorDataRecord);
-    console.log(
-      "completedProcessData.processSensorDataObj: ",
-      completedProcessData.processSensorDataObj
-    );
-    if (
-      !(sensorDataRecord.sensorId in completedProcessData.processSensorDataObj)
-    ) {
-      completedProcessData.processSensorDataObj[
-        `${sensorDataRecord.sensorId}`
-      ] = {};
-      completedProcessData.processSensorDataObj[
-        `${sensorDataRecord.sensorId}`
-      ].sensorData = {};
-      completedProcessData.processSensorDataObj[
-        `${sensorDataRecord.sensorId}`
-      ].name = sensorDataRecord.name;
-    }
+  try {
+    jsonRecords.map((sensorDataRecord) => {
+      console.log("sensorDataRecord:", sensorDataRecord);
+      console.log(
+        "completedProcessData.processSensorDataObj: ",
+        completedProcessData.processSensorDataObj
+      );
+      if (
+        !(
+          sensorDataRecord.sensorId in completedProcessData.processSensorDataObj
+        )
+      ) {
+        completedProcessData.processSensorDataObj[
+          `${sensorDataRecord.sensorId}`
+        ] = {};
+        completedProcessData.processSensorDataObj[
+          `${sensorDataRecord.sensorId}`
+        ].sensorData = {};
+        completedProcessData.processSensorDataObj[
+          `${sensorDataRecord.sensorId}`
+        ].name = sensorDataRecord.name;
+      }
 
-    // completedProcessData.processSensorDataObj[
-    //   `${sensorDataRecord.sensorId}`
-    // ].sensorData.push(sensorDataRecord.sensorData);
+      // completedProcessData.processSensorDataObj[
+      //   `${sensorDataRecord.sensorId}`
+      // ].sensorData.push(sensorDataRecord.sensorData);
 
-    completedProcessData.processSensorDataObj[
-      `${sensorDataRecord.sensorId}`
-    ].sensorData[`${sensorDataRecord.second}`] = sensorDataRecord.sensorData;
-  });
+      completedProcessData.processSensorDataObj[
+        `${sensorDataRecord.sensorId}`
+      ].sensorData[`${sensorDataRecord.second}`] = sensorDataRecord.sensorData;
+
+      return;
+    });
+  } catch (error) {
+    console.log("Error in getProcessSensorData(): ", error);
+  }
 
   console.log("completedProcessData:", completedProcessData);
 };
 
 // TODO: refactor this into a separate lib module
-const getProcessSensorStats = () => {
+const getProcessSensorStats = async () => {
   for (const [sensorId, sensorDataInfo] of Object.entries(
     completedProcessData.processSensorDataObj
   )) {
@@ -129,6 +137,8 @@ const getProcessSensorStats = () => {
       sensorId,
       completedProcessData.processSensorStats[sensorId]
     );
+
+    //  return;
   }
 };
 

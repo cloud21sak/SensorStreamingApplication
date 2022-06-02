@@ -21,9 +21,11 @@ const main = async () => {
   console.time("localTest");
 
   // Testing lambda function:
+  console.log("Testing lambda!");
   console.dir(await handler(event));
 
   // Delete the test resources:
+  console.log("Deleting test resources!");
   await deleteResourcesForTest();
 
   console.timeEnd("localTest");

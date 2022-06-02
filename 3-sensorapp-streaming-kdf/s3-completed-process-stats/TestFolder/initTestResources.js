@@ -128,6 +128,7 @@ const main = async () => {
   } catch (err) {
     console.log("s3 upload error: ", err);
   }
+
   console.log("Test resources have been created!");
 };
 

@@ -84,23 +84,33 @@ const convertToJsonArray = (raw) => {
 const checkForCompletedProcessRecords = (currentRecords) => {
   let completedProcessRecords = [];
   console.log("currentRecords: ", currentRecords);
-  currentRecords.map((record) => {
-    if (record.event === "complete") {
-      console.log("process complete! ", record);
-      completedProcessRecords.push(record);
-    }
-  });
+  // currentRecords.map((record) => {
+  //   if (record.event === "complete") {
+  //     console.log("process complete! ", record);
+  //     completedProcessRecords.push(record);
+  //   }
+  // });
+
+  completedProcessRecords = currentRecords.filter(
+    (record) => record.event === "complete"
+  );
+
   console.log("completedProcessRecords:", completedProcessRecords);
   return completedProcessRecords;
 };
 
 const checkForRunningProcessRecords = (jsonRecords) => {
   let runningProcessRecords = [];
-  jsonRecords.map((record) => {
-    if (record.event !== "complete") {
-      runningProcessRecords.push(record);
-    }
-  });
+  // jsonRecords.map((record) => {
+  //   if (record.event !== "complete") {
+  //     runningProcessRecords.push(record);
+  //   }
+  // });
+
+  runningProcessRecords = jsonRecords.filter(
+    (record) => record.event !== "complete"
+  );
+
   return runningProcessRecords;
 };
 

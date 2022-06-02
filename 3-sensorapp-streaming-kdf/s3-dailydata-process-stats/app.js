@@ -48,7 +48,7 @@ exports.handler = async (event) => {
   await getDailySensorData(jsonRecords);
 
   // 4. Calculate current cumulative stats for each sensor of the process:
-  getDailySensorStats();
+  await getDailySensorStats();
 
   // 5. Save cumulative daily sensor stats of the running process into DDB table:
   console.log("Saving sensor daily stats to DDB");
@@ -75,20 +75,18 @@ const getDailySensorData = async (jsonRecords) => {
       ].name = sensorDataRecord.name;
     }
 
-    // facilityProcessDailyData.sensorDailyData[
-    //   `${sensorDataRecord.sensorId}`
-    // ].sensorData.push(sensorDataRecord.sensorData);
-
     facilityProcessDailyData.sensorDailyData[
       `${sensorDataRecord.sensorId}`
     ].sensorData[`${sensorDataRecord.second}`] = sensorDataRecord.sensorData;
+
+    return;
   });
 
   console.log("facilityProcessDailyData:", facilityProcessDailyData);
 };
 
 // TODO: refactor this into a separate lib module
-const getDailySensorStats = () => {
+const getDailySensorStats = async () => {
   for (const [sensorId, sensorDataInfo] of Object.entries(
     facilityProcessDailyData.sensorDailyData
   )) {
@@ -118,6 +116,8 @@ const getDailySensorStats = () => {
       sensorId,
       facilityProcessDailyData.sensorDailyStats[sensorId]
     );
+
+    // return;
   }
 };
 
