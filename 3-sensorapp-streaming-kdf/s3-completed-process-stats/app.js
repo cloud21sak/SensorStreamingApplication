@@ -81,11 +81,7 @@ const getProcessSensorData = async (jsonRecords) => {
         completedProcessData.processSensorDataObj[
           `${sensorDataRecord.sensorId}`
         ].name = sensorDataRecord.name;
-      }
-
-      // completedProcessData.processSensorDataObj[
-      //   `${sensorDataRecord.sensorId}`
-      // ].sensorData.push(sensorDataRecord.sensorData);
+      }     
 
       completedProcessData.processSensorDataObj[
         `${sensorDataRecord.sensorId}`
@@ -114,12 +110,7 @@ const getProcessSensorStats = async () => {
     const min_val = Math.min(...sensorData);
     console.log("min_val: ", min_val);
     const max_val = Math.max(...sensorData);
-    const median_val = median(sensorData);
-
-    // const min_val = Math.min(...sensorDataInfo.sensorData);
-    // console.log("min_val: ", min_val);
-    // const max_val = Math.max(...sensorDataInfo.sensorData);
-    // const median_val = median(sensorDataInfo.sensorData);
+    const median_val = median(sensorData);    
 
     if (!(sensorId in completedProcessData.processSensorStats)) {
       completedProcessData.processSensorStats[`${sensorId}`] = {};
@@ -136,9 +127,7 @@ const getProcessSensorStats = async () => {
       "completedProcessData.processSensorStats[sensorId]:",
       sensorId,
       completedProcessData.processSensorStats[sensorId]
-    );
-
-    //  return;
+    );    
   }
 };
 

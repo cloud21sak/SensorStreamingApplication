@@ -116,8 +116,6 @@ const getDailySensorStats = async () => {
       sensorId,
       facilityProcessDailyData.sensorDailyStats[sensorId]
     );
-
-    // return;
   }
 };
 
