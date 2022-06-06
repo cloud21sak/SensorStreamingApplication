@@ -15,7 +15,6 @@ exports.handler = async (event) => {
   const params = {
     TableName: process.env.DDB_TABLE,
     IndexName: "GSI_Index",
-
     KeyConditionExpression: "GSI = :gsi and begins_with(SK, :sk)",
     ExpressionAttributeValues: { ":gsi": facilityId, ":sk": "facilityconfig" },
     ScanIndexForward: true,

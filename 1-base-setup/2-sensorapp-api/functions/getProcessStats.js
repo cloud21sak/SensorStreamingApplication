@@ -10,7 +10,7 @@ const documentClient = new AWS.DynamoDB.DocumentClient();
 // Main Lambda handler
 exports.handler = async (event) => {
   console.log(JSON.stringify(event, null, 2));
-  // const facilityId = parseInt(event.queryStringParameters.facilityId);
+
   const processId = event.queryStringParameters.processId;
 
   const params = {
@@ -31,7 +31,7 @@ exports.handler = async (event) => {
   console.log("result: ", result);
 
   let statResults = [];
-  result.Items.map((item) => {   
+  result.Items.map((item) => {
     const statsItem = {
       processId: item.PK,
       facilityId: item.GSI,
@@ -44,4 +44,3 @@ exports.handler = async (event) => {
 
   return statResults;
 };
-

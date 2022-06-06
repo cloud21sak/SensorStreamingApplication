@@ -14,27 +14,24 @@ exports.handler = async (event) => {
   const params = {
     TableName: process.env.DDB_TABLE,
     IndexName: "LSI_PK_Index_Keys_Only",
-    //KeyConditionExpression: "begins_with(SK, :sk)",
     FilterExpression: "begins_with(SK, :sk)",
-
     ExpressionAttributeValues: { ":sk": "completedstats" },
     ScanIndexForward: true,
     Limit: 200,
   };
 
   console.log(params);
-  // const result = await documentClient.query(params).promise();
   const result = await documentClient.scan(params).promise();
   console.log("result: ", result);
 
-  let statResults = [];
+  let completedProcesses = [];
   result.Items.map((item) => {
     const statsItem = {
       processId: item.PK,
     };
     console.log("statsItem: ", statsItem);
-    statResults.push(statsItem);
+    completedProcesses.push(statsItem);
   });
 
-  return statResults;
+  return completedProcesses;
 };

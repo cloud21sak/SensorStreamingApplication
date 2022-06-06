@@ -1,0 +1,142 @@
+{
+  "ddbParams": {
+    "AttributeDefinitions": [
+      {
+        "AttributeName": "GSI",
+        "AttributeType": "N"
+      },
+      {
+        "AttributeName": "PK",
+        "AttributeType": "S"
+      },
+      {
+        "AttributeName": "SK",
+        "AttributeType": "S"
+      }
+    ],
+    "KeySchema": [
+      {
+        "AttributeName": "PK",
+        "KeyType": "HASH"
+      },
+      {
+        "AttributeName": "SK",
+        "KeyType": "RANGE"
+      }
+    ],
+    "GlobalSecondaryIndexes": [
+      {
+        "IndexName": "GSI_Index",
+        "KeySchema": [
+          { "AttributeName": "GSI", "KeyType": "HASH" },
+          { "AttributeName": "SK", "KeyType": "RANGE" }
+        ],
+        "Projection": {
+          "ProjectionType": "ALL"
+        },
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": 10,
+          "WriteCapacityUnits": 10
+        }
+      }
+    ],
+
+    "LocalSecondaryIndexes": [
+      {
+        "IndexName": "LSI_PK_Index",
+        "KeySchema": [
+          {
+            "AttributeName": "PK",
+            "KeyType": "HASH"
+          },
+          {
+            "AttributeName": "SK",
+            "KeyType": "RANGE"
+          }
+        ],
+        "Projection": {
+          "ProjectionType": "ALL"
+        }
+      },
+      {
+        "IndexName": "LSI_PK_Index_Keys_Only",
+        "KeySchema": [
+          {
+            "AttributeName": "PK",
+            "KeyType": "HASH"
+          },
+          {
+            "AttributeName": "SK",
+            "KeyType": "RANGE"
+          }
+        ],
+        "Projection": {
+          "ProjectionType": "KEYS_ONLY"
+        }
+      }
+    ],
+    "ProvisionedThroughput": {
+      "ReadCapacityUnits": 20,
+      "WriteCapacityUnits": 20
+    },
+    "TableName": "",
+    "StreamSpecification": {
+      "StreamEnabled": false
+    }
+  },
+
+  "completedProcessTestDataList": [
+    {
+      "completedProcessTestData": {
+        "facilityId": 1,
+        "processId": "123415678324",
+        "processSensorStats": [
+          {
+            "sensorId": 10,
+            "sensorStats": {
+              "min_val": 0.9530454460870974,
+              "max_val": 92.03425934315035,
+              "median_val": 52.2533359524209,
+              "name": "humidity_0"
+            }
+          },
+          {
+            "sensorId": 14,
+            "sensorStats": {
+              "min_val": 7.710092709281646,
+              "max_val": 86.41931833047846,
+              "median_val": 36.82596469612731,
+              "name": "humidity_4"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "completedProcessTestData": {
+        "facilityId": 1,
+        "processId": "179415678324",
+        "processSensorStats": [
+          {
+            "sensorId": 8,
+            "sensorStats": {
+              "min_val": 6.080775149651285,
+              "max_val": 98.63379706992896,
+              "median_val": 47.852457900491444,
+              "name": "pressure_3"
+            }
+          },
+          {
+            "sensorId": 11,
+            "sensorStats": {
+              "min_val": 17.015029288341378,
+              "max_val": 96.40693553314847,
+              "median_val": 38.17382447899972,
+              "name": "humidity_1"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
