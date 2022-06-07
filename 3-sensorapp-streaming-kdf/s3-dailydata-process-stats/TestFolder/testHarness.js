@@ -2,11 +2,11 @@
  *  SPDX-License-Identifier: MIT-0
  */
 
+const AWS = require("aws-sdk");
+
 // Mock event
 const event = require("./testEvent.json");
 const { deleteResourcesForTest } = require("./deleteTestResources.js");
-
-const AWS = require("aws-sdk");
 
 // Mock environment variables
 process.env.AWS_REGION = "us-east-1";

@@ -5,11 +5,12 @@
 const AWS = require("aws-sdk");
 
 AWS.config.region = process.env.AWS_REGION;
-const documentClient = new AWS.DynamoDB.DocumentClient();
+//let documentClient = undefined;
 
 // Main Lambda handler
 exports.handler = async (event) => {
   console.log(JSON.stringify(event, null, 2));
+  const documentClient = new AWS.DynamoDB.DocumentClient();
 
   const params = {
     TableName: process.env.DDB_TABLE,

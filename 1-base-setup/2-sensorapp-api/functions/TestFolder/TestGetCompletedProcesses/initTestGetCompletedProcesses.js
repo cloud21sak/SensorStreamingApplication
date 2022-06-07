@@ -1,3 +1,7 @@
+/*! Copyright Sergei Akopov (thecloud21.com). All Rights Reserved.
+ *  SPDX-License-Identifier: MIT-0
+ */
+
 const AWS = require("aws-sdk");
 
 // Mock environment variables
@@ -6,7 +10,7 @@ AWS.config.region = process.env.AWS_REGION;
 process.env.DDB_TABLE = "sensordata-table";
 process.env.localTest = true;
 
-const testResourcesData = require("./testResources.json");
+const testResourcesData = require("../testResources.json");
 
 // DynamoDb table info:
 var ddbParams = testResourcesData.ddbParams;
@@ -14,7 +18,8 @@ ddbParams.TableName = process.env.DDB_TABLE;
 let ddb = new AWS.DynamoDB({ apiVersion: "2012-08-10" });
 let documentClient = undefined;
 
-const main = async () => {
+//const main = async () => {
+async function initTestGetCompletedProcesses() {
   console.log(
     `Initializing test resources: DynamoDB table: ${process.env.DDB_TABLE}`
   );
@@ -31,6 +36,8 @@ const main = async () => {
     // Create test DDB table:
     let result = await ddb.createTable(ddbParams).promise();
     console.log("createTable result: ", result);
+
+    // Wait until TableStatus is "ACTIVE":
     do {
       await sleep(4000);
       console.log("Trying table");
@@ -51,7 +58,7 @@ const main = async () => {
   }
 
   console.log("Test resources have been created!");
-};
+}
 
 const generateCompletedProcessData = async (testData) => {
   let completedProcessData = {};
@@ -116,5 +123,5 @@ function sleep(millisec) {
   return new Promise((resolve) => setTimeout(resolve, millisec));
 }
 
-//module.exports = { initResourcesForTest };
-main().catch((error) => console.error(error));
+module.exports = { initTestGetCompletedProcesses };
+//main().catch((error) => console.error(error));
