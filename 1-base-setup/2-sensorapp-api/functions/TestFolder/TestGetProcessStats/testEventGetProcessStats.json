@@ -1,0 +1,50 @@
+{
+  "version": "2.0",
+  "routeKey": "GET /processStats",
+  "rawPath": "/processStats",
+  "rawQueryString": "processId=proc-1654687148923",
+  "headers": {
+    "accept": "application/json, text/plain, */*",
+    "accept-encoding": "gzip, deflate, br",
+    "accept-language": "en-US,en;q=0.9",
+    "authorization": "IQoJb3JpZ2luX2VjEPT//////////wEaCXVzLWVhc3QtMSJIMEYCIQCPZefU6X/pTOonfWMN+lqMOj4KidMHYik0uWTaaquXUgIhAJIKijzCr5Y9SrmFGYrH73sjpXgES+nu8+mgtx5nvE1yKs0ECOz//////////wEQAhoMMTU5NDc0NjM4MDAwIgzB2AyUxiTcv1Ckqp0qoQQ8ECDq1uT5zLk6V2HqnkU+VOFAuCA0Z4XQR0Yz0oDLkWe5XXt4fJIchlMz/LaRM7w0ECL/AjXGpLPWdoGU59GA0Bs06C8LXWmtmUspVfbZFnLYnWvIoDeNk7Yq6YATgXVMCRfbkt/GLwaef9bO9rVdZaxy8pXkVLQh5aZE61k9YQYuCObmIpB5I6pDi798Kb8mMuHdsJ7upd7J6CU1UVJyMpRVqe3iK+jobojHX8tNr9uKtQ60b2B39ZPSjea3ezPPg2fAcMciZhcSCgUGQxThLWOYfXLXtol1pdsoJ/nwEZB8SuFky8Z69xDGKfPY8f7MDvXbdBsyNN4BdY/d+08aqt3Rlf0kBQyhC0JWkmm5JSuvt6Yp+XhiGGpyDm2KX56yDi4MqcCD4H2W6I8u9eXpbRtXvjQCKtYCgdNFeVP0ewhS9DZNY//q1nC+e9+rNV4IT2V/JqRNQfRnmAp/TiZmj/P7EPrJDDRX9aCwC4iB/44wvIm072ndGjd8HQT3zmUlMaDJWeJrNiEqRpUs4hwfPCgoXZj52c4JHXZTt+6ja8o8Fd+fO1Qp0upi3N0+SkibTzeJJzrKRWcOb1dlmeVWUwUtDgxlWVffgEmxY9psTjpjvCrR0Clt17TEckCe5eTU3WbS4G5IS6FrOORoBlHWEraewMfQonCivZZw0R1bu5tt32OQiVvhucZrHHxz31Va9FlsJ6RI6pUTcRKvUb2Z/TD5ioKVBjqEAlwPY65cmhwWc4BjmuJcXjZq9tTDVkJXgA7AqnIW22pXKK8ASQGIT/Zwlz69YRpTNsNCDAvCd4bT7b4rrYc7zp/Ol25SgSGnn6jr0TCrLQhMiJog743aKBnel6oJmlVnyET9XmTxXXFSfAwbxOU30unXjvrXPkXTcAl5EIH45BeAhB+wzgfQWFVYlIwZQ52DTCf8AGIoFWHFoJVHdDX6N9C9VMpCC+tGaERhqWajl5h2V+GM6m/vR64dYeLiC+0RaDdrQyzg6cat3vZ0uWY2sPb+wy6ayWSVkyfN0J7voLYZfbWXzs+81sslwvllRltipTZIp5Wr213VQ7eIRJ2mLYfgs7ra",
+    "content-length": "0",
+    "dnt": "1",
+    "host": "xcnv4tux3m.execute-api.us-east-1.amazonaws.com",
+    "origin": "http://localhost:8080",
+    "referer": "http://localhost:8080/",
+    "sec-ch-ua": "\" Not A;Brand\";v=\"99\", \"Chromium\";v=\"102\", \"Google Chrome\";v=\"102\"",
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "cross-site",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36",
+    "x-amzn-trace-id": "Root=1-62a08ef1-5002792933762f1740568e5f",
+    "x-forwarded-for": "73.4.232.39",
+    "x-forwarded-port": "443",
+    "x-forwarded-proto": "https"
+  },
+  "queryStringParameters": {
+    "processId": "proc-1654687148923"
+  },
+  "requestContext": {
+    "accountId": "159474638000",
+    "apiId": "xcnv4tux3m",
+    "domainName": "xcnv4tux3m.execute-api.us-east-1.amazonaws.com",
+    "domainPrefix": "xcnv4tux3m",
+    "http": {
+      "method": "GET",
+      "path": "/processStats",
+      "protocol": "HTTP/1.1",
+      "sourceIp": "73.4.232.39",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36"
+    },
+    "requestId": "TZtF0hcKoAMESDw=",
+    "routeKey": "GET /processStats",
+    "stage": "$default",
+    "time": "08/Jun/2022:11:58:41 +0000",
+    "timeEpoch": 1654689521804
+  },
+  "isBase64Encoded": false
+}

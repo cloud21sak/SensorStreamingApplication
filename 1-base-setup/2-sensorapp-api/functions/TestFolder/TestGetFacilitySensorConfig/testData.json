@@ -1,0 +1,26 @@
+{
+  "facilityId": 1,
+  "sensortypes": [
+    {
+      "typeId": 0,
+      "name": "temperature",
+      "minval": 0,
+      "maxval": 100,
+      "totalnumber": 5
+    },
+    {
+      "typeId": 1,
+      "name": "pressure",
+      "minval": 0,
+      "maxval": 100,
+      "totalnumber": 5
+    },
+    {
+      "typeId": 2,
+      "name": "humidity",
+      "minval": 0,
+      "maxval": 100,
+      "totalnumber": 5
+    }
+  ]
+}
