@@ -5,14 +5,12 @@
 const AWS = require("aws-sdk");
 
 // Mock event
-const event = require("./testEventGetCompletedProcesses.json");
+const event = require("./testEventGetProcessStats.json");
 
 // Lambda handler
-const { handler } = require("../../getCompletedProcesses");
+const { handler } = require("../../getProcessStats");
 const { deleteResourcesForTest } = require("./deleteTestResources.js");
-const {
-  initTestGetCompletedProcesses,
-} = require("./initTestGetProcessStats.js");
+const { initTestGetProcessStats } = require("./initTestGetProcessStats.js");
 
 // Mock environment variables
 process.env.AWS_REGION = "us-east-1";
@@ -25,18 +23,18 @@ const main = async () => {
 
   // Initialize test resources:
   console.log("Initializing test resources!");
-  await initTestGetCompletedProcesses();
+  await initTestGetProcessStats();
 
   // Testing lambda function:
   console.log("Testing lambda!");
   const readResult = await handler(event);
   console.assert(
-    readResult.length === 2,
-    `Test failed! Expected # of items: 2, actual: ${readResult.length}`
+    readResult.length === 1,
+    `Test failed! Expected # of items: 1, actual: ${readResult.length}`
   );
 
   // Delete the test resources:
-  console.log("Deleting test resources!");
+  console.log("Deleting test resources...");
   await deleteResourcesForTest();
 
   console.timeEnd("localTest");

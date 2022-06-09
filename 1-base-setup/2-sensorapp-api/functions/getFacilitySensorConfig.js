@@ -5,11 +5,12 @@
 const AWS = require("aws-sdk");
 
 AWS.config.region = process.env.AWS_REGION;
-const documentClient = new AWS.DynamoDB.DocumentClient();
 
 // Main Lambda handler
 exports.handler = async (event) => {
   console.log(JSON.stringify(event, null, 2));
+
+  const documentClient = new AWS.DynamoDB.DocumentClient();
   const facilityId = parseInt(event.queryStringParameters.facilityId);
 
   const params = {

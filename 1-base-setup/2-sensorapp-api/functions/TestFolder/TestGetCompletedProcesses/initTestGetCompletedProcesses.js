@@ -11,38 +11,16 @@ process.env.DDB_TABLE = "sensordata-table";
 process.env.localTest = true;
 
 const testResourcesData = require("../testResources.json");
+const { createTestDynamoDBtable } = require("../generateTestResources.js");
 
-// DynamoDb table info:
-var ddbParams = testResourcesData.ddbParams;
-ddbParams.TableName = process.env.DDB_TABLE;
-let ddb = new AWS.DynamoDB({ apiVersion: "2012-08-10" });
 let documentClient = undefined;
 
 async function initTestGetCompletedProcesses() {
   console.log(
-    `Initializing test resources: DynamoDB table: ${process.env.DDB_TABLE}`
+    "Initializing test resources for testing getCompletedProcesses()"
   );
 
-  let params = {
-    TableName: process.env.DDB_TABLE,
-  };
-
-  // Check if test DynamoDB table exists
-  try {
-    const result = await ddb.describeTable(params).promise();
-    console.log("DDB describeTable() result: ", result);
-  } catch (err) {
-    // Create test DDB table:
-    let result = await ddb.createTable(ddbParams).promise();
-    console.log("createTable result: ", result);
-
-    // Wait until TableStatus is "ACTIVE":
-    do {
-      await sleep(4000);
-      console.log("Trying table");
-      result = await ddb.describeTable(params).promise();
-    } while (result.Table.TableStatus !== "ACTIVE");
-  }
+  await createTestDynamoDBtable();
 
   documentClient = new AWS.DynamoDB.DocumentClient();
   // Initialize test data for completed process stats:
@@ -117,9 +95,5 @@ const saveProcessSensorStats = async (completedProcessData) => {
 
   console.log("saveProcessSensorStats done");
 };
-
-function sleep(millisec) {
-  return new Promise((resolve) => setTimeout(resolve, millisec));
-}
 
 module.exports = { initTestGetCompletedProcesses };

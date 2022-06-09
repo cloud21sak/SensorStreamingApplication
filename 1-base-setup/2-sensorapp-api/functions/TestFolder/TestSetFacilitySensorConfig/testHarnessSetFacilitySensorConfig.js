@@ -5,13 +5,13 @@
 const AWS = require("aws-sdk");
 
 // Mock event
-const event = require("./testEventGetCompletedProcesses.json");
+const event = require("./testEventSetFacilitySensorConfig.json");
 
 // Lambda handler
-const { handler } = require("../../getCompletedProcesses");
+const { handler } = require("../../setFacilitySensorConfig");
 const { deleteResourcesForTest } = require("./deleteTestResources.js");
 const {
-  initTestGetCompletedProcesses,
+  initTestSetFacilitySensorConfig,
 } = require("./initTestSetFacilitySensorConfig.js");
 
 // Mock environment variables
@@ -25,14 +25,31 @@ const main = async () => {
 
   // Initialize test resources:
   console.log("Initializing test resources!");
-  await initTestGetCompletedProcesses();
+  await initTestSetFacilitySensorConfig();
 
   // Testing lambda function:
   console.log("Testing lambda!");
-  const readResult = await handler(event);
+  console.dir(await handler(event));
+
+  // Verify that facility sensor configuration record exists in DynamoDB table:
+  const documentClient = new AWS.DynamoDB.DocumentClient();
+  const facilityId = parseInt(event.queryStringParameters.facilityId);
+
+  const params = {
+    TableName: process.env.DDB_TABLE,
+    IndexName: "GSI_Index",
+    KeyConditionExpression: "GSI = :gsi and begins_with(SK, :sk)",
+    ExpressionAttributeValues: { ":gsi": facilityId, ":sk": "facilityconfig" },
+    ScanIndexForward: true,
+    Limit: 10,
+  };
+
+  const readResult = await documentClient.query(params).promise();
+  console.log("readResult: ", readResult);
+
   console.assert(
-    readResult.length === 2,
-    `Test failed! Expected # of items: 2, actual: ${readResult.length}`
+    readResult.Items.length === 1,
+    `Test failed! Expected # of items: 1, actual: ${readResult.Items.length}`
   );
 
   // Delete the test resources:
