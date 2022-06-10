@@ -3,16 +3,15 @@
  */
 
 const AWS = require("aws-sdk");
-
-// Mock event
-const event = require("./testEventGetFacilitySensorConfig.json");
-
-// Lambda handler
-const { handler } = require("../../getFacilitySensorConfig");
 const { deleteResourcesForTest } = require("./deleteTestResources.js");
 const {
   initTestGetFacilitySensorConfig,
 } = require("./initTestGetFacilitySensorConfig.js");
+
+// Lambda handler
+const { handler } = require("../../getFacilitySensorConfig");
+// Mock event
+const event = require("./testEventGetFacilitySensorConfig.json");
 
 // Mock environment variables
 process.env.AWS_REGION = "us-east-1";

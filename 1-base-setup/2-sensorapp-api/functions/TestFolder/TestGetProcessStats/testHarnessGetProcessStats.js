@@ -3,14 +3,14 @@
  */
 
 const AWS = require("aws-sdk");
-
-// Mock event
-const event = require("./testEventGetProcessStats.json");
+const { deleteResourcesForTest } = require("./deleteTestResources.js");
+const { initTestGetProcessStats } = require("./initTestGetProcessStats.js");
 
 // Lambda handler
 const { handler } = require("../../getProcessStats");
-const { deleteResourcesForTest } = require("./deleteTestResources.js");
-const { initTestGetProcessStats } = require("./initTestGetProcessStats.js");
+
+// Mock event
+const event = require("./testEventGetProcessStats.json");
 
 // Mock environment variables
 process.env.AWS_REGION = "us-east-1";
