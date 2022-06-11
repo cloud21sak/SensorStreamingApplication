@@ -1,3 +1,7 @@
+/*! Copyright Sergei Akopov (thecloud21.com). All Rights Reserved.
+ *  SPDX-License-Identifier: MIT-0
+ */
+
 const AWS = require("aws-sdk");
 
 // Mock environment variables
@@ -16,8 +20,9 @@ const testDataFile = "/testData.json";
 var ddbParams = {};
 let ddb = new AWS.DynamoDB({ apiVersion: "2012-08-10" });
 
-const main = async () => {
-  //async function initResourcesForTest() {
+// Uncomment the line below to run as a standalone program
+//const main = async () => {
+async function initResourcesForTest() {
   console.log(
     `Initializing test resources: S3 bucket: ${testBucketName}, DynamoDB table: ${process.env.DDB_TABLE}`
   );
@@ -86,6 +91,13 @@ const main = async () => {
     // Create test DDB table:
     let result = await ddb.createTable(ddbParams).promise();
     console.log("createTable result: ", result);
+
+    // Wait until TableStatus is "ACTIVE":
+    do {
+      await sleep(4000);
+      console.log("Trying table");
+      result = await ddb.describeTable(params).promise();
+    } while (result.Table.TableStatus !== "ACTIVE");
   }
 
   // Create the parameters for calling createBucket
@@ -98,8 +110,15 @@ const main = async () => {
     const data = await s3.headBucket(bucketParams).promise();
     console.log("headBucket data: ", data);
   } catch (err) {
-    const result = await s3.createBucket(bucketParams).promise();
+    let result = await s3.createBucket(bucketParams).promise();
     console.log("createBucket result: ", result);
+
+    // Check to make sure the bucket has been created
+    do {
+      await sleep(4000);
+      console.log(`Trying bucket: ${bucketParams.Bucket}`);
+      result = await s3.headBucket(bucketParams).promise();
+    } while (result.$response.httpResponse.statusCode !== 200);
   }
 
   // Upload test data to S3 bucket:
@@ -130,7 +149,12 @@ const main = async () => {
   }
 
   console.log("Test resources have been created!");
-};
+}
 
-//module.exports = { initResourcesForTest };
-main().catch((error) => console.error(error));
+function sleep(millisec) {
+  return new Promise((resolve) => setTimeout(resolve, millisec));
+}
+
+module.exports = { initResourcesForTest };
+// Uncomment the line below to run as a standalone program
+// main().catch((error) => console.error(error));

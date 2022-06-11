@@ -4,6 +4,7 @@
 
 // Mock event
 const event = require("./testEvent.json");
+const { initResourcesForTest } = require("./initTestResources.js");
 const { deleteResourcesForTest } = require("./deleteTestResources.js");
 
 const AWS = require("aws-sdk");
@@ -19,6 +20,7 @@ const { handler } = require("../app");
 
 const main = async () => {
   console.time("localTest");
+  await initResourcesForTest();
 
   // Testing lambda function:
   console.log("Testing lambda!");

@@ -1,3 +1,7 @@
+/*! Copyright Sergei Akopov (thecloud21.com). All Rights Reserved.
+ *  SPDX-License-Identifier: MIT-0
+ */
+
 const AWS = require("aws-sdk");
 const event = require("./testEvent.json");
 
@@ -17,8 +21,8 @@ const firehoseBucketName = event.Records[0].s3.bucket.name;
 const firehoseBucketKey = event.Records[0].s3.object.key;
 const testDataFile = "/testData.txt";
 
-const main = async () => {
-  //async function initResourcesForTest() {
+//const main = async () => {
+async function initResourcesForTest() {
   console.log(
     `Initializing test resources: Firehose S3 bucket: ${firehoseBucketName}, runtime S3 bucket: ${runtimeBucketName}, history S3 bucket: ${historyBucketName}`
   );
@@ -33,8 +37,15 @@ const main = async () => {
     const data = await s3.headBucket(firehoseBucketParams).promise();
     console.log("firehoseBucket headBucket data: ", data);
   } catch (err) {
-    const result = await s3.createBucket(firehoseBucketParams).promise();
+    let result = await s3.createBucket(firehoseBucketParams).promise();
     console.log("firehoseBucket createBucket result: ", result);
+
+    // Check to make sure the bucket has been created
+    do {
+      await sleep(4000);
+      console.log(`Trying bucket: ${firehoseBucketParams.Bucket}`);
+      result = await s3.headBucket(firehoseBucketParams).promise();
+    } while (result.$response.httpResponse.statusCode !== 200);
   }
 
   // Upload test data to firehose S3 bucket:
@@ -74,8 +85,15 @@ const main = async () => {
     const data = await s3.headBucket(runtimeBucketParams).promise();
     console.log("runtimeBucket headBucket data: ", data);
   } catch (err) {
-    const result = await s3.createBucket(runtimeBucketParams).promise();
+    let result = await s3.createBucket(runtimeBucketParams).promise();
     console.log("runtime createBucket result: ", result);
+
+    // Check to make sure the bucket has been created
+    do {
+      await sleep(4000);
+      console.log(`Trying bucket: ${runtimeBucketParams.Bucket}`);
+      result = await s3.headBucket(runtimeBucketParams).promise();
+    } while (result.$response.httpResponse.statusCode !== 200);
   }
 
   // Check if history bucket exists:
@@ -88,12 +106,23 @@ const main = async () => {
     const data = await s3.headBucket(historyBucketParams).promise();
     console.log("history bucket headBucket data: ", data);
   } catch (err) {
-    const result = await s3.createBucket(historyBucketParams).promise();
+    let result = await s3.createBucket(historyBucketParams).promise();
     console.log("history bucket createBucket result: ", result);
+
+    // Check to make sure the bucket has been created
+    do {
+      await sleep(4000);
+      console.log(`Trying bucket: ${historyBucketParams.Bucket}`);
+      result = await s3.headBucket(historyBucketParams).promise();
+    } while (result.$response.httpResponse.statusCode !== 200);
   }
 
   console.log("Test resources have been created!");
-};
+}
 
-//module.exports = { initResourcesForTest };
-main().catch((error) => console.error(error));
+function sleep(millisec) {
+  return new Promise((resolve) => setTimeout(resolve, millisec));
+}
+
+module.exports = { initResourcesForTest };
+//main().catch((error) => console.error(error));
