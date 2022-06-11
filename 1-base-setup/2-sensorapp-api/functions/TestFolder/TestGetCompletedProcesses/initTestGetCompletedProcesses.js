@@ -11,7 +11,10 @@ process.env.DDB_TABLE = "sensordata-table";
 process.env.localTest = true;
 
 const testResourcesData = require("../testResources.json");
-const { createTestDynamoDBtable } = require("../generateTestResources.js");
+const {
+  createTestDynamoDBtable,
+  sleep,
+} = require("../generateTestResources.js");
 
 let documentClient = undefined;
 
@@ -89,6 +92,11 @@ const saveProcessSensorStats = async (completedProcessData) => {
         },
       })
       .promise();
+
+    // Use delay so that the test doesn't fail because of the eventualy
+    // consistent read when quering DynamoDB table after write,
+    // and running without debugging.
+    await sleep(2000);
   } catch (err) {
     console.log("documentClient.put() error: ", err);
   }

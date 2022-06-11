@@ -13,7 +13,7 @@ async function initTestSetFacilitySensorConfig() {
   );
 
   await createTestDynamoDBtable();
- 
+
   console.log("Test resources have been created!");
 }
 

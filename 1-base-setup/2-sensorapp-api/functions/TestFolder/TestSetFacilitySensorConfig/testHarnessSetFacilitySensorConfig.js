@@ -7,6 +7,7 @@ const { deleteResourcesForTest } = require("./deleteTestResources.js");
 const {
   initTestSetFacilitySensorConfig,
 } = require("./initTestSetFacilitySensorConfig.js");
+const { sleep } = require("../generateTestResources.js");
 
 // Lambda handler
 const { handler } = require("../../setFacilitySensorConfig");
@@ -30,6 +31,11 @@ const main = async () => {
   // Testing lambda function:
   console.log("Testing lambda!");
   console.dir(await handler(event));
+
+  // Use delay so that the test doesn't fail because of the eventualy
+  // consistent read when quering DynamoDB table after write,
+  // and running without debugging.
+  await sleep(4000);
 
   // Verify that facility sensor configuration record exists in DynamoDB table:
   const documentClient = new AWS.DynamoDB.DocumentClient();

@@ -48,4 +48,4 @@ function sleep(millisec) {
   return new Promise((resolve) => setTimeout(resolve, millisec));
 }
 
-module.exports = { createTestDynamoDBtable };
+module.exports = { createTestDynamoDBtable, sleep };
