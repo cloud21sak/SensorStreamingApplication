@@ -333,10 +333,15 @@ export default {
         await that.updateRealtimeSensorData(message.sensordata);
       }
 
-      if (message.msg === "sensorstats") {
-        //  console.log("Received sensor stats message: ", message);
-        await that.updateSensorStatsByLatestMinute(message.sensorstats);
-      }
+      // if (message.msg === "sensorstats") {
+      //   //  console.log("Received sensor stats message: ", message);
+      //   await that.updateSensorStatsByLatestMinute(message.sensorstats);
+      // }
+    });
+
+    bus.$on("latestminutestats", async (latestminutestats) => {
+      console.log("Home::on::latestminutestats: ");
+      await that.updateSensorStatsByLatestMinute(latestminutestats.sensorstats);
     });
 
     bus.$on("facilitycommandreceived", async (receivedcommand) => {
@@ -364,13 +369,6 @@ export default {
       await that.updateCompletedProcessList(completedprocinfo);
     });
 
-    // const facilitystatus = this.$store.getters.facilityStatus;
-    // const udpatedFacilityStatus = {
-    //   facilityId: facilitystatus.facilityId,
-    //   status: "IDLE",
-    // };
-    // this.$store.dispatch("setFacilityStatus", udpatedFacilityStatus);
-    // bus.$emit("facilitystatusupdate", udpatedFacilityStatus);
     this.resetFacility();
     bus.$emit("sensorInstanceInfoPublish", this.sensors);
 
@@ -791,30 +789,40 @@ export default {
 
     // Sensor stats by latest minute
     async updateSensorStatsByLatestMinute(sensorStatsMessage) {
-      // console.log(
-      //   "updateSensorStatsByLatestMinute 'sensorStatsMessage': ",
-      //   sensorStatsMessage
-      // );
+      console.log(
+        "updateSensorStatsByLatestMinute 'sensorStatsMessage': ",
+        sensorStatsMessage
+      );
 
       let statsResults = JSON.parse(sensorStatsMessage);
       let intermediateSensorStats = [];
 
-      //console.log("updateSensorStatsByLatestMinute: ", statsResults);
+      // console.log(
+      //   `updateSensorStatsByLatestMinute - name: ${
+      //     statsResults.name
+      //   } time:${new Date(statsResults.deviceTimestamp).toLocaleTimeString(
+      //     "en-US"
+      //   )}`
+      // );
 
-      // Update sensor stats by latest minute:
-      this.latestMinuteSensorStats[statsResults.sensorId] = {
-        sensorId: statsResults.sensorId,
-        name: statsResults.name,
-        min: round(statsResults.min_value, 2),
-        max: round(statsResults.max_value, 2),
-        stddev: round(statsResults.stddev_value, 2),
-        ts: statsResults.deviceTimestamp,
-      };
+      statsResults.map((sensorstats) => {
+        // Update sensor stats by latest minute:
+        this.latestMinuteSensorStats[sensorstats.sensorId] = {
+          sensorId: sensorstats.sensorId,
+          name: sensorstats.name,
+          min: round(sensorstats.min_value, 2),
+          max: round(sensorstats.max_value, 2),
+          stddev: round(sensorstats.stddev_value, 2),
+          ts: new Date(sensorstats.deviceTimestamp).toLocaleTimeString("en-US"),
+        };
+      });
 
       // Convert to array
-      for (let sensorId in this.latestMinuteSensorStats) {
-        intermediateSensorStats.push(this.latestMinuteSensorStats[sensorId]);
-      }
+      // for (let sensorId in this.latestMinuteSensorStats) {
+      //   intermediateSensorStats.push(this.latestMinuteSensorStats[sensorId]);
+      // }
+      intermediateSensorStats = Object.values(this.latestMinuteSensorStats);
+      console.log("intermediateSensorStats:", intermediateSensorStats);
 
       this.latestMinuteSensorStatsDisplay = intermediateSensorStats;
     },
@@ -889,7 +897,7 @@ export default {
     },
     launchFacility() {
       console.log("Start facility");
-      this.currentSecond = 540;
+      this.currentSecond = 500;
       this.processId = Date.now();
       this.$store.dispatch("setCurrentProcessId", this.processId);
       this.pctComplete = 0;
@@ -920,11 +928,7 @@ export default {
 
     stopFacility() {
       clearInterval(this.intervalVar);
-      //  clearInterval(this.dailyDataIntervalVar);
-      // Facility was stopped, reset current process settings:
-      // this.pctComplete = 0;
-      // this.currentSecond = 0;
-      // this.sensorsToPublish.length = 0;
+
       const udpatedFacilityStatus = {
         facilityId: this.$store.getters.facilityStatus.facilityId,
         status: "STOPPED",
@@ -938,7 +942,7 @@ export default {
     },
     pauseFacility() {
       clearInterval(this.intervalVar);
-      //  clearInterval(this.dailyDataIntervalVar);
+
       // Facility was paused, reset current process settings:
       console.log("Facility was paused");
     },
@@ -954,6 +958,8 @@ export default {
       this.currentSecond = 0;
       this.processId = 0;
       this.realtimeSensorDisplay = [];
+      this.latestMinuteSensorStatsDisplay = [];
+      this.latestMinuteSensorStats = {};
       this.sensorsToPublish.length = 0;
       const udpatedFacilityStatus = {
         facilityId: this.$store.getters.facilityStatus.facilityId,

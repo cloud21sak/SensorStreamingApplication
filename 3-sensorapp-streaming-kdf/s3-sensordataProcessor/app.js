@@ -177,6 +177,7 @@ const saveProcessDataHistoryPerFacility = async (processDataRecord) => {
 
   let completedProcessData = {};
   console.log("Getting completed process data from runtime process bucket ");
+  let responseBodyString = "";
   try {
     const response = await s3
       .getObject({
@@ -184,9 +185,8 @@ const saveProcessDataHistoryPerFacility = async (processDataRecord) => {
         Key: facilityProcessBucketKey,
       })
       .promise();
-    completedProcessData[facilityBucketFolder] = JSON.parse(
-      response.Body.toString()
-    );
+    responseBodyString = response.Body.toString();
+    completedProcessData[facilityBucketFolder] = JSON.parse(responseBodyString);
   } catch (err) {
     // If this 404s, it means no previous facility process data has been saved.
     // Any other error should be logged.
@@ -195,7 +195,8 @@ const saveProcessDataHistoryPerFacility = async (processDataRecord) => {
     }
   }
 
-  const Body = JSON.stringify(completedProcessData[facilityBucketFolder]);
+  // const Body = JSON.stringify(completedProcessData[facilityBucketFolder]);
+  // console.log("Body: ", Body);
   let historyBucketPath =
     process.env.HistoryBucket + `/facility-${processDataRecord.facilityId}`;
   console.log("Storing data for process ID: ", processDataRecord.processId);
@@ -204,7 +205,7 @@ const saveProcessDataHistoryPerFacility = async (processDataRecord) => {
       Bucket: historyBucketPath,
       Key: facilityProcessBucketKey,
       ContentType: "application/json",
-      Body,
+      Body: responseBodyString,
       ACL: "public-read",
     })
     .promise();
@@ -406,22 +407,22 @@ const saveDailyDataBySensorId = async (recordsBySensorId) => {
 };
 
 // Convert event payload to JSON records
-const getRecordsBySensorId = (jsonRecords) => {
-  let sensorRecordMap = {};
+// const getRecordsBySensorId = (jsonRecords) => {
+//   let sensorRecordMap = {};
 
-  // Get records from event payload
-  jsonRecords.map((record) => {
-    if (!sensorRecordMap[record.sensorId]) {
-      sensorRecordMap[record.sensorId] = {};
-      sensorRecordMap[record.sensorId].results = [];
-    }
+//   // Get records from event payload
+//   jsonRecords.map((record) => {
+//     if (!sensorRecordMap[record.sensorId]) {
+//       sensorRecordMap[record.sensorId] = {};
+//       sensorRecordMap[record.sensorId].results = [];
+//     }
 
-    //console.log(      "Record sensordata for sensor:", record.name,record.sensorData    );
-    sensorRecordMap[record.sensorId].sensorId = record.sensorId;
-    sensorRecordMap[record.sensorId].facilityId = record.facilityId;
-    sensorRecordMap[record.sensorId].name = record.name;
+//     //console.log(      "Record sensordata for sensor:", record.name,record.sensorData    );
+//     sensorRecordMap[record.sensorId].sensorId = record.sensorId;
+//     sensorRecordMap[record.sensorId].facilityId = record.facilityId;
+//     sensorRecordMap[record.sensorId].name = record.name;
 
-    sensorRecordMap[record.sensorId].results.push(record.sensorData);
-  });
-  return sensorRecordMap;
-};
+//     sensorRecordMap[record.sensorId].results.push(record.sensorData);
+//   });
+//   return sensorRecordMap;
+// };

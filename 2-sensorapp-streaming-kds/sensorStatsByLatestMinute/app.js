@@ -1,0 +1,200 @@
+/*! Copyright Sergei Akopov (thecloud21.com). All Rights Reserved.
+ *  SPDX-License-Identifier: MIT-0
+ */
+
+const AWS = require("aws-sdk");
+const iotdata = new AWS.IotData({ endpoint: process.env.IOT_DATA_ENDPOINT });
+AWS.config.region = process.env.AWS_REGION;
+//const documentClient = new AWS.DynamoDB.DocumentClient();
+
+let processMap = {};
+
+// Main Lambda handler
+exports.handler = async (event) => {
+  console.log(`Received sensor data: ${event.Records.length} messages`);
+  // Check if there are no records, then just return:
+  if (event.Records.length === 0) {
+    return;
+  }
+  console.log(JSON.stringify(event, null, 2));
+
+  // Check for the "complete" event:
+  const completedProcessRecords = event.Records.filter(
+    (record) => record.event === "complete"
+  );
+
+  // If the "complete" event was issued, then we need to check the current state,
+  // and, if the total number of data points for each sensor is less than 20, then we
+  // ignore those values, and return without publishing any new aggregate stats:
+  if (completedProcessRecords.length !== 0) {
+    // Check if there are any current data records passed from the data stream:
+    const sensorDataRecords = event.Records.filter(
+      (record) => record.event === "update"
+    );
+    if (sensorDataRecords.length !== 0) {
+      // Retrieve existing state passed during tumbling window
+      let state = event.state || {};
+
+      // Get sensor data of a process from event
+      let jsonRecords = getRecordsFromPayload(sensorDataRecords);
+      jsonRecords.map(
+        (record) => (processMap[record.processId] = record.facilityId)
+      );
+
+      getSensorDataByProcessId(state, jsonRecords);
+      const shouldBePublished = checkIfSensorDataShouldBePublished(
+        state,
+        jsonRecords
+      );
+      if (shouldBePublished) {
+        console.log("Publish last sensor stats after complete event");
+        await publishToIoT(state);
+      }
+      // We don't need to publish anything, just return:
+      state = {};
+      return state;
+    }
+  }
+
+  // Retrieve existing state passed during tumbling window
+  let state = event.state || {};
+
+  // Get sensor data of a process from event
+  let jsonRecords = getRecordsFromPayload(event.Records);
+  jsonRecords.map(
+    (record) => (processMap[record.processId] = record.facilityId)
+  );
+  console.log("Payload records: ", JSON.stringify(jsonRecords, null, 2));
+
+  // Since tumbling window is configured, publish to IoT endpoint on the
+  // final invoke window:
+  if (event.isFinalInvokeForWindow) {
+    console.log("Final invoke state: ", JSON.stringify(state, null, 2));
+
+    await publishToIoT(state);
+  } else {
+    console.log("Returning state: ", JSON.stringify(state, null, 2));
+    return { state };
+  }
+};
+
+const publishToIoT = async (processSensorData) => {
+  let promises = [];
+  let payloadObjectArray = [];
+  for (let processId in processSensorData) {
+    for (const [sensorId, sensorDataInfo] of Object.entries(
+      processSensorData[processId]
+    )) {
+      console.log("sensorDataInfo: ", sensorDataInfo);
+      const payloadObject = {
+        name: sensorDataInfo.name,
+        sensorId: sensorId,
+        deviceTimestamp: Date.now(),
+        min_value: Math.min(...sensorDataInfo.sensorData),
+        max_value: Math.max(...sensorDataInfo.sensorData),
+        stddev_value: getStandardDevitation(sensorDataInfo.sensorData),
+      };
+      payloadObjectArray.push(payloadObject);
+    }
+    const JSONpayload = {
+      msg: "sensorstats",
+      facilityId: processMap[processId],
+      processId: `process-${processId}`,
+      sensorstats: JSON.stringify(payloadObjectArray),
+    };
+
+    let promise = iotdata
+      .publish({
+        topic: process.env.TOPIC,
+        qos: 0,
+        payload: JSON.stringify(JSONpayload),
+      })
+      .promise();
+    promises.push(promise);
+  }
+
+  // Wait for all promises to be settled
+  const results = await Promise.allSettled(promises);
+
+  // Log out any rejected results
+  results.map((result) =>
+    result.status === "rejected" ? console.log(result) : null
+  );
+};
+
+// Convert event payload to JSON records
+const getRecordsFromPayload = (eventRecords) => {
+  let jsonRecords = [];
+  // Get records from event payload
+  eventRecords.map((record) => {
+    // Extract JSON record from base64 data
+    const buffer = Buffer.from(record.kinesis.data, "base64").toString();
+    const jsonRecord = JSON.parse(buffer);
+
+    jsonRecords.push(jsonRecord);
+  });
+  return jsonRecords;
+};
+
+// Process records and return sensor data grouped by processId:
+const getSensorDataByProcessId = (state, jsonRecords) => {
+  console.log("getSensorDataByProcessId: ", state);
+  jsonRecords.map((record) => {
+    // Add processId if not in state
+    if (!state[record.processId]) {
+      state[record.processId] = {};
+    }
+
+    if (!state[record.processId][record.sensorId]) {
+      state[record.processId][record.sensorId] = {};
+      state[record.processId][record.sensorId].sensorData = [];
+      state[record.processId][record.sensorId].name = record.name;
+    }
+    state[record.processId][record.sensorId].sensorData.push(record.sensorData);
+  });
+
+  // TODO: we don't need to return here
+  //return state;
+};
+
+const checkIfSensorDataShouldBePublished = (state, jsonRecords) => {
+  console.log("checkIfSensorDataShouldBePublished state: ", state);
+  let isPublishable = false;
+  jsonRecords.map((record) => {
+    // Add processId if not in state
+    if (!state[record.processId]) {
+      state[record.processId] = {};
+    }
+
+    if (!state[record.processId][record.sensorId]) {
+      state[record.processId][record.sensorId] = {};
+      state[record.processId][record.sensorId].sensorData = [];
+      state[record.processId][record.sensorId].name = record.name;
+    }
+    state[record.processId][record.sensorId].sensorData.push(record.sensorData);
+    if (state[record.processId][record.sensorId].sensorData.length >= 20) {
+      isPublishable = true;
+    }
+  });
+
+  return isPublishable;
+};
+
+// Basic function for standard deviation:
+let getStandardDevitation = (sensordata) => {
+  let m = getMean(sensordata);
+  return Math.sqrt(
+    sensordata.reduce(function (sq, n) {
+      return sq + Math.pow(n - m, 2);
+    }, 0) /
+      (sensordata.length - 1)
+  );
+};
+
+let getMean = (sensordata) => {
+  return (
+    sensordata.reduce(function (a, b) {
+      return Number(a) + Number(b);
+    }) / sensordata.length
+  );
+};

@@ -23,6 +23,7 @@ const topics = {
   sensorsubscribe: "sensordata-subscribe",
   procdailystats: "process-dailystats",
   completedprocinfo: "completed-processinfo",
+  latestminutestats: "latest-minutestats",
 };
 
 let mqttClient = null;
@@ -111,6 +112,7 @@ export default {
       //  mqttClient.subscribe(topics.currentProcessIdRequest);
       mqttClient.subscribe(topics.procdailystats);
       mqttClient.subscribe(topics.completedprocinfo);
+      mqttClient.subscribe(topics.latestminutestats);
     });
     // Attempt to reconnect in the event of any error
     mqttClient.on("error", async function(err) {
@@ -182,7 +184,11 @@ export default {
       } else if (topic === topics.completedprocinfo) {
         console.log("Received message for topic: ", topics.completedprocinfo);
         bus.$emit("completedprocinfo", payloadEnvelope);
-      } else {
+      } else if (topic === topics.latestminutestats) {
+        console.log("Received message for topic: ", topics.latestminutestats);
+        bus.$emit("latestminutestats", payloadEnvelope);
+      }
+      else {
         bus.$emit("message", payloadEnvelope);
       }
     });

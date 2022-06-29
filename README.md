@@ -1,6 +1,6 @@
 # Building serverless application with streaming sensor data
 
-This example application shows how to build flexible serverless backends for streaming data workloads.
+This example application shows how to build flexible serverless backends for streaming sensor data workloads.
 
 The software simulates a manufacturing facility with a backend application that processes the data of remote sensors for some batch processes.
 The frontend allows users to view real-time or near real-time sensor data per facility.
@@ -41,7 +41,7 @@ During the prompts, enter `sensorapp-streaming-api` for the stack name, enter yo
 
 ### 3. Set up streaming examples
 
-1. Change back to the roote directory of the repo:
+1. Change back to the root directory of the repo:
 
 ```
 cd ../..

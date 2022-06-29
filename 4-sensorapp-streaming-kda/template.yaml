@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 Transform: AWS::Serverless-2016-10-31
-Description: SensorData - KDA example
+Description: SensorStats - Kinesis Data Analytics example
 
 # This template builds the Kinesis stream ARN from the base
 # template using the following expression:
@@ -22,35 +22,37 @@ Resources:
       ApplicationCode: |
         -- -- 1. Calculate output field 
         CREATE OR REPLACE STREAM "SENSORCALC_STREAM" (
-            "event" VARCHAR(8),
-            "deviceTimestamp" BIGINT,
-            "COL_second" INTEGER, 
+        -- -- "event" VARCHAR(8),        
+        -- -- "deviceTimestamp"  BIGINT,            
+        -- -- "COL_second" INTEGER, 
             "name" VARCHAR(16),              
             "facilityId" INTEGER,
             "processId" BIGINT,
             "sensorId" INTEGER NOT NULL, 
             "min_value" REAL,
             "max_value" REAL,
-            "stddev_value" REAL);
+        -- -- "stddev_value" REAL);
             
         CREATE OR REPLACE PUMP "SENSORCALC_STREAM_PUMP" AS 
         INSERT INTO "SENSORCALC_STREAM" 
         SELECT STREAM 
-            "event",            
-            "deviceTimestamp",
-            "COL_second",            
+        -- -- "event",            
+        -- -- "deviceTimestamp",            
+        -- -- "COL_second",            
             "name", 
             "facilityId",             
             "processId",             
             "sensorId",
-            MIN("sensorData") OVER SIXTY_SECOND_SLIDING_WINDOW AS "min_value",
-            MAX("sensorData") OVER SIXTY_SECOND_SLIDING_WINDOW AS "max_value",
-            STDDEV_SAMP("sensorData") OVER SIXTY_SECOND_SLIDING_WINDOW AS "stddev_value"
+        -- -- MIN("sensorData") OVER SIXTY_SECOND_SLIDING_WINDOW AS "min_value",
+        -- -- MAX("sensorData") OVER SIXTY_SECOND_SLIDING_WINDOW AS "max_value",
+        -- -- STDDEV_SAMP("sensorData") OVER SIXTY_SECOND_SLIDING_WINDOW AS "stddev_value"
+         MIN("sensorData") AS "min_value",
+         MAX("sensorData") AS "max_value",
+        -- -- STDDEV_SAMP("sensorData") AS "stddev_value"
             
         FROM "SOURCE_SQL_STREAM_001"
-        WINDOW SIXTY_SECOND_SLIDING_WINDOW AS (
-          PARTITION BY "processId","sensorId"
-          RANGE INTERVAL '60' SECOND PRECEDING);
+        GROUP BY "facilityId","processId", "sensorId","name",
+             STEP("SOURCE_SQL_STREAM_001".ROWTIME BY INTERVAL '60' SECOND);
 
       Inputs:
         - NamePrefix: "SOURCE_SQL_STREAM"
@@ -117,11 +119,12 @@ Resources:
       CodeUri: SensorStatsFunction/
       Handler: app.handler
       Runtime: nodejs14.x
+      Timeout: 30
       MemorySize: 128
       Environment:
         Variables:
           IOT_DATA_ENDPOINT: !Ref IoTdataEndpoint
-          TOPIC: "sensordata-subscribe"
+          TOPIC: "latest-minutestats"
       Policies:
         - Statement:
             - Sid: PublishToIotPolicy
