@@ -13,13 +13,15 @@ let processMap = {};
 exports.handler = async (event) => {
   console.log(`Received sensor data: ${event.Records.length} messages`);
   // Check if there are no records, then just return:
-  if (event.Records.length === 0) {
-    return;
-  }
+  //   if (event.Records.length === 0) {
+  //     return;
+  //   }
   console.log(JSON.stringify(event, null, 2));
 
+  let jsonRecords = getRecordsFromPayload(event.Records);
+
   // Check for the "complete" event:
-  const completedProcessRecords = event.Records.filter(
+  const completedProcessRecords = jsonRecords.filter(
     (record) => record.event === "complete"
   );
 
@@ -27,32 +29,47 @@ exports.handler = async (event) => {
   // and, if the total number of data points for each sensor is less than 20, then we
   // ignore those values, and return without publishing any new aggregate stats:
   if (completedProcessRecords.length !== 0) {
+    console.log("Received 'complete' message!");
     // Check if there are any current data records passed from the data stream:
-    const sensorDataRecords = event.Records.filter(
+    const sensorDataRecords = jsonRecords.filter(
       (record) => record.event === "update"
     );
+
+    console.log("sensorDataRecords:", sensorDataRecords);
+
+    // Retrieve existing state passed during tumbling window
+    let state = event.state || {};
+
+    // let jsonRecords = getRecordsFromPayload(sensorDataRecords);
+    jsonRecords.map(
+      (record) => (processMap[record.processId] = record.facilityId)
+    );
+
+    let shouldBePublished = false;
     if (sensorDataRecords.length !== 0) {
-      // Retrieve existing state passed during tumbling window
-      let state = event.state || {};
+      getSensorDataByProcessId(state, sensorDataRecords);
+    }
 
-      // Get sensor data of a process from event
-      let jsonRecords = getRecordsFromPayload(sensorDataRecords);
-      jsonRecords.map(
-        (record) => (processMap[record.processId] = record.facilityId)
-      );
+    shouldBePublished = checkIfSensorDataShouldBePublished(
+      state,
+      sensorDataRecords
+    );
 
-      getSensorDataByProcessId(state, jsonRecords);
-      const shouldBePublished = checkIfSensorDataShouldBePublished(
-        state,
-        jsonRecords
-      );
-      if (shouldBePublished) {
-        console.log("Publish last sensor stats after complete event");
-        await publishToIoT(state);
-      }
-      // We don't need to publish anything, just return:
+    if (shouldBePublished) {
+      console.log("Publish last sensor stats after complete event");
+      await publishToIoT(state);
+    }
+
+    console.log("Done publishing stats per last minute for the process");
+    if (event.isFinalInvokeForWindow) {
+      console.log("This is finalInvokeForWindow after complete event");
+      // We don't need the state anymore, just return:
+      return;
+    } else {
+      // We need to return the state object here since this is not
+      // the final invoke window:
       state = {};
-      return state;
+      return { state };
     }
   }
 
@@ -60,15 +77,24 @@ exports.handler = async (event) => {
   let state = event.state || {};
 
   // Get sensor data of a process from event
-  let jsonRecords = getRecordsFromPayload(event.Records);
+  //jsonRecords = getRecordsFromPayload(event.Records);
   jsonRecords.map(
     (record) => (processMap[record.processId] = record.facilityId)
   );
   console.log("Payload records: ", JSON.stringify(jsonRecords, null, 2));
 
+  getSensorDataByProcessId(state, jsonRecords);
+
   // Since tumbling window is configured, publish to IoT endpoint on the
   // final invoke window:
   if (event.isFinalInvokeForWindow) {
+    // Make sure the state is not empty before publishing to IoT.
+    // This is the use case when the 'complete' event has been already processed
+    // during the window invocation that wasn't final.
+    if (Object.entries(state).length === 0) {
+      console.log("isFinalInvokeForWindow but the state is empty.");
+      return;
+    }
     console.log("Final invoke state: ", JSON.stringify(state, null, 2));
 
     await publishToIoT(state);
@@ -160,24 +186,41 @@ const getSensorDataByProcessId = (state, jsonRecords) => {
 const checkIfSensorDataShouldBePublished = (state, jsonRecords) => {
   console.log("checkIfSensorDataShouldBePublished state: ", state);
   let isPublishable = false;
-  jsonRecords.map((record) => {
-    // Add processId if not in state
-    if (!state[record.processId]) {
-      state[record.processId] = {};
-    }
+  if (jsonRecords.length !== 0) {
+    jsonRecords.map((record) => {
+      // Add processId if not in state
+      if (!state[record.processId]) {
+        state[record.processId] = {};
+      }
 
-    if (!state[record.processId][record.sensorId]) {
-      state[record.processId][record.sensorId] = {};
-      state[record.processId][record.sensorId].sensorData = [];
-      state[record.processId][record.sensorId].name = record.name;
-    }
-    state[record.processId][record.sensorId].sensorData.push(record.sensorData);
-    if (state[record.processId][record.sensorId].sensorData.length >= 20) {
-      isPublishable = true;
-    }
-  });
+      if (!state[record.processId][record.sensorId]) {
+        state[record.processId][record.sensorId] = {};
+        state[record.processId][record.sensorId].sensorData = [];
+        state[record.processId][record.sensorId].name = record.name;
+      }
+      state[record.processId][record.sensorId].sensorData.push(
+        record.sensorData
+      );
+      if (state[record.processId][record.sensorId].sensorData.length >= 20) {
+        isPublishable = true;
+      }
+    });
 
-  return isPublishable;
+    return isPublishable;
+  } else {
+    for (const [processId, processSensorDataState] of Object.entries(state)) {
+      for (const [sensorId, sensorDataInfo] of Object.entries(
+        processSensorDataState
+      )) {
+        if (sensorDataInfo.sensorData.length >= 20) {
+          console.log(
+            `sensorDataInfo: ${sensorDataInfo}, sensordata: ${sensorDataInfo.sensorData} is publishable`
+          );
+          isPublishable = true;
+        }
+      }
+    }
+  }
 };
 
 // Basic function for standard deviation:
