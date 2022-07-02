@@ -1,0 +1,164 @@
+{
+  "Records": [
+    {
+      "kinesis": {
+        "kinesisSchemaVersion": "1.0",
+        "partitionKey": "1656765860577",
+        "sequenceNumber": "49631009926575499856298421581858171390567174053333827586",
+        "data": "eyJ1dWlkIjoiOGY1NzkyODEtMWMzZC00NDZjLTg0MTYtYTQwMDVjODU0N2U2IiwiZXZlbnQiOiJ1cGRhdGUiLCJkZXZpY2VUaW1lc3RhbXAiOjE2NTY3NjU4NjAzMzEsInNlY29uZCI6NTg4LCJuYW1lIjoidGVtcGVyYXR1cmVfMSIsInNlbnNvcklkIjoxLCJwcm9jZXNzSWQiOjE2NTY3NjU3NzEzMjAsImZhY2lsaXR5SWQiOjEsInNlbnNvckRhdGEiOjgwLjAyMzc0NzU5NDY3NjQ1fQ==",
+        "approximateArrivalTimestamp": 1656765860.615
+      },
+      "eventSource": "aws:kinesis",
+      "eventVersion": "1.0",
+      "eventID": "shardId-000000000000:49631009926575499856298421581858171390567174053333827586",
+      "eventName": "aws:kinesis:record",
+      "invokeIdentityArn": "arn:aws:iam::159474638000:role/sensorapp-streaming-stack-SensorRealTimeDataFuncti-B1Q77KCTS0L8",
+      "awsRegion": "us-east-1",
+      "eventSourceARN": "arn:aws:kinesis:us-east-1:159474638000:stream/sensordata"
+    },
+    {
+      "kinesis": {
+        "kinesisSchemaVersion": "1.0",
+        "partitionKey": "1656765860584",
+        "sequenceNumber": "49631009926575499856298421581859380316386788682508533762",
+        "data": "eyJ1dWlkIjoiNDU0YjVhODAtZWIwNS00MzIyLTgyYTYtN2RkZTU1ZDZiZjk3IiwiZXZlbnQiOiJ1cGRhdGUiLCJkZXZpY2VUaW1lc3RhbXAiOjE2NTY3NjU4NjAzMzQsInNlY29uZCI6NTg4LCJuYW1lIjoidGVtcGVyYXR1cmVfNCIsInNlbnNvcklkIjo0LCJwcm9jZXNzSWQiOjE2NTY3NjU3NzEzMjAsImZhY2lsaXR5SWQiOjEsInNlbnNvckRhdGEiOjk1Ljg4MDYwODE3NDk5NTEzfQ==",
+        "approximateArrivalTimestamp": 1656765860.622
+      },
+      "eventSource": "aws:kinesis",
+      "eventVersion": "1.0",
+      "eventID": "shardId-000000000000:49631009926575499856298421581859380316386788682508533762",
+      "eventName": "aws:kinesis:record",
+      "invokeIdentityArn": "arn:aws:iam::159474638000:role/sensorapp-streaming-stack-SensorRealTimeDataFuncti-B1Q77KCTS0L8",
+      "awsRegion": "us-east-1",
+      "eventSourceARN": "arn:aws:kinesis:us-east-1:159474638000:stream/sensordata"
+    },
+    {
+      "kinesis": {
+        "kinesisSchemaVersion": "1.0",
+        "partitionKey": "1656765860590",
+        "sequenceNumber": "49631009926575499856298421581860589242206403311683239938",
+        "data": "eyJ1dWlkIjoiZmMzYzJkNWEtZmNkMC00MjZmLWIyMmUtZTZmZmNhMjViNzc3IiwiZXZlbnQiOiJ1cGRhdGUiLCJkZXZpY2VUaW1lc3RhbXAiOjE2NTY3NjU4NjAzNDMsInNlY29uZCI6NTg4LCJuYW1lIjoiaHVtaWRpdHlfMyIsInNlbnNvcklkIjoxMywicHJvY2Vzc0lkIjoxNjU2NzY1NzcxMzIwLCJmYWNpbGl0eUlkIjoxLCJzZW5zb3JEYXRhIjo3My4zMDQ0NTc3MzcyMzk3N30=",
+        "approximateArrivalTimestamp": 1656765860.628
+      },
+      "eventSource": "aws:kinesis",
+      "eventVersion": "1.0",
+      "eventID": "shardId-000000000000:49631009926575499856298421581860589242206403311683239938",
+      "eventName": "aws:kinesis:record",
+      "invokeIdentityArn": "arn:aws:iam::159474638000:role/sensorapp-streaming-stack-SensorRealTimeDataFuncti-B1Q77KCTS0L8",
+      "awsRegion": "us-east-1",
+      "eventSourceARN": "arn:aws:kinesis:us-east-1:159474638000:stream/sensordata"
+    },
+    {
+      "kinesis": {
+        "kinesisSchemaVersion": "1.0",
+        "partitionKey": "1656765860577",
+        "sequenceNumber": "49631009926575499856298421581861798168026017940857946114",
+        "data": "eyJ1dWlkIjoiZDZiODY1MzQtYTljYi00YmYzLWIyMmItZGJhYmU1YWEyNDIzIiwiZXZlbnQiOiJ1cGRhdGUiLCJkZXZpY2VUaW1lc3RhbXAiOjE2NTY3NjU4NjAzMzMsInNlY29uZCI6NTg4LCJuYW1lIjoidGVtcGVyYXR1cmVfMyIsInNlbnNvcklkIjozLCJwcm9jZXNzSWQiOjE2NTY3NjU3NzEzMjAsImZhY2lsaXR5SWQiOjEsInNlbnNvckRhdGEiOjM3LjU1MzE4NDA4MzkyMzk2Nn0=",
+        "approximateArrivalTimestamp": 1656765860.632
+      },
+      "eventSource": "aws:kinesis",
+      "eventVersion": "1.0",
+      "eventID": "shardId-000000000000:49631009926575499856298421581861798168026017940857946114",
+      "eventName": "aws:kinesis:record",
+      "invokeIdentityArn": "arn:aws:iam::159474638000:role/sensorapp-streaming-stack-SensorRealTimeDataFuncti-B1Q77KCTS0L8",
+      "awsRegion": "us-east-1",
+      "eventSourceARN": "arn:aws:kinesis:us-east-1:159474638000:stream/sensordata"
+    },
+    {
+      "kinesis": {
+        "kinesisSchemaVersion": "1.0",
+        "partitionKey": "1656765860577",
+        "sequenceNumber": "49631009926575499856298421581863007093845632570032652290",
+        "data": "eyJ1dWlkIjoiMDc0ODUzNTgtYTFmNi00NjY0LWJjMDgtMTJjMDZmY2NlNmFlIiwiZXZlbnQiOiJ1cGRhdGUiLCJkZXZpY2VUaW1lc3RhbXAiOjE2NTY3NjU4NjAzMzUsInNlY29uZCI6NTg4LCJuYW1lIjoicHJlc3N1cmVfMCIsInNlbnNvcklkIjo1LCJwcm9jZXNzSWQiOjE2NTY3NjU3NzEzMjAsImZhY2lsaXR5SWQiOjEsInNlbnNvckRhdGEiOjI5LjQ3NTY1MTU5NDgyMzE5NH0=",
+        "approximateArrivalTimestamp": 1656765860.636
+      },
+      "eventSource": "aws:kinesis",
+      "eventVersion": "1.0",
+      "eventID": "shardId-000000000000:49631009926575499856298421581863007093845632570032652290",
+      "eventName": "aws:kinesis:record",
+      "invokeIdentityArn": "arn:aws:iam::159474638000:role/sensorapp-streaming-stack-SensorRealTimeDataFuncti-B1Q77KCTS0L8",
+      "awsRegion": "us-east-1",
+      "eventSourceARN": "arn:aws:kinesis:us-east-1:159474638000:stream/sensordata"
+    },
+    {
+      "kinesis": {
+        "kinesisSchemaVersion": "1.0",
+        "partitionKey": "1656765860588",
+        "sequenceNumber": "49631009926575499856298421581864216019665247199207358466",
+        "data": "eyJ1dWlkIjoiZTJlZTYxY2ItZjExMS00NTE5LWJkMDMtZjc0ZmU5MjRhZTFlIiwiZXZlbnQiOiJ1cGRhdGUiLCJkZXZpY2VUaW1lc3RhbXAiOjE2NTY3NjU4NjAzNDQsInNlY29uZCI6NTg4LCJuYW1lIjoiaHVtaWRpdHlfNCIsInNlbnNvcklkIjoxNCwicHJvY2Vzc0lkIjoxNjU2NzY1NzcxMzIwLCJmYWNpbGl0eUlkIjoxLCJzZW5zb3JEYXRhIjoyMC41MjA2NDMxMDE4NDI5ODV9",
+        "approximateArrivalTimestamp": 1656765860.65
+      },
+      "eventSource": "aws:kinesis",
+      "eventVersion": "1.0",
+      "eventID": "shardId-000000000000:49631009926575499856298421581864216019665247199207358466",
+      "eventName": "aws:kinesis:record",
+      "invokeIdentityArn": "arn:aws:iam::159474638000:role/sensorapp-streaming-stack-SensorRealTimeDataFuncti-B1Q77KCTS0L8",
+      "awsRegion": "us-east-1",
+      "eventSourceARN": "arn:aws:kinesis:us-east-1:159474638000:stream/sensordata"
+    },
+    {
+      "kinesis": {
+        "kinesisSchemaVersion": "1.0",
+        "partitionKey": "1656765860589",
+        "sequenceNumber": "49631009926575499856298421581865424945484861828382064642",
+        "data": "eyJ1dWlkIjoiMDU2YTZhMGItZDNkNS00MDA1LThlMzQtNjc4OWU5MjE3NDY5IiwiZXZlbnQiOiJ1cGRhdGUiLCJkZXZpY2VUaW1lc3RhbXAiOjE2NTY3NjU4NjAzMzgsInNlY29uZCI6NTg4LCJuYW1lIjoicHJlc3N1cmVfMyIsInNlbnNvcklkIjo4LCJwcm9jZXNzSWQiOjE2NTY3NjU3NzEzMjAsImZhY2lsaXR5SWQiOjEsInNlbnNvckRhdGEiOjU5LjM5MDc1MzUyOTEzMjI3Nn0=",
+        "approximateArrivalTimestamp": 1656765860.652
+      },
+      "eventSource": "aws:kinesis",
+      "eventVersion": "1.0",
+      "eventID": "shardId-000000000000:49631009926575499856298421581865424945484861828382064642",
+      "eventName": "aws:kinesis:record",
+      "invokeIdentityArn": "arn:aws:iam::159474638000:role/sensorapp-streaming-stack-SensorRealTimeDataFuncti-B1Q77KCTS0L8",
+      "awsRegion": "us-east-1",
+      "eventSourceARN": "arn:aws:kinesis:us-east-1:159474638000:stream/sensordata"
+    },
+    {
+      "kinesis": {
+        "kinesisSchemaVersion": "1.0",
+        "partitionKey": "1656765860583",
+        "sequenceNumber": "49631009926575499856298421581866633871304476457556770818",
+        "data": "eyJ1dWlkIjoiMDEyNTQzZGEtMWZmMS00MjVmLWJmNTQtYWYyMTliMWMyNmNiIiwiZXZlbnQiOiJ1cGRhdGUiLCJkZXZpY2VUaW1lc3RhbXAiOjE2NTY3NjU4NjAzMzcsInNlY29uZCI6NTg4LCJuYW1lIjoicHJlc3N1cmVfMiIsInNlbnNvcklkIjo3LCJwcm9jZXNzSWQiOjE2NTY3NjU3NzEzMjAsImZhY2lsaXR5SWQiOjEsInNlbnNvckRhdGEiOjQxLjU4NDA2NjQ0Mjk0NjgwNn0=",
+        "approximateArrivalTimestamp": 1656765860.661
+      },
+      "eventSource": "aws:kinesis",
+      "eventVersion": "1.0",
+      "eventID": "shardId-000000000000:49631009926575499856298421581866633871304476457556770818",
+      "eventName": "aws:kinesis:record",
+      "invokeIdentityArn": "arn:aws:iam::159474638000:role/sensorapp-streaming-stack-SensorRealTimeDataFuncti-B1Q77KCTS0L8",
+      "awsRegion": "us-east-1",
+      "eventSourceARN": "arn:aws:kinesis:us-east-1:159474638000:stream/sensordata"
+    },
+    {
+      "kinesis": {
+        "kinesisSchemaVersion": "1.0",
+        "partitionKey": "1656765860587",
+        "sequenceNumber": "49631009926575499856298421581867842797124091086731476994",
+        "data": "eyJ1dWlkIjoiZjZiZjI2ZjgtYTVkYS00ZGYzLTkxYmEtZjcwYjc0ZGRhMDIzIiwiZXZlbnQiOiJ1cGRhdGUiLCJkZXZpY2VUaW1lc3RhbXAiOjE2NTY3NjU4NjAzNDEsInNlY29uZCI6NTg4LCJuYW1lIjoiaHVtaWRpdHlfMSIsInNlbnNvcklkIjoxMSwicHJvY2Vzc0lkIjoxNjU2NzY1NzcxMzIwLCJmYWNpbGl0eUlkIjoxLCJzZW5zb3JEYXRhIjo4Ny43NzIxNzYxMjU0NDN9",
+        "approximateArrivalTimestamp": 1656765860.663
+      },
+      "eventSource": "aws:kinesis",
+      "eventVersion": "1.0",
+      "eventID": "shardId-000000000000:49631009926575499856298421581867842797124091086731476994",
+      "eventName": "aws:kinesis:record",
+      "invokeIdentityArn": "arn:aws:iam::159474638000:role/sensorapp-streaming-stack-SensorRealTimeDataFuncti-B1Q77KCTS0L8",
+      "awsRegion": "us-east-1",
+      "eventSourceARN": "arn:aws:kinesis:us-east-1:159474638000:stream/sensordata"
+    },
+    {
+      "kinesis": {
+        "kinesisSchemaVersion": "1.0",
+        "partitionKey": "1656765860577",
+        "sequenceNumber": "49631009926575499856298421581869051722943705715906183170",
+        "data": "eyJ1dWlkIjoiNmZkZDc4ZTgtYzYyNC00Yzc3LTk0OWYtNjhkMzExZGY2NDM1IiwiZXZlbnQiOiJ1cGRhdGUiLCJkZXZpY2VUaW1lc3RhbXAiOjE2NTY3NjU4NjAzMjksInNlY29uZCI6NTg4LCJuYW1lIjoidGVtcGVyYXR1cmVfMCIsInNlbnNvcklkIjowLCJwcm9jZXNzSWQiOjE2NTY3NjU3NzEzMjAsImZhY2lsaXR5SWQiOjEsInNlbnNvckRhdGEiOjM2LjA3OTEwMjEyNzY2MTg1NX0=",
+        "approximateArrivalTimestamp": 1656765860.677
+      },
+      "eventSource": "aws:kinesis",
+      "eventVersion": "1.0",
+      "eventID": "shardId-000000000000:49631009926575499856298421581869051722943705715906183170",
+      "eventName": "aws:kinesis:record",
+      "invokeIdentityArn": "arn:aws:iam::159474638000:role/sensorapp-streaming-stack-SensorRealTimeDataFuncti-B1Q77KCTS0L8",
+      "awsRegion": "us-east-1",
+      "eventSourceARN": "arn:aws:kinesis:us-east-1:159474638000:stream/sensordata"
+    }
+  ]
+}

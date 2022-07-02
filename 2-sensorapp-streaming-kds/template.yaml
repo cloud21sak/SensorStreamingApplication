@@ -19,17 +19,16 @@ Resources:
   ##########################################
   # Lambda functions                       #
   ##########################################
-  TumblingSensorWindowFunction:
+  SensorRealTimeDataFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: sensorTumblingFunction/
+      CodeUri: sensorRealTimeDataFunction/
       Handler: app.handler
       Runtime: nodejs14.x
       Timeout: 15
       MemorySize: 256
       Environment:
         Variables:
-          # DDB_TABLE: !Ref DynamoDBSensortableName
           IOT_DATA_ENDPOINT: !Ref IoTdataEndpoint
           TOPIC: "sensordata-subscribe"
       Policies:
@@ -46,7 +45,6 @@ Resources:
             Stream: !Sub "arn:aws:kinesis:${AWS::Region}:${AWS::AccountId}:stream/${KinesisSensorStreamName}"
             BatchSize: 1000
             StartingPosition: TRIM_HORIZON
-            #TumblingWindowInSeconds: 10
 
   SensorStatsByLatestMinuteFunction:
     Type: AWS::Serverless::Function

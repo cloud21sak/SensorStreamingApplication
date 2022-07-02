@@ -5,17 +5,12 @@
 const AWS = require("aws-sdk");
 const iotdata = new AWS.IotData({ endpoint: process.env.IOT_DATA_ENDPOINT });
 AWS.config.region = process.env.AWS_REGION;
-//const documentClient = new AWS.DynamoDB.DocumentClient();
 
 let processMap = {};
 
 // Main Lambda handler
 exports.handler = async (event) => {
   console.log(`Received sensor data: ${event.Records.length} messages`);
-  // Check if there are no records, then just return:
-  //   if (event.Records.length === 0) {
-  //     return;
-  //   }
   console.log(JSON.stringify(event, null, 2));
 
   let jsonRecords = getRecordsFromPayload(event.Records);
@@ -40,22 +35,21 @@ exports.handler = async (event) => {
     // Retrieve existing state passed during tumbling window
     let state = event.state || {};
 
-    // let jsonRecords = getRecordsFromPayload(sensorDataRecords);
     jsonRecords.map(
       (record) => (processMap[record.processId] = record.facilityId)
     );
 
-    let shouldBePublished = false;
+    let toBePublished = false;
     if (sensorDataRecords.length !== 0) {
       getSensorDataByProcessId(state, sensorDataRecords);
     }
 
-    shouldBePublished = checkIfSensorDataShouldBePublished(
+    toBePublished = checkIfSensorDataShouldBePublished(
       state,
       sensorDataRecords
     );
 
-    if (shouldBePublished) {
+    if (toBePublished) {
       console.log("Publish last sensor stats after complete event");
       await publishToIoT(state);
     }
@@ -72,35 +66,36 @@ exports.handler = async (event) => {
       return { state };
     }
   }
+  // There was no "complete" event in the payload records:
+  else {
+    // Retrieve existing state passed during tumbling window
+    let state = event.state || {};
 
-  // Retrieve existing state passed during tumbling window
-  let state = event.state || {};
+    // Get sensor data of a process from event
+    jsonRecords.map(
+      (record) => (processMap[record.processId] = record.facilityId)
+    );
+    console.log("Payload records: ", JSON.stringify(jsonRecords, null, 2));
 
-  // Get sensor data of a process from event
-  //jsonRecords = getRecordsFromPayload(event.Records);
-  jsonRecords.map(
-    (record) => (processMap[record.processId] = record.facilityId)
-  );
-  console.log("Payload records: ", JSON.stringify(jsonRecords, null, 2));
+    getSensorDataByProcessId(state, jsonRecords);
 
-  getSensorDataByProcessId(state, jsonRecords);
+    // Since tumbling window is configured, publish to IoT endpoint
+    // on the final invoke window:
+    if (event.isFinalInvokeForWindow) {
+      // Make sure the state is not empty before publishing to IoT.
+      // This is the use case when the 'complete' event has been already processed
+      // during the window invocation that wasn't final.
+      if (Object.entries(state).length === 0) {
+        console.log("isFinalInvokeForWindow but the state is empty.");
+        return;
+      }
 
-  // Since tumbling window is configured, publish to IoT endpoint on the
-  // final invoke window:
-  if (event.isFinalInvokeForWindow) {
-    // Make sure the state is not empty before publishing to IoT.
-    // This is the use case when the 'complete' event has been already processed
-    // during the window invocation that wasn't final.
-    if (Object.entries(state).length === 0) {
-      console.log("isFinalInvokeForWindow but the state is empty.");
-      return;
+      console.log("Final invoke state: ", JSON.stringify(state, null, 2));
+      await publishToIoT(state);
+    } else {
+      console.log("Returning state: ", JSON.stringify(state, null, 2));
+      return { state };
     }
-    console.log("Final invoke state: ", JSON.stringify(state, null, 2));
-
-    await publishToIoT(state);
-  } else {
-    console.log("Returning state: ", JSON.stringify(state, null, 2));
-    return { state };
   }
 };
 
@@ -178,9 +173,6 @@ const getSensorDataByProcessId = (state, jsonRecords) => {
     }
     state[record.processId][record.sensorId].sensorData.push(record.sensorData);
   });
-
-  // TODO: we don't need to return here
-  //return state;
 };
 
 const checkIfSensorDataShouldBePublished = (state, jsonRecords) => {
@@ -234,6 +226,7 @@ let getStandardDevitation = (sensordata) => {
   );
 };
 
+// Basic function for mean value:
 let getMean = (sensordata) => {
   return (
     sensordata.reduce(function (a, b) {
