@@ -1,0 +1,423 @@
+{
+  "Records": [
+    {
+      "kinesis": {
+        "kinesisSchemaVersion": "1.0",
+        "partitionKey": "1656765858552",
+        "sequenceNumber": "49631009926575499856298421581824321467617964367722577922",
+        "data": "eyJ1dWlkIjoiMTVhZjliYWQtNjkyYS00NDQyLWI4YTYtY2IzNDYwYWUzNzdkIiwiZXZlbnQiOiJ1cGRhdGUiLCJkZXZpY2VUaW1lc3RhbXAiOjE2NTY3NjU4NTgzMzUsInNlY29uZCI6NTg2LCJuYW1lIjoiaHVtaWRpdHlfMyIsInNlbnNvcklkIjoxMywicHJvY2Vzc0lkIjoxNjU2NzY1NzcxMzIwLCJmYWNpbGl0eUlkIjoxLCJzZW5zb3JEYXRhIjoyMi45NDY5MTM4MzU3OTQ5NDV9",
+        "approximateArrivalTimestamp": 1656765858.608
+      },
+      "eventSource": "aws:kinesis",
+      "eventVersion": "1.0",
+      "eventID": "shardId-000000000000:49631009926575499856298421581824321467617964367722577922",
+      "eventName": "aws:kinesis:record",
+      "invokeIdentityArn": "arn:aws:iam::159474638000:role/sensorapp-streaming-stack-SensorStatsByLatestMinut-SPCHZTX8HZT5",
+      "awsRegion": "us-east-1",
+      "eventSourceARN": "arn:aws:kinesis:us-east-1:159474638000:stream/sensordata"
+    },
+    {
+      "kinesis": {
+        "kinesisSchemaVersion": "1.0",
+        "partitionKey": "1656765858555",
+        "sequenceNumber": "49631009926575499856298421581825530393437578996897284098",
+        "data": "eyJ1dWlkIjoiNmRhZDNhOTgtZmJhZC00ZjkwLTk0MTYtOGZlODFlYmI3Mzc2IiwiZXZlbnQiOiJ1cGRhdGUiLCJkZXZpY2VUaW1lc3RhbXAiOjE2NTY3NjU4NTgzMzIsInNlY29uZCI6NTg2LCJuYW1lIjoicHJlc3N1cmVfMCIsInNlbnNvcklkIjo1LCJwcm9jZXNzSWQiOjE2NTY3NjU3NzEzMjAsImZhY2lsaXR5SWQiOjEsInNlbnNvckRhdGEiOjY4LjMwOTU0MzA0ODY0NjMyfQ==",
+        "approximateArrivalTimestamp": 1656765858.614
+      },
+      "eventSource": "aws:kinesis",
+      "eventVersion": "1.0",
+      "eventID": "shardId-000000000000:49631009926575499856298421581825530393437578996897284098",
+      "eventName": "aws:kinesis:record",
+      "invokeIdentityArn": "arn:aws:iam::159474638000:role/sensorapp-streaming-stack-SensorStatsByLatestMinut-SPCHZTX8HZT5",
+      "awsRegion": "us-east-1",
+      "eventSourceARN": "arn:aws:kinesis:us-east-1:159474638000:stream/sensordata"
+    },
+    {
+      "kinesis": {
+        "kinesisSchemaVersion": "1.0",
+        "partitionKey": "1656765858554",
+        "sequenceNumber": "49631009926575499856298421581826739319257193626071990274",
+        "data": "eyJ1dWlkIjoiZWU3NmQ5MjctMTRmNy00Yzg5LWJmNDAtOTAwMDE3Y2JkNTlkIiwiZXZlbnQiOiJ1cGRhdGUiLCJkZXZpY2VUaW1lc3RhbXAiOjE2NTY3NjU4NTgzMzQsInNlY29uZCI6NTg2LCJuYW1lIjoicHJlc3N1cmVfMyIsInNlbnNvcklkIjo4LCJwcm9jZXNzSWQiOjE2NTY3NjU3NzEzMjAsImZhY2lsaXR5SWQiOjEsInNlbnNvckRhdGEiOjQxLjg4NDM3NjE1MzczNjk5NH0=",
+        "approximateArrivalTimestamp": 1656765858.615
+      },
+      "eventSource": "aws:kinesis",
+      "eventVersion": "1.0",
+      "eventID": "shardId-000000000000:49631009926575499856298421581826739319257193626071990274",
+      "eventName": "aws:kinesis:record",
+      "invokeIdentityArn": "arn:aws:iam::159474638000:role/sensorapp-streaming-stack-SensorStatsByLatestMinut-SPCHZTX8HZT5",
+      "awsRegion": "us-east-1",
+      "eventSourceARN": "arn:aws:kinesis:us-east-1:159474638000:stream/sensordata"
+    },
+    {
+      "kinesis": {
+        "kinesisSchemaVersion": "1.0",
+        "partitionKey": "1656765858555",
+        "sequenceNumber": "49631009926575499856298421581827948245076808186527219714",
+        "data": "eyJ1dWlkIjoiZjc0NjEwN2UtZjZhNy00NDkzLWFhM2ItNWNlYWYwZDJjOTNkIiwiZXZlbnQiOiJ1cGRhdGUiLCJkZXZpY2VUaW1lc3RhbXAiOjE2NTY3NjU4NTgzMzIsInNlY29uZCI6NTg2LCJuYW1lIjoidGVtcGVyYXR1cmVfNCIsInNlbnNvcklkIjo0LCJwcm9jZXNzSWQiOjE2NTY3NjU3NzEzMjAsImZhY2lsaXR5SWQiOjEsInNlbnNvckRhdGEiOjUxLjg0NDAzODc5ODMwNjF9",
+        "approximateArrivalTimestamp": 1656765858.623
+      },
+      "eventSource": "aws:kinesis",
+      "eventVersion": "1.0",
+      "eventID": "shardId-000000000000:49631009926575499856298421581827948245076808186527219714",
+      "eventName": "aws:kinesis:record",
+      "invokeIdentityArn": "arn:aws:iam::159474638000:role/sensorapp-streaming-stack-SensorStatsByLatestMinut-SPCHZTX8HZT5",
+      "awsRegion": "us-east-1",
+      "eventSourceARN": "arn:aws:kinesis:us-east-1:159474638000:stream/sensordata"
+    },
+    {
+      "kinesis": {
+        "kinesisSchemaVersion": "1.0",
+        "partitionKey": "1656765858554",
+        "sequenceNumber": "49631009926575499856298421581829157170896422884421402626",
+        "data": "eyJ1dWlkIjoiNzEwMmJkZWMtNmZjYS00YzIwLWI5OWUtNTkwYWFmMGZhMmIwIiwiZXZlbnQiOiJ1cGRhdGUiLCJkZXZpY2VUaW1lc3RhbXAiOjE2NTY3NjU4NTgzMzUsInNlY29uZCI6NTg2LCJuYW1lIjoiaHVtaWRpdHlfMSIsInNlbnNvcklkIjoxMSwicHJvY2Vzc0lkIjoxNjU2NzY1NzcxMzIwLCJmYWNpbGl0eUlkIjoxLCJzZW5zb3JEYXRhIjozNC41NjM3NjQ3Njg2NzQ3N30=",
+        "approximateArrivalTimestamp": 1656765858.634
+      },
+      "eventSource": "aws:kinesis",
+      "eventVersion": "1.0",
+      "eventID": "shardId-000000000000:49631009926575499856298421581829157170896422884421402626",
+      "eventName": "aws:kinesis:record",
+      "invokeIdentityArn": "arn:aws:iam::159474638000:role/sensorapp-streaming-stack-SensorStatsByLatestMinut-SPCHZTX8HZT5",
+      "awsRegion": "us-east-1",
+      "eventSourceARN": "arn:aws:kinesis:us-east-1:159474638000:stream/sensordata"
+    },
+    {
+      "kinesis": {
+        "kinesisSchemaVersion": "1.0",
+        "partitionKey": "1656765858553",
+        "sequenceNumber": "49631009926575499856298421581830366096716037444876632066",
+        "data": "eyJ1dWlkIjoiZWQyY2M5OGEtYzU2My00OGUzLWJmNTItNDg5YzEzMTMxYjNkIiwiZXZlbnQiOiJ1cGRhdGUiLCJkZXZpY2VUaW1lc3RhbXAiOjE2NTY3NjU4NTgzMzQsInNlY29uZCI6NTg2LCJuYW1lIjoiaHVtaWRpdHlfMCIsInNlbnNvcklkIjoxMCwicHJvY2Vzc0lkIjoxNjU2NzY1NzcxMzIwLCJmYWNpbGl0eUlkIjoxLCJzZW5zb3JEYXRhIjoxOC41ODI4NjMzNTA1NjIxNjR9",
+        "approximateArrivalTimestamp": 1656765858.641
+      },
+      "eventSource": "aws:kinesis",
+      "eventVersion": "1.0",
+      "eventID": "shardId-000000000000:49631009926575499856298421581830366096716037444876632066",
+      "eventName": "aws:kinesis:record",
+      "invokeIdentityArn": "arn:aws:iam::159474638000:role/sensorapp-streaming-stack-SensorStatsByLatestMinut-SPCHZTX8HZT5",
+      "awsRegion": "us-east-1",
+      "eventSourceARN": "arn:aws:kinesis:us-east-1:159474638000:stream/sensordata"
+    },
+    {
+      "kinesis": {
+        "kinesisSchemaVersion": "1.0",
+        "partitionKey": "1656765858593",
+        "sequenceNumber": "49631009926575499856298421581831575022535652142770814978",
+        "data": "eyJ1dWlkIjoiM2I5NmFlNjgtNGVkZS00MTNjLWIyZmMtMzFlYjViZGQxNTAxIiwiZXZlbnQiOiJ1cGRhdGUiLCJkZXZpY2VUaW1lc3RhbXAiOjE2NTY3NjU4NTgzMzQsInNlY29uZCI6NTg2LCJuYW1lIjoicHJlc3N1cmVfNCIsInNlbnNvcklkIjo5LCJwcm9jZXNzSWQiOjE2NTY3NjU3NzEzMjAsImZhY2lsaXR5SWQiOjEsInNlbnNvckRhdGEiOjc5LjQ0OTM0Nzk0MzgxMjYzfQ==",
+        "approximateArrivalTimestamp": 1656765858.645
+      },
+      "eventSource": "aws:kinesis",
+      "eventVersion": "1.0",
+      "eventID": "shardId-000000000000:49631009926575499856298421581831575022535652142770814978",
+      "eventName": "aws:kinesis:record",
+      "invokeIdentityArn": "arn:aws:iam::159474638000:role/sensorapp-streaming-stack-SensorStatsByLatestMinut-SPCHZTX8HZT5",
+      "awsRegion": "us-east-1",
+      "eventSourceARN": "arn:aws:kinesis:us-east-1:159474638000:stream/sensordata"
+    },
+    {
+      "kinesis": {
+        "kinesisSchemaVersion": "1.0",
+        "partitionKey": "1656765858552",
+        "sequenceNumber": "49631009926575499856298421581832783948355266771945521154",
+        "data": "eyJ1dWlkIjoiMjM0MDU2YTYtZTIzNC00YzJiLWE1OTAtZmQ4OTEwYjk2MjA4IiwiZXZlbnQiOiJ1cGRhdGUiLCJkZXZpY2VUaW1lc3RhbXAiOjE2NTY3NjU4NTgzMzMsInNlY29uZCI6NTg2LCJuYW1lIjoicHJlc3N1cmVfMiIsInNlbnNvcklkIjo3LCJwcm9jZXNzSWQiOjE2NTY3NjU3NzEzMjAsImZhY2lsaXR5SWQiOjEsInNlbnNvckRhdGEiOjk4LjM3MDA1MDEyOTkxOTc1fQ==",
+        "approximateArrivalTimestamp": 1656765858.651
+      },
+      "eventSource": "aws:kinesis",
+      "eventVersion": "1.0",
+      "eventID": "shardId-000000000000:49631009926575499856298421581832783948355266771945521154",
+      "eventName": "aws:kinesis:record",
+      "invokeIdentityArn": "arn:aws:iam::159474638000:role/sensorapp-streaming-stack-SensorStatsByLatestMinut-SPCHZTX8HZT5",
+      "awsRegion": "us-east-1",
+      "eventSourceARN": "arn:aws:kinesis:us-east-1:159474638000:stream/sensordata"
+    },
+    {
+      "kinesis": {
+        "kinesisSchemaVersion": "1.0",
+        "partitionKey": "1656765858550",
+        "sequenceNumber": "49631009926575499856298421581833992874174881332400750594",
+        "data": "eyJ1dWlkIjoiN2ZkMjliNGEtOTQ0Yi00ZjdlLTkwZDItYTIzYzdkZDZlYmRjIiwiZXZlbnQiOiJ1cGRhdGUiLCJkZXZpY2VUaW1lc3RhbXAiOjE2NTY3NjU4NTgzMzEsInNlY29uZCI6NTg2LCJuYW1lIjoidGVtcGVyYXR1cmVfMiIsInNlbnNvcklkIjoyLCJwcm9jZXNzSWQiOjE2NTY3NjU3NzEzMjAsImZhY2lsaXR5SWQiOjEsInNlbnNvckRhdGEiOjI5LjUwNjY1Nzk3Njk3OTk3N30=",
+        "approximateArrivalTimestamp": 1656765858.653
+      },
+      "eventSource": "aws:kinesis",
+      "eventVersion": "1.0",
+      "eventID": "shardId-000000000000:49631009926575499856298421581833992874174881332400750594",
+      "eventName": "aws:kinesis:record",
+      "invokeIdentityArn": "arn:aws:iam::159474638000:role/sensorapp-streaming-stack-SensorStatsByLatestMinut-SPCHZTX8HZT5",
+      "awsRegion": "us-east-1",
+      "eventSourceARN": "arn:aws:kinesis:us-east-1:159474638000:stream/sensordata"
+    },
+    {
+      "kinesis": {
+        "kinesisSchemaVersion": "1.0",
+        "partitionKey": "1656765858553",
+        "sequenceNumber": "49631009926575499856298421581835201799994495961575456770",
+        "data": "eyJ1dWlkIjoiMmFhOGQ0MWEtNDdlYS00Yjg5LTg0MWItMTcwMjVkNTFlMjRhIiwiZXZlbnQiOiJ1cGRhdGUiLCJkZXZpY2VUaW1lc3RhbXAiOjE2NTY3NjU4NTgzMzYsInNlY29uZCI6NTg2LCJuYW1lIjoiaHVtaWRpdHlfNCIsInNlbnNvcklkIjoxNCwicHJvY2Vzc0lkIjoxNjU2NzY1NzcxMzIwLCJmYWNpbGl0eUlkIjoxLCJzZW5zb3JEYXRhIjo5Mi42NzU5NjA5NjY4MzMxfQ==",
+        "approximateArrivalTimestamp": 1656765858.654
+      },
+      "eventSource": "aws:kinesis",
+      "eventVersion": "1.0",
+      "eventID": "shardId-000000000000:49631009926575499856298421581835201799994495961575456770",
+      "eventName": "aws:kinesis:record",
+      "invokeIdentityArn": "arn:aws:iam::159474638000:role/sensorapp-streaming-stack-SensorStatsByLatestMinut-SPCHZTX8HZT5",
+      "awsRegion": "us-east-1",
+      "eventSourceARN": "arn:aws:kinesis:us-east-1:159474638000:stream/sensordata"
+    },
+    {
+      "kinesis": {
+        "kinesisSchemaVersion": "1.0",
+        "partitionKey": "1656765858552",
+        "sequenceNumber": "49631009926575499856298421581836410725814110590750162946",
+        "data": "eyJ1dWlkIjoiMjFmNzBmZjctMjYxYi00ZTZmLWJiYTAtZDYyNDZkN2ZmZDM2IiwiZXZlbnQiOiJ1cGRhdGUiLCJkZXZpY2VUaW1lc3RhbXAiOjE2NTY3NjU4NTgzMzMsInNlY29uZCI6NTg2LCJuYW1lIjoicHJlc3N1cmVfMSIsInNlbnNvcklkIjo2LCJwcm9jZXNzSWQiOjE2NTY3NjU3NzEzMjAsImZhY2lsaXR5SWQiOjEsInNlbnNvckRhdGEiOjY4Ljc5NDc1ODM2MDc3OTM1fQ==",
+        "approximateArrivalTimestamp": 1656765858.656
+      },
+      "eventSource": "aws:kinesis",
+      "eventVersion": "1.0",
+      "eventID": "shardId-000000000000:49631009926575499856298421581836410725814110590750162946",
+      "eventName": "aws:kinesis:record",
+      "invokeIdentityArn": "arn:aws:iam::159474638000:role/sensorapp-streaming-stack-SensorStatsByLatestMinut-SPCHZTX8HZT5",
+      "awsRegion": "us-east-1",
+      "eventSourceARN": "arn:aws:kinesis:us-east-1:159474638000:stream/sensordata"
+    },
+    {
+      "kinesis": {
+        "kinesisSchemaVersion": "1.0",
+        "partitionKey": "1656765858562",
+        "sequenceNumber": "49631009926575499856298421581837619651633725288644345858",
+        "data": "eyJ1dWlkIjoiNzRmY2QyZTYtYTM2Zi00YjAxLTgzODctYTA1ZWY2ZjQ2NTg0IiwiZXZlbnQiOiJ1cGRhdGUiLCJkZXZpY2VUaW1lc3RhbXAiOjE2NTY3NjU4NTgzMzEsInNlY29uZCI6NTg2LCJuYW1lIjoidGVtcGVyYXR1cmVfMyIsInNlbnNvcklkIjozLCJwcm9jZXNzSWQiOjE2NTY3NjU3NzEzMjAsImZhY2lsaXR5SWQiOjEsInNlbnNvckRhdGEiOjg3LjczNDQ0NjY2NzMzNzU4fQ==",
+        "approximateArrivalTimestamp": 1656765858.697
+      },
+      "eventSource": "aws:kinesis",
+      "eventVersion": "1.0",
+      "eventID": "shardId-000000000000:49631009926575499856298421581837619651633725288644345858",
+      "eventName": "aws:kinesis:record",
+      "invokeIdentityArn": "arn:aws:iam::159474638000:role/sensorapp-streaming-stack-SensorStatsByLatestMinut-SPCHZTX8HZT5",
+      "awsRegion": "us-east-1",
+      "eventSourceARN": "arn:aws:kinesis:us-east-1:159474638000:stream/sensordata"
+    },
+    {
+      "kinesis": {
+        "kinesisSchemaVersion": "1.0",
+        "partitionKey": "1656765858650",
+        "sequenceNumber": "49631009926575499856298421581838828577453339917819052034",
+        "data": "eyJ1dWlkIjoiMTBmMzA0ODQtNzdlYS00NmRjLTkwNjQtMzNhZjg1MjQwMDFkIiwiZXZlbnQiOiJ1cGRhdGUiLCJkZXZpY2VUaW1lc3RhbXAiOjE2NTY3NjU4NTgzMzUsInNlY29uZCI6NTg2LCJuYW1lIjoiaHVtaWRpdHlfMiIsInNlbnNvcklkIjoxMiwicHJvY2Vzc0lkIjoxNjU2NzY1NzcxMzIwLCJmYWNpbGl0eUlkIjoxLCJzZW5zb3JEYXRhIjo3Ni44MDMwMjUwMTkwOTgxM30=",
+        "approximateArrivalTimestamp": 1656765858.779
+      },
+      "eventSource": "aws:kinesis",
+      "eventVersion": "1.0",
+      "eventID": "shardId-000000000000:49631009926575499856298421581838828577453339917819052034",
+      "eventName": "aws:kinesis:record",
+      "invokeIdentityArn": "arn:aws:iam::159474638000:role/sensorapp-streaming-stack-SensorStatsByLatestMinut-SPCHZTX8HZT5",
+      "awsRegion": "us-east-1",
+      "eventSourceARN": "arn:aws:kinesis:us-east-1:159474638000:stream/sensordata"
+    },
+    {
+      "kinesis": {
+        "kinesisSchemaVersion": "1.0",
+        "partitionKey": "1656765859563",
+        "sequenceNumber": "49631009926575499856298421581840037503272954546993758210",
+        "data": "eyJ1dWlkIjoiNWM5M2MyYzYtMGIyNS00OWJmLWFiY2QtMjM5MGViOWQzMmI5IiwiZXZlbnQiOiJ1cGRhdGUiLCJkZXZpY2VUaW1lc3RhbXAiOjE2NTY3NjU4NTkzMjcsInNlY29uZCI6NTg3LCJuYW1lIjoicHJlc3N1cmVfMiIsInNlbnNvcklkIjo3LCJwcm9jZXNzSWQiOjE2NTY3NjU3NzEzMjAsImZhY2lsaXR5SWQiOjEsInNlbnNvckRhdGEiOjE1LjczNTM0NTY3MzU4ODkxOX0=",
+        "approximateArrivalTimestamp": 1656765859.596
+      },
+      "eventSource": "aws:kinesis",
+      "eventVersion": "1.0",
+      "eventID": "shardId-000000000000:49631009926575499856298421581840037503272954546993758210",
+      "eventName": "aws:kinesis:record",
+      "invokeIdentityArn": "arn:aws:iam::159474638000:role/sensorapp-streaming-stack-SensorStatsByLatestMinut-SPCHZTX8HZT5",
+      "awsRegion": "us-east-1",
+      "eventSourceARN": "arn:aws:kinesis:us-east-1:159474638000:stream/sensordata"
+    },
+    {
+      "kinesis": {
+        "kinesisSchemaVersion": "1.0",
+        "partitionKey": "1656765859565",
+        "sequenceNumber": "49631009926575499856298421581841246429092569176168464386",
+        "data": "eyJ1dWlkIjoiMDAwODhlMjMtNDFkZi00YjExLTlmZGItODEyNWY5NGY2NmM2IiwiZXZlbnQiOiJ1cGRhdGUiLCJkZXZpY2VUaW1lc3RhbXAiOjE2NTY3NjU4NTkzMjEsInNlY29uZCI6NTg3LCJuYW1lIjoidGVtcGVyYXR1cmVfMCIsInNlbnNvcklkIjowLCJwcm9jZXNzSWQiOjE2NTY3NjU3NzEzMjAsImZhY2lsaXR5SWQiOjEsInNlbnNvckRhdGEiOjY1LjUyMjM1NDEwODMwNjI1fQ==",
+        "approximateArrivalTimestamp": 1656765859.599
+      },
+      "eventSource": "aws:kinesis",
+      "eventVersion": "1.0",
+      "eventID": "shardId-000000000000:49631009926575499856298421581841246429092569176168464386",
+      "eventName": "aws:kinesis:record",
+      "invokeIdentityArn": "arn:aws:iam::159474638000:role/sensorapp-streaming-stack-SensorStatsByLatestMinut-SPCHZTX8HZT5",
+      "awsRegion": "us-east-1",
+      "eventSourceARN": "arn:aws:kinesis:us-east-1:159474638000:stream/sensordata"
+    }
+  ],
+  "shardId": "shardId-000000000000",
+  "eventSourceARN": "arn:aws:kinesis:us-east-1:159474638000:stream/sensordata",
+  "window": {
+    "start": "2022-07-02T12:44:00Z",
+    "end": "2022-07-02T12:44:30Z"
+  },
+  "state": {
+    "1656765771320": {
+      "0": {
+        "sensorData": [
+          75.65867806305917, 28.85717410712807, 7.862853766610045,
+          75.39909061184122, 29.01159697707094, 93.40315875898159,
+          56.52958345117889, 71.11442413234643, 37.564327993605914,
+          6.412071893480054, 28.13930698035374, 68.17103246373301,
+          25.073777450988487, 82.10792619144244, 28.272966638142492,
+          43.39891863983387, 43.51220820711272, 16.148025582768888,
+          93.8989727250565
+        ],
+        "name": "temperature_0"
+      },
+      "1": {
+        "sensorData": [
+          35.512093577877835, 92.30443351178394, 91.1013009317126,
+          31.20491262528111, 5.574814343573187, 33.94246386030873,
+          6.494679575043105, 71.11215754104599, 8.126400488748109,
+          0.07655841090292714, 88.8128976264104, 87.25682260247095,
+          83.33884324596261, 8.684308092071191, 51.80094439944403,
+          24.897329381789124, 3.8911734219942318, 79.00718198212083,
+          39.36909519579619
+        ],
+        "name": "temperature_1"
+      },
+      "2": {
+        "sensorData": [
+          30.784271169992937, 45.4010703443011, 42.96638448264816,
+          52.817118625082045, 96.21402855527317, 2.930590439236158,
+          72.09102178943726, 87.07955921671082, 62.868664604001204,
+          83.21783269378844, 90.8021362093286, 36.40327662383835,
+          54.20156864736951, 26.899868288525397, 6.237623237252254,
+          47.51428556765154, 38.194251401905156, 45.07520152439093
+        ],
+        "name": "temperature_2"
+      },
+      "3": {
+        "sensorData": [
+          11.292720251223255, 92.5686771310519, 58.67791264049589,
+          44.37713293861143, 25.78421505365649, 80.69321662027032,
+          90.40245186838172, 74.38813254981373, 13.719720725780915,
+          42.834922325651824, 45.204192053913374, 72.08057915979292,
+          59.08122997028469, 85.75689240529579, 20.25744582934483,
+          1.8798501612035556, 7.065146889158602, 31.87663446818272
+        ],
+        "name": "temperature_3"
+      },
+      "4": {
+        "sensorData": [
+          16.202837012783068, 75.4386109236262, 19.535598615038417,
+          49.206513695257016, 94.39738728140863, 26.74242916509959,
+          17.706482983980543, 23.73315525519981, 24.269720810097795,
+          22.081464536128472, 97.21665843730369, 48.07583832397589,
+          19.84030228131186, 73.50279258066605, 34.29394270769295,
+          15.649120015402772, 12.175231286502552, 25.349013605315605
+        ],
+        "name": "temperature_4"
+      },
+      "5": {
+        "sensorData": [
+          0.8935835146930637, 1.2534282555582976, 97.02654314877684,
+          90.12676378851808, 10.052096151513478, 75.33449280263356,
+          62.42024106648483, 34.748075639616594, 9.990525463461196,
+          7.898190668315697, 4.03738623487635, 5.814275772412003,
+          86.77275757486724, 3.913288454309649, 35.59258277760886,
+          56.66074444544422, 59.07542230683269, 46.36413342362533
+        ],
+        "name": "pressure_0"
+      },
+      "6": {
+        "sensorData": [
+          26.60848420002384, 83.57516638237983, 30.684298506218365,
+          25.355969167053804, 79.87518480086648, 22.08215874440822,
+          34.83143950377108, 60.067343615848024, 89.06082828997847,
+          74.63607283681239, 14.844236734314475, 73.27925927984023,
+          95.69814317312992, 39.622149767962014, 30.459037478192606,
+          52.659538378845404, 96.11765733560362, 43.34932978617412
+        ],
+        "name": "pressure_1"
+      },
+      "7": {
+        "sensorData": [
+          0.10085432250477311, 43.621942094404396, 28.405821245952122,
+          45.55951147076696, 11.911652039041275, 0.4575607118256775,
+          10.380373729658476, 72.50809039383199, 78.86219264744263,
+          85.18506815814885, 74.451012294868, 59.385146828713275,
+          1.0114569349893188, 27.42393209462257, 60.66696111428094,
+          63.925906475500696, 82.20787883182086, 77.23347982390575
+        ],
+        "name": "pressure_2"
+      },
+      "8": {
+        "sensorData": [
+          7.693640511936062, 31.609629593040523, 85.274277463043,
+          29.14925212243333, 24.08567591006303, 0.6338503305216792,
+          56.34549649102216, 60.07445722664817, 97.13997918701791,
+          73.79113258292503, 22.456212429970645, 23.68296530296594,
+          57.992749014415466, 52.83232499394401, 44.430609375093624,
+          48.11069212179233, 38.518479787854496, 95.35104480305998
+        ],
+        "name": "pressure_3"
+      },
+      "9": {
+        "sensorData": [
+          37.13566422833399, 70.93082120747596, 19.967086702075875,
+          72.27165136670048, 12.186375115702086, 58.09450838940715,
+          0.72758847107115, 27.268736325326337, 5.198083664726361,
+          87.85919575574826, 46.41746213614402, 13.716668250607134,
+          42.77446248454324, 94.64788675407894, 47.42564650224641,
+          82.87692128906028, 51.36126520028475, 89.57040109130094
+        ],
+        "name": "pressure_4"
+      },
+      "10": {
+        "sensorData": [
+          11.143962300463395, 85.50299702289561, 13.259551330938123,
+          44.64768775806438, 85.21550859959113, 79.38091000850088,
+          77.98015280916026, 60.867694385272216, 29.208227952523245,
+          72.5072729202717, 25.867081320147236, 68.23126902190886,
+          12.73299276040687, 34.1836230158036, 65.90451748961594,
+          82.85453892753046, 32.617410384264176, 77.27370059720198
+        ],
+        "name": "humidity_0"
+      },
+      "11": {
+        "sensorData": [
+          15.648989919632417, 3.4487653352912817, 89.11752657884352,
+          6.792388585139975, 93.53623587651994, 70.9008445058314,
+          33.649189041524295, 82.1150904597825, 53.255186223765726,
+          95.23379405609163, 50.45778405628663, 88.840489782085,
+          9.840408906392216, 65.9268504495037, 57.72128413002528,
+          76.32099107432654, 28.5198283379162, 54.22437984063973
+        ],
+        "name": "humidity_1"
+      },
+      "12": {
+        "sensorData": [
+          49.210265718759175, 83.68998784725052, 29.14874028852075,
+          65.45070133339455, 54.56241066479086, 99.79187854353675,
+          70.90525794800944, 31.043303320641048, 13.589857535208893,
+          41.195799556595446, 1.644215319844955, 82.13951138393323,
+          10.838877255807212, 42.38241404391725, 7.263972327119483,
+          4.204620315014118, 53.33224022855924, 46.31034403860153
+        ],
+        "name": "humidity_2"
+      },
+      "13": {
+        "sensorData": [
+          76.36445269669674, 9.083399626926836, 64.94617503950882,
+          47.34178557391926, 69.8559622296804, 5.311015594370683,
+          81.83546303188005, 79.79064365166408, 73.43994484374518,
+          11.956209136711028, 73.66249829260035, 92.4944742526854,
+          58.861079348289394, 97.5509910380488, 29.609093561954513,
+          83.25808181076818, 47.17844395266688, 78.7354732772467
+        ],
+        "name": "humidity_3"
+      },
+      "14": {
+        "sensorData": [
+          74.0606547850794, 97.4718001191898, 26.134642131026496,
+          8.764502817147068, 51.893505343873315, 71.0117373217162,
+          13.645640298856353, 58.32110747978814, 24.613912486725464,
+          49.41791339937727, 73.7354042193328, 29.02070827635943,
+          32.88765964705978, 90.03943741641747, 5.429593692386314,
+          18.118237774994927, 75.50831069462734, 51.9905594186993
+        ],
+        "name": "humidity_4"
+      }
+    }
+  },
+  "isFinalInvokeForWindow": false,
+  "isWindowTerminatedEarly": false
+}
