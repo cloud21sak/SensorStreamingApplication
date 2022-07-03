@@ -3,7 +3,7 @@
  */
 
 // Mock event
-const event = require("./testEvent.json");
+const event = require("./testEventNoFinalInvoke.json");
 
 // Mock environment variables
 process.env.AWS_REGION = "us-east-1";

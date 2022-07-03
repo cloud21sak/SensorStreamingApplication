@@ -49,6 +49,7 @@ exports.handler = async (event) => {
       sensorDataRecords
     );
 
+    console.log("toBePublished:", toBePublished);
     if (toBePublished) {
       console.log("Publish last sensor stats after complete event");
       await publishToIoT(state);
