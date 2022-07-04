@@ -193,11 +193,11 @@ Resources:
             BatchSize: 10
             StartingPosition: TRIM_HORIZON
 
-  PublishCompletedProcessInfo:
+  PublishCompletedProcessStats:
     Type: AWS::Serverless::Function
     Properties:
       Description: Updates IoT topics with changes to DDB table
-      CodeUri: publishCompletedProcessInfo/
+      CodeUri: publishCompletedProcessStats/
       Handler: app.handler
       Runtime: nodejs14.x
       Timeout: 10
