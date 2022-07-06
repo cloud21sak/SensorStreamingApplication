@@ -5,6 +5,8 @@
 //const { gzip, gunzip } = require("./lib/gzip");
 
 const AWS = require("aws-sdk");
+const { median } = require("./commonlib/mathlib.js");
+
 AWS.config.region = process.env.AWS_REGION;
 const s3 = new AWS.S3();
 let documentClient = undefined;
@@ -81,7 +83,7 @@ const getProcessSensorData = async (jsonRecords) => {
         completedProcessData.processSensorDataObj[
           `${sensorDataRecord.sensorId}`
         ].name = sensorDataRecord.name;
-      }     
+      }
 
       completedProcessData.processSensorDataObj[
         `${sensorDataRecord.sensorId}`
@@ -110,7 +112,7 @@ const getProcessSensorStats = async () => {
     const min_val = Math.min(...sensorData);
     console.log("min_val: ", min_val);
     const max_val = Math.max(...sensorData);
-    const median_val = median(sensorData);    
+    const median_val = median(sensorData);
 
     if (!(sensorId in completedProcessData.processSensorStats)) {
       completedProcessData.processSensorStats[`${sensorId}`] = {};
@@ -127,30 +129,30 @@ const getProcessSensorStats = async () => {
       "completedProcessData.processSensorStats[sensorId]:",
       sensorId,
       completedProcessData.processSensorStats[sensorId]
-    );    
+    );
   }
 };
 
 // TODO: refactor this into a separate lib module
-function median(numbers) {
-  var median = 0,
-    numsLen = numbers.length;
-  numbers.sort((a, b) => a - b);
+// function median(numbers) {
+//   var median = 0,
+//     numsLen = numbers.length;
+//   numbers.sort((a, b) => a - b);
 
-  if (
-    numsLen % 2 ===
-    0 // is even
-  ) {
-    // average of two middle numbers
-    median = (numbers[numsLen / 2 - 1] + numbers[numsLen / 2]) / 2;
-  } else {
-    // is odd
-    // middle number only
-    median = numbers[(numsLen - 1) / 2];
-  }
+//   if (
+//     numsLen % 2 ===
+//     0 // is even
+//   ) {
+//     // average of two middle numbers
+//     median = (numbers[numsLen / 2 - 1] + numbers[numsLen / 2]) / 2;
+//   } else {
+//     // is odd
+//     // middle number only
+//     median = numbers[(numsLen - 1) / 2];
+//   }
 
-  return median;
-}
+//   return median;
+// }
 
 const saveProcessSensorStats = async () => {
   console.log(

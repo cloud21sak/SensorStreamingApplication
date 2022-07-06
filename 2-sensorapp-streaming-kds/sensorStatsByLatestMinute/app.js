@@ -3,6 +3,8 @@
  */
 
 const AWS = require("aws-sdk");
+const { getStandardDevitation } = require("./commonlib/mathlib.js");
+
 const iotdata = new AWS.IotData({ endpoint: process.env.IOT_DATA_ENDPOINT });
 AWS.config.region = process.env.AWS_REGION;
 
@@ -21,7 +23,7 @@ exports.handler = async (event) => {
   );
 
   // If the "complete" event was issued, then we need to check the current state,
-  // and, if the total number of data points for each sensor is less than 20, then we
+  // and, if the total number of data points for each sensor is less than 15, then we
   // ignore those values, and return without publishing any new aggregate stats:
   if (completedProcessRecords.length !== 0) {
     console.log("Received 'complete' message!");
@@ -194,18 +196,16 @@ const checkIfSensorDataShouldBePublished = (state, jsonRecords) => {
       state[record.processId][record.sensorId].sensorData.push(
         record.sensorData
       );
-      if (state[record.processId][record.sensorId].sensorData.length >= 20) {
+      if (state[record.processId][record.sensorId].sensorData.length >= 15) {
         isPublishable = true;
       }
     });
-
-    return isPublishable;
   } else {
     for (const [processId, processSensorDataState] of Object.entries(state)) {
       for (const [sensorId, sensorDataInfo] of Object.entries(
         processSensorDataState
       )) {
-        if (sensorDataInfo.sensorData.length >= 20) {
+        if (sensorDataInfo.sensorData.length >= 15) {
           console.log(
             `sensorDataInfo: ${sensorDataInfo}, sensordata: ${sensorDataInfo.sensorData} is publishable`
           );
@@ -214,24 +214,26 @@ const checkIfSensorDataShouldBePublished = (state, jsonRecords) => {
       }
     }
   }
+
+  return isPublishable;
 };
 
 // Basic function for standard deviation:
-let getStandardDevitation = (sensordata) => {
-  let m = getMean(sensordata);
-  return Math.sqrt(
-    sensordata.reduce(function (sq, n) {
-      return sq + Math.pow(n - m, 2);
-    }, 0) /
-      (sensordata.length - 1)
-  );
-};
+// let getStandardDevitation = (sensordata) => {
+//   let m = getMean(sensordata);
+//   return Math.sqrt(
+//     sensordata.reduce(function (sq, n) {
+//       return sq + Math.pow(n - m, 2);
+//     }, 0) /
+//       (sensordata.length - 1)
+//   );
+// };
 
 // Basic function for mean value:
-let getMean = (sensordata) => {
-  return (
-    sensordata.reduce(function (a, b) {
-      return Number(a) + Number(b);
-    }) / sensordata.length
-  );
-};
+// let getMean = (sensordata) => {
+//   return (
+//     sensordata.reduce(function (a, b) {
+//       return Number(a) + Number(b);
+//     }) / sensordata.length
+//   );
+// };

@@ -5,6 +5,8 @@
 //const { gzip, gunzip } = require("./lib/gzip");
 
 const AWS = require("aws-sdk");
+const { median } = require("./commonlib/mathlib.js");
+
 AWS.config.region = process.env.AWS_REGION;
 const s3 = new AWS.S3();
 const documentClient = new AWS.DynamoDB.DocumentClient();
@@ -119,25 +121,25 @@ const getDailySensorStats = async () => {
   }
 };
 
-function median(numbers) {
-  var median = 0,
-    numsLen = numbers.length;
-  numbers.sort((a, b) => a - b);
+// function median(numbers) {
+//   var median = 0,
+//     numsLen = numbers.length;
+//   numbers.sort((a, b) => a - b);
 
-  if (
-    numsLen % 2 ===
-    0 // is even
-  ) {
-    // average of two middle numbers
-    median = (numbers[numsLen / 2 - 1] + numbers[numsLen / 2]) / 2;
-  } else {
-    // is odd
-    // middle number only
-    median = numbers[(numsLen - 1) / 2];
-  }
+//   if (
+//     numsLen % 2 ===
+//     0 // is even
+//   ) {
+//     // average of two middle numbers
+//     median = (numbers[numsLen / 2 - 1] + numbers[numsLen / 2]) / 2;
+//   } else {
+//     // is odd
+//     // middle number only
+//     median = numbers[(numsLen - 1) / 2];
+//   }
 
-  return median;
-}
+//   return median;
+// }
 
 const saveDailySensorStats = async () => {
   console.log(
