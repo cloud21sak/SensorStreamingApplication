@@ -3,7 +3,7 @@
  */
 
 const AWS = require("aws-sdk");
-const { getStandardDevitation } = require("./commonlib/mathlib.js");
+const { getStandardDevitation } = require("./lib/mathlib.js");
 
 const iotdata = new AWS.IotData({ endpoint: process.env.IOT_DATA_ENDPOINT });
 AWS.config.region = process.env.AWS_REGION;

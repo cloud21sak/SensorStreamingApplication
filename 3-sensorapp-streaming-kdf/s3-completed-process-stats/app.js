@@ -5,7 +5,7 @@
 //const { gzip, gunzip } = require("./lib/gzip");
 
 const AWS = require("aws-sdk");
-const { median } = require("./commonlib/mathlib.js");
+const { median } = require("./lib/mathlib.js");
 
 AWS.config.region = process.env.AWS_REGION;
 const s3 = new AWS.S3();
