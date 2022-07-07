@@ -28,8 +28,7 @@ exports.handler = async (event) => {
     })
     .promise();
 
-  // Uncompress
-  // SAK TEMP???
+  // Uncompress  
   // const data = await gunzip(response.Body);
   const data = response.Body;
 
@@ -83,13 +82,7 @@ const convertToJsonArray = (raw) => {
 
 const checkForCompletedProcessRecords = (currentRecords) => {
   let completedProcessRecords = [];
-  console.log("currentRecords: ", currentRecords);
-  // currentRecords.map((record) => {
-  //   if (record.event === "complete") {
-  //     console.log("process complete! ", record);
-  //     completedProcessRecords.push(record);
-  //   }
-  // });
+  console.log("currentRecords: ", currentRecords);  
 
   completedProcessRecords = currentRecords.filter(
     (record) => record.event === "complete"
@@ -100,12 +93,7 @@ const checkForCompletedProcessRecords = (currentRecords) => {
 };
 
 const checkForRunningProcessRecords = (jsonRecords) => {
-  let runningProcessRecords = [];
-  // jsonRecords.map((record) => {
-  //   if (record.event !== "complete") {
-  //     runningProcessRecords.push(record);
-  //   }
-  // });
+  let runningProcessRecords = [];  
 
   runningProcessRecords = jsonRecords.filter(
     (record) => record.event !== "complete"
@@ -194,9 +182,7 @@ const saveProcessDataHistoryPerFacility = async (processDataRecord) => {
       console.error("completedProcessDataPerFacility: ", err);
     }
   }
-
-  // const Body = JSON.stringify(completedProcessData[facilityBucketFolder]);
-  // console.log("Body: ", Body);
+  
   let historyBucketPath =
     process.env.HistoryBucket + `/facility-${processDataRecord.facilityId}`;
   console.log("Storing data for process ID: ", processDataRecord.processId);
@@ -216,19 +202,7 @@ const saveProcessDataHistoryPerFacility = async (processDataRecord) => {
 };
 
 // Save existing facility process data for each facility ID
-const saveCurrentFacilityProcessData = async (runningProcessData) => {
-  //let facilityIds = getFacilityIds(jsonRecords);
-  // await Promise.all(
-  //   facilityIds.map(
-  //     async (facilityId) => await saveFacilityProcessData(facilityId)
-  //   )
-  // );
-
-  // await Promise.all(
-  //   jsonRecords.map(async (record) => await saveFacilityProcessData(record))
-  // );
-
-  //await Promise.all(
+const saveCurrentFacilityProcessData = async (runningProcessData) => { 
   for (const [facilityId, processDataRecords] of Object.entries(
     runningProcessData
   )) {
@@ -405,24 +379,3 @@ const saveDailyDataBySensorId = async (recordsBySensorId) => {
 
   console.log("saveDailyDataBySensorId done");
 };
-
-// Convert event payload to JSON records
-// const getRecordsBySensorId = (jsonRecords) => {
-//   let sensorRecordMap = {};
-
-//   // Get records from event payload
-//   jsonRecords.map((record) => {
-//     if (!sensorRecordMap[record.sensorId]) {
-//       sensorRecordMap[record.sensorId] = {};
-//       sensorRecordMap[record.sensorId].results = [];
-//     }
-
-//     //console.log(      "Record sensordata for sensor:", record.name,record.sensorData    );
-//     sensorRecordMap[record.sensorId].sensorId = record.sensorId;
-//     sensorRecordMap[record.sensorId].facilityId = record.facilityId;
-//     sensorRecordMap[record.sensorId].name = record.name;
-
-//     sensorRecordMap[record.sensorId].results.push(record.sensorData);
-//   });
-//   return sensorRecordMap;
-// };

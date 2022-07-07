@@ -218,22 +218,4 @@ const checkIfSensorDataShouldBePublished = (state, jsonRecords) => {
   return isPublishable;
 };
 
-// Basic function for standard deviation:
-// let getStandardDevitation = (sensordata) => {
-//   let m = getMean(sensordata);
-//   return Math.sqrt(
-//     sensordata.reduce(function (sq, n) {
-//       return sq + Math.pow(n - m, 2);
-//     }, 0) /
-//       (sensordata.length - 1)
-//   );
-// };
 
-// Basic function for mean value:
-// let getMean = (sensordata) => {
-//   return (
-//     sensordata.reduce(function (a, b) {
-//       return Number(a) + Number(b);
-//     }) / sensordata.length
-//   );
-// };

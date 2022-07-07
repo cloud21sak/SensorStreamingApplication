@@ -121,26 +121,6 @@ const getDailySensorStats = async () => {
   }
 };
 
-// function median(numbers) {
-//   var median = 0,
-//     numsLen = numbers.length;
-//   numbers.sort((a, b) => a - b);
-
-//   if (
-//     numsLen % 2 ===
-//     0 // is even
-//   ) {
-//     // average of two middle numbers
-//     median = (numbers[numsLen / 2 - 1] + numbers[numsLen / 2]) / 2;
-//   } else {
-//     // is odd
-//     // middle number only
-//     median = numbers[(numsLen - 1) / 2];
-//   }
-
-//   return median;
-// }
-
 const saveDailySensorStats = async () => {
   console.log(
     "Saving running process stats in DDB:",
