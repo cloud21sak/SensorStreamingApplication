@@ -212,6 +212,7 @@
         <v-card elevation="2">
           <v-card-title>Completed Process Stats </v-card-title>
           <v-select
+            class="ma-2"
             :items="completedProcesses"
             label="Select process"
             dense
