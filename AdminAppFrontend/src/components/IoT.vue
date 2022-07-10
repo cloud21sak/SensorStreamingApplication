@@ -109,7 +109,6 @@ export default {
       mqttClient.subscribe(topics.sensorsubscribe);
       mqttClient.subscribe(topics.facilityconfigrequest);
       mqttClient.subscribe(topics.sensorInstanceInfoRequest);
-      //  mqttClient.subscribe(topics.currentProcessIdRequest);
       mqttClient.subscribe(topics.procdailystats);
       mqttClient.subscribe(topics.completedprocinfo);
       mqttClient.subscribe(topics.latestminutestats);
@@ -127,7 +126,6 @@ export default {
       );
     });
 
-    // SAK???
     // Publish message to IoT Core topic
     bus.$on("sensorpublish", async (data) => {
       //  console.log("Sensorpublish: ", data);
@@ -187,8 +185,7 @@ export default {
       } else if (topic === topics.latestminutestats) {
         console.log("Received message for topic: ", topics.latestminutestats);
         bus.$emit("latestminutestats", payloadEnvelope);
-      }
-      else {
+      } else {
         bus.$emit("message", payloadEnvelope);
       }
     });
@@ -199,9 +196,9 @@ export default {
     mqttClient.unsubscribe(topics.sensorsubscribe);
     mqttClient.unsubscribe(topics.facilityconfigrequest);
     mqttClient.unsubscribe(topics.sensorInstanceInfoRequest);
-    // mqttClient.unsubscribe(topics.currentProcessIdRequest);
     mqttClient.unsubscribe(topics.procdailystats);
     mqttClient.unsubscribe(topics.completedprocinfo);
+    mqttClient.unsubscribe(topics.latestminutestats);
 
     bus.$off("sensorpublish");
     bus.$off("facilitycommandissued");

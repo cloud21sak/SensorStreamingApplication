@@ -309,8 +309,8 @@ export default {
       sensor: {},
       sensorsToPublish: [],
       realtimeSensorData: {},
-      latestMinuteSensorStats: {},
       realtimeSensorDisplay: [],
+      latestMinuteSensorStats: {},
       latestMinuteSensorStatsDisplay: [],
       dailySensorStats: {},
       selectedProcessId: null,
@@ -368,6 +368,11 @@ export default {
         sensorInstanceInfoUpdate
       );
       await that.updateSensorInstanceInfo(sensorInstanceInfoUpdate);
+    });
+
+    bus.$on("latestminutestats", async (latestminutestats) => {
+      console.log("Home::on::latestminutestats: ");
+      await that.updateSensorStatsByLatestMinute(latestminutestats.sensorstats);
     });
 
     bus.$on("procdailystats", async (procdailystats) => {
@@ -461,6 +466,8 @@ export default {
         this.processId = 0;
         this.pctComplete = 0;
         this.realtimeSensorDisplay = [];
+        this.latestMinuteSensorStatsDisplay = [];
+        this.latestMinuteSensorStats = {};
         this.$store.dispatch("setCurrentProcessId", this.processId);
         this.$store.dispatch("setPctComplete", this.pctComplete);
         this.$store.dispatch("setDailySenorStats", []);
@@ -636,30 +643,36 @@ export default {
 
     // Sensor stats by latest minute
     async updateSensorStatsByLatestMinute(sensorStatsMessage) {
-      // console.log(
-      //   "updateSensorStatsByLatestMinute 'sensorStatsMessage': ",
-      //   sensorStatsMessage
-      // );
+      console.log(
+        "updateSensorStatsByLatestMinute 'sensorStatsMessage': ",
+        sensorStatsMessage
+      );
 
       let statsResults = JSON.parse(sensorStatsMessage);
       let intermediateSensorStats = [];
 
-      //console.log("updateSensorStatsByLatestMinute: ", statsResults);
+      // console.log(
+      //   `updateSensorStatsByLatestMinute - name: ${
+      //     statsResults.name
+      //   } time:${new Date(statsResults.deviceTimestamp).toLocaleTimeString(
+      //     "en-US"
+      //   )}`
+      // );
 
-      // Update sensor stats by latest minute:
-      this.latestMinuteSensorStats[statsResults.sensorId] = {
-        sensorId: statsResults.sensorId,
-        name: statsResults.name,
-        min: round(statsResults.min_value, 2),
-        max: round(statsResults.max_value, 2),
-        stddev: round(statsResults.stddev_value, 2),
-        ts: statsResults.deviceTimestamp,
-      };
+      statsResults.map((sensorstats) => {
+        // Update sensor stats by latest minute:
+        this.latestMinuteSensorStats[sensorstats.sensorId] = {
+          sensorId: sensorstats.sensorId,
+          name: sensorstats.name,
+          min: round(sensorstats.min_value, 2),
+          max: round(sensorstats.max_value, 2),
+          stddev: round(sensorstats.stddev_value, 2),
+          ts: new Date(sensorstats.deviceTimestamp).toLocaleTimeString("en-US"),
+        };
+      });
 
-      // Convert to array
-      for (let sensorId in this.latestMinuteSensorStats) {
-        intermediateSensorStats.push(this.latestMinuteSensorStats[sensorId]);
-      }
+      intermediateSensorStats = Object.values(this.latestMinuteSensorStats);
+      console.log("intermediateSensorStats:", intermediateSensorStats);
 
       this.latestMinuteSensorStatsDisplay = intermediateSensorStats;
     },

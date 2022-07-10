@@ -293,8 +293,8 @@ export default {
       sensor: {},
       sensorsToPublish: [],
       realtimeSensorData: {},
-      latestMinuteSensorStats: {},
       realtimeSensorDisplay: [],
+      latestMinuteSensorStats: {},
       latestMinuteSensorStatsDisplay: [],
       dailySensorStats: {},
       sensorsForSelectedFacility: [],
@@ -333,16 +333,6 @@ export default {
         //console.log("Received sensor data message: ", message);
         await that.updateRealtimeSensorData(message.sensordata);
       }
-
-      // if (message.msg === "sensorstats") {
-      //   //  console.log("Received sensor stats message: ", message);
-      //   await that.updateSensorStatsByLatestMinute(message.sensorstats);
-      // }
-    });
-
-    bus.$on("latestminutestats", async (latestminutestats) => {
-      console.log("Home::on::latestminutestats: ");
-      await that.updateSensorStatsByLatestMinute(latestminutestats.sensorstats);
     });
 
     bus.$on("facilitycommandreceived", async (receivedcommand) => {
@@ -358,6 +348,11 @@ export default {
     bus.$on("sensorInstanceInfoRequest", async (sensorInstanceInfoRequest) => {
       console.log("Home::on::sensorInstanceInfoRequest: ");
       await that.handleSensorInstanceInfoRequest(sensorInstanceInfoRequest);
+    });
+
+    bus.$on("latestminutestats", async (latestminutestats) => {
+      console.log("Home::on::latestminutestats: ");
+      await that.updateSensorStatsByLatestMinute(latestminutestats.sensorstats);
     });
 
     bus.$on("procdailystats", async (procdailystats) => {

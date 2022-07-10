@@ -3,7 +3,7 @@
     <v-app-bar app color="primary" dark>
       <v-toolbar-title> ACME Industries Inc </v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-toolbar-title>Sensor Data Dashboard</v-toolbar-title>
+      <v-toolbar-title>Operator Sensor Data Dashboard</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn
         v-model="isLoggedIn"

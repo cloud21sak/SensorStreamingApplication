@@ -8,4 +8,4 @@ s3_prefix = "sensorapp-firehose-stack"
 region = "us-east-1"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
-parameter_overrides = "KinesisStreamName=\"sensordata\" DeliveryBucketName=\"sensordata-firehose-bucket-sak\" RuntimeProcessBucketName=\"sensordata-runtimeprocess-bucket\" HistoryBucketName=\"sensordata-history-bucket-sak\" DynamoDBtableName=\"sensordata-table\" IoTdataEndpoint=\"a1dqbiklucuqp5-ats.iot.us-east-1.amazonaws.com\" DynamoDBSensorstreamARN=\"arn:aws:dynamodb:us-east-1:159474638000:table/sensordata-table/stream/2022-07-02T11:48:36.272\""
+parameter_overrides = "KinesisStreamName=\"sensordata\" DeliveryBucketName=\"sensordata-firehose-bucket-sak\" RuntimeProcessBucketName=\"sensordata-runtimeprocess-bucket\" HistoryBucketName=\"sensordata-history-bucket-sak\" DynamoDBtableName=\"sensordata-table\" IoTdataEndpoint=\"a1dqbiklucuqp5-ats.iot.us-east-1.amazonaws.com\" DynamoDBSensorstreamARN=\"arn:aws:dynamodb:us-east-1:159474638000:table/sensordata-table/stream/2022-07-10T12:31:42.750\""

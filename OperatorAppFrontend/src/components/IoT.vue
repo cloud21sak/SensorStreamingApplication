@@ -23,6 +23,7 @@ const topics = {
   sensorsubscribe: "sensordata-subscribe",
   procdailystats: "process-dailystats",
   completedprocinfo: "completed-processinfo",
+  latestminutestats: "latest-minutestats",
 };
 
 let mqttClient = null;
@@ -113,6 +114,7 @@ export default {
       mqttClient.subscribe(topics.currentProcessIdUpdate);
       mqttClient.subscribe(topics.procdailystats);
       mqttClient.subscribe(topics.completedprocinfo);
+      mqttClient.subscribe(topics.latestminutestats);
 
       const payload = {
         facilityId: 1,
@@ -164,7 +166,7 @@ export default {
     mqttClient.on("message", function(topic, payload) {
       const payloadEnvelope = JSON.parse(payload.toString());
 
-      console.log("IoT::onMessage: ", topic, payloadEnvelope);
+      //console.log("IoT::onMessage: ", topic, payloadEnvelope);
 
       if (topic === topics.facilitystatus) {
         bus.$emit("facilitystatusupdated", payloadEnvelope);
@@ -186,6 +188,9 @@ export default {
       } else if (topic === topics.completedprocinfo) {
         console.log("Received message for topic: ", topics.completedprocinfo);
         bus.$emit("completedprocinfo", payloadEnvelope);
+      } else if (topic === topics.latestminutestats) {
+        console.log("Received message for topic: ", topics.latestminutestats);
+        bus.$emit("latestminutestats", payloadEnvelope);
       } else {
         bus.$emit("message", payloadEnvelope);
       }
@@ -196,12 +201,13 @@ export default {
 
     mqttClient.unsubscribe(topics.sensorsubscribe);
     mqttClient.unsubscribe(topics.facilitystatus);
-    mqttClient.unsubscribe(topics.facilityconfigUpdate);
+    mqttClient.unsubscribe(topics.facilityconfigupdate);
     mqttClient.unsubscribe(topics.sensorInstanceInfoUpdate);
     mqttClient.unsubscribe(topics.percentcompleteupdate);
     mqttClient.unsubscribe(topics.currentProcessIdUpdate);
     mqttClient.unsubscribe(topics.procdailystats);
     mqttClient.unsubscribe(topics.completedprocinfo);
+    mqttClient.unsubscribe(topics.latestminutestats);
 
     bus.$off("sensorpublish");
     bus.$off("facilitycommandissued");
