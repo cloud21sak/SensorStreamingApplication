@@ -90,6 +90,16 @@ export default new Vuex.Store({
       state.isAuthenticated = false;
       state.authcredentials = {};
     },
+    resetState(state) {
+      state.facilitystatus.facilityId = null;
+      state.facilitystatus.status = "OFFLINE";
+      state.pctComplete = 0;
+      state.currentProcessId = 0;
+      state.dailySensorStats = [];
+      state.completedProcessInfo.selectedProcessId = null;
+      state.completedProcessInfo.completedProcessStats = [];
+      state.sensorInstances = [];
+    },
     updatePctComplete(state, pctComplete) {
       state.pctComplete = pctComplete;
     },
@@ -124,6 +134,7 @@ export default new Vuex.Store({
     },
     logout({ commit }) {
       commit("clearAuthData");
+      commit("resetState");
       // router.replace("/login");
     },
     setPctComplete({ commit }, pctComplete) {

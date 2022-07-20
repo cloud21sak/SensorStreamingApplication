@@ -5,7 +5,7 @@
 //const { gzip, gunzip } = require("./lib/gzip");
 
 const AWS = require("aws-sdk");
-const { median } = require("./lib/mathlib.js");
+const { median, getStandardDevitation } = require("./lib/mathlib.js");
 
 AWS.config.region = process.env.AWS_REGION;
 const s3 = new AWS.S3();
@@ -21,8 +21,8 @@ exports.handler = async (event) => {
 
   console.log("DailyProcessStatsFunction is called");
   const object = event.Records[0];
-  console.log("Bucket name:", object.s3.bucket.name);
-  console.log("Bucket key:", object.s3.object.key);
+  // console.log("Bucket name:", object.s3.bucket.name);
+  // console.log("Bucket key:", object.s3.object.key);
 
   // Load incoming daily records written by Kinesis Data Firehose
   // from intermediate bucket:
@@ -40,7 +40,7 @@ exports.handler = async (event) => {
 
   // 1. Convert to JSON array
   let jsonRecords = JSON.parse(data.toString());
-  console.log("jsonRecords: ", jsonRecords);
+  // console.log("jsonRecords: ", jsonRecords);
 
   // 2. Get facility ID and process ID from the first record:
   facilityProcessDailyData.facilityId = jsonRecords[0].facilityId;
@@ -59,11 +59,11 @@ exports.handler = async (event) => {
 
 const getDailySensorData = async (jsonRecords) => {
   jsonRecords.map((sensorDataRecord) => {
-    console.log("sensorDataRecord:", sensorDataRecord);
-    console.log(
-      "facilityProcessDailyData.sensorDailyData: ",
-      facilityProcessDailyData.sensorDailyData
-    );
+    // console.log("sensorDataRecord:", sensorDataRecord);
+    // console.log(
+    //   "facilityProcessDailyData.sensorDailyData: ",
+    //   facilityProcessDailyData.sensorDailyData
+    // );
     if (
       !(sensorDataRecord.sensorId in facilityProcessDailyData.sensorDailyData)
     ) {
@@ -84,7 +84,7 @@ const getDailySensorData = async (jsonRecords) => {
     return;
   });
 
-  console.log("facilityProcessDailyData:", facilityProcessDailyData);
+  //  console.log("facilityProcessDailyData:", facilityProcessDailyData);
 };
 
 // TODO: refactor this into a separate lib module
@@ -92,16 +92,16 @@ const getDailySensorStats = async () => {
   for (const [sensorId, sensorDataInfo] of Object.entries(
     facilityProcessDailyData.sensorDailyData
   )) {
-    console.log("sensorId and sensorDataInfo:", sensorId, sensorDataInfo);
+    //  console.log("sensorId and sensorDataInfo:", sensorId, sensorDataInfo);
     let sensorData = [];
     for (let second in sensorDataInfo.sensorData) {
       sensorData.push(sensorDataInfo.sensorData[second]);
     }
 
-    const min_val = Math.min(...sensorData);
-    console.log("min_val: ", min_val);
+    const min_val = Math.min(...sensorData);    
     const max_val = Math.max(...sensorData);
     const median_val = median(sensorData);
+    const stddev_val = getStandardDevitation(sensorData);
 
     if (!(sensorId in facilityProcessDailyData.sensorDailyStats)) {
       facilityProcessDailyData.sensorDailyStats[`${sensorId}`] = {};
@@ -111,25 +111,27 @@ const getDailySensorStats = async () => {
     facilityProcessDailyData.sensorDailyStats[`${sensorId}`].max_val = max_val;
     facilityProcessDailyData.sensorDailyStats[`${sensorId}`].median_val =
       median_val;
+    facilityProcessDailyData.sensorDailyStats[`${sensorId}`].stddev_val =
+      stddev_val;
     facilityProcessDailyData.sensorDailyStats[`${sensorId}`].name =
       sensorDataInfo.name;
-    console.log(
-      "facilityProcessDailyData.sensorDailyStats[sensorId]:",
-      sensorId,
-      facilityProcessDailyData.sensorDailyStats[sensorId]
-    );
+    // console.log(
+    //   "facilityProcessDailyData.sensorDailyStats[sensorId]:",
+    //   sensorId,
+    //   facilityProcessDailyData.sensorDailyStats[sensorId]
+    // );
   }
 };
 
 const saveDailySensorStats = async () => {
-  console.log(
-    "Saving running process stats in DDB:",
-    facilityProcessDailyData.processId,
-    facilityProcessDailyData.sensorDailyStats
-  );
+  // console.log(
+  //   "Saving running process stats in DDB:",
+  //   facilityProcessDailyData.processId,
+  //   facilityProcessDailyData.sensorDailyStats
+  // );
 
   // Stringify, compress, and store as an attribute value the daily stats
-  // the running process:
+  // of the running process:
   const response = await documentClient
     .put({
       TableName: process.env.DDB_TABLE,

@@ -11,7 +11,7 @@ export default new Vuex.Store({
     userId: null,
     user: null,
     facilitystatus: {
-      facilityId: null,
+      facilityId: 1,
       status: "IDLE",
     },
     isAuthenticated: false,
@@ -91,6 +91,8 @@ export default new Vuex.Store({
     clearAuthData(state) {
       state.idToken = null;
       state.userId = null;
+      state.userPool = null;
+      state.user = null;
       state.isAuthenticated = false;
       state.authcredentials = {};
     },

@@ -13,7 +13,7 @@ let processMap = {};
 // Main Lambda handler
 exports.handler = async (event) => {
   console.log(`Received sensor data: ${event.Records.length} messages`);
-  console.log(JSON.stringify(event, null, 2));
+  // console.log(JSON.stringify(event, null, 2));
 
   let jsonRecords = getRecordsFromPayload(event.Records);
 
@@ -32,7 +32,7 @@ exports.handler = async (event) => {
       (record) => record.event === "update"
     );
 
-    console.log("sensorDataRecords:", sensorDataRecords);
+    // console.log("sensorDataRecords:", sensorDataRecords);
 
     // Retrieve existing state passed during tumbling window
     let state = event.state || {};
@@ -78,7 +78,7 @@ exports.handler = async (event) => {
     jsonRecords.map(
       (record) => (processMap[record.processId] = record.facilityId)
     );
-    console.log("Payload records: ", JSON.stringify(jsonRecords, null, 2));
+  // console.log("Payload records: ", JSON.stringify(jsonRecords, null, 2));
 
     getSensorDataByProcessId(state, jsonRecords);
 
@@ -93,10 +93,10 @@ exports.handler = async (event) => {
         return;
       }
 
-      console.log("Final invoke state: ", JSON.stringify(state, null, 2));
+    //  console.log("Final invoke state: ", JSON.stringify(state, null, 2));
       await publishToIoT(state);
     } else {
-      console.log("Returning state: ", JSON.stringify(state, null, 2));
+    //  console.log("Returning state: ", JSON.stringify(state, null, 2));
       return { state };
     }
   }
@@ -109,7 +109,7 @@ const publishToIoT = async (processSensorData) => {
     for (const [sensorId, sensorDataInfo] of Object.entries(
       processSensorData[processId]
     )) {
-      console.log("sensorDataInfo: ", sensorDataInfo);
+    //  console.log("sensorDataInfo: ", sensorDataInfo);
       const payloadObject = {
         name: sensorDataInfo.name,
         sensorId: sensorId,
@@ -123,7 +123,7 @@ const publishToIoT = async (processSensorData) => {
     const JSONpayload = {
       msg: "sensorstats",
       facilityId: processMap[processId],
-      processId: `process-${processId}`,
+      processId: `proc-${processId}`,
       sensorstats: JSON.stringify(payloadObjectArray),
     };
 
@@ -162,7 +162,7 @@ const getRecordsFromPayload = (eventRecords) => {
 
 // Process records and return sensor data grouped by processId:
 const getSensorDataByProcessId = (state, jsonRecords) => {
-  console.log("getSensorDataByProcessId: ", state);
+//  console.log("getSensorDataByProcessId: ", state);
   jsonRecords.map((record) => {
     // Add processId if not in state
     if (!state[record.processId]) {
@@ -179,7 +179,7 @@ const getSensorDataByProcessId = (state, jsonRecords) => {
 };
 
 const checkIfSensorDataShouldBePublished = (state, jsonRecords) => {
-  console.log("checkIfSensorDataShouldBePublished state: ", state);
+//  console.log("checkIfSensorDataShouldBePublished state: ", state);
   let isPublishable = false;
   if (jsonRecords.length !== 0) {
     jsonRecords.map((record) => {
@@ -217,5 +217,3 @@ const checkIfSensorDataShouldBePublished = (state, jsonRecords) => {
 
   return isPublishable;
 };
-
-

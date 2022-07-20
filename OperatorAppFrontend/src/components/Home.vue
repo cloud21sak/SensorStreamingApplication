@@ -285,6 +285,7 @@ export default {
         { text: "Min", value: "min" },
         { text: "Max", value: "max" },
         { text: "Median", value: "median" },
+        { text: "Std-dev", value: "stddev" },
       ],
       latestminutestatsheaders: [
         { text: "Name", value: "name" },
@@ -330,9 +331,7 @@ export default {
   },
   async mounted() {
     console.log("Home component: mounted!");
-  },
-  async created() {
-    console.log("Home Component: created() hook called");
+
     const that = this;
 
     this.selectedProcessId = this.$store.getters.completedProcessInfo.selectedProcessId;
@@ -346,10 +345,10 @@ export default {
         await that.updateRealtimeSensorData(message.sensordata);
       }
 
-      if (message.msg === "sensorstats") {
-        //  console.log("Received sensor stats message: ", message);
-        await that.updateSensorStatsByLatestMinute(message.sensorstats);
-      }
+      // if (message.msg === "sensorstats") {
+      //   //  console.log("Received sensor stats message: ", message);
+      //   await that.updateSensorStatsByLatestMinute(message.sensorstats);
+      // }
     });
 
     bus.$on("facilitystatusupdated", async (statusupdate) => {
@@ -372,7 +371,7 @@ export default {
 
     bus.$on("latestminutestats", async (latestminutestats) => {
       console.log("Home::on::latestminutestats: ");
-      await that.updateSensorStatsByLatestMinute(latestminutestats.sensorstats);
+      await that.updateSensorStatsByLatestMinute(latestminutestats);
     });
 
     bus.$on("procdailystats", async (procdailystats) => {
@@ -403,6 +402,78 @@ export default {
     // Get list of completed processes if there are any:
     await this.initializeCompletedProcessList();
   },
+  async created() {
+    console.log("Home Component: created() hook called");
+    // const that = this;
+
+    // this.selectedProcessId = this.$store.getters.completedProcessInfo.selectedProcessId;
+
+    // // When messages are received via IOT, these handlers are triggered
+    // bus.$on("message", async (message) => {
+    //   //console.log("Home::on::message: ", message);
+
+    //   if (message.msg === "sensordata") {
+    //     // console.log("Received sensor data message: ", message);
+    //     await that.updateRealtimeSensorData(message.sensordata);
+    //   }
+
+    //   // if (message.msg === "sensorstats") {
+    //   //   //  console.log("Received sensor stats message: ", message);
+    //   //   await that.updateSensorStatsByLatestMinute(message.sensorstats);
+    //   // }
+    // });
+
+    // bus.$on("facilitystatusupdated", async (statusupdate) => {
+    //   console.log("Home::on::facilitystatus: ", statusupdate);
+    //   await that.updateFacilityStatus(statusupdate);
+    // });
+
+    // bus.$on("facilityconfigupdate", async (configupdateinfo) => {
+    //   //console.log("Home::on::facilityconfigupdate: ", configupdateinfo);
+    //   await that.updateFacilityConfigInfo(configupdateinfo);
+    // });
+
+    // bus.$on("sensorInstanceInfoUpdate", async (sensorInstanceInfoUpdate) => {
+    //   console.log(
+    //     "Home::on::sensorInstanceInfoUpdate: ",
+    //     sensorInstanceInfoUpdate
+    //   );
+    //   await that.updateSensorInstanceInfo(sensorInstanceInfoUpdate);
+    // });
+
+    // bus.$on("latestminutestats", async (latestminutestats) => {
+    //   console.log("Home::on::latestminutestats: ");
+    //   await that.updateSensorStatsByLatestMinute(latestminutestats.sensorstats);
+    // });
+
+    // bus.$on("procdailystats", async (procdailystats) => {
+    //   console.log("Home::on::procdailystats: ");
+    //   await that.updateDailyStats(procdailystats);
+    // });
+
+    // bus.$on("completedprocinfo", async (completedprocinfo) => {
+    //   console.log("Home::on::completedprocinfo: ", completedprocinfo);
+    //   await that.updateCompletedProcessList(completedprocinfo);
+    // });
+
+    // bus.$on("updatepercentcomplete", async (percentCompleteUpdate) => {
+    //   //console.log("Home::on::updatepercentcomplete: ", percentCompleteUpdate);
+    //   that.pctComplete = percentCompleteUpdate.pctcomplete;
+    //   that.$store.dispatch("setPctComplete", that.pctComplete);
+    // });
+
+    // bus.$on("updateCurrentProcessId", async (currentProcessIdUpdate) => {
+    //   console.log(
+    //     "Home::on::updateSelectedProcessId: ",
+    //     currentProcessIdUpdate
+    //   );
+    //   that.processId = currentProcessIdUpdate;
+    //   that.$store.dispatch("setCurrentProcessId", that.processId);
+    // });
+
+    // // Get list of completed processes if there are any:
+    // await this.initializeCompletedProcessList();
+  },
   async beforeDestroy() {
     console.log("Home Component: beforeUnmount() hook called");
     console.log("event bus in beforeDestroy beginning:", bus);
@@ -415,6 +486,7 @@ export default {
     bus.$off("procdailystats");
     bus.$off("completedprocinfo");
     bus.$off("updateCurrentProcessId");
+    bus.$off("latestminutestats");
 
     console.log("event bus in beforeDestroy end:", bus);
   },
@@ -438,6 +510,15 @@ export default {
         "setCurrentProcessId",
         configupdateinfo.currentProcessId
       );
+
+      // Reset the dashboard tables:
+      if (configupdateinfo.currentStatus.status === "IDLE") {
+        console.log("Facility status is IDLE, resetting dashboard");
+        this.realtimeSensorDisplay = [];
+        this.latestMinuteSensorStatsDisplay = [];
+        this.latestMinuteSensorStats = {};
+        this.$store.dispatch("setDailySenorStats", []);
+      }
     },
     async updateSensorInstanceInfo(sensorInstanceInfoUpdate) {
       this.sensors.length = 0;
@@ -547,6 +628,7 @@ export default {
           min: round(statsForSelectedProcess[sensorId].min_val, 2),
           max: round(statsForSelectedProcess[sensorId].max_val, 2),
           median: round(statsForSelectedProcess[sensorId].median_val, 2),
+          stddev: round(statsForSelectedProcess[sensorId].stddev_val, 2),
           ts: statsForSelectedProcess.ts,
         });
       }
@@ -570,7 +652,7 @@ export default {
       let sensorData = JSON.parse(sensormessage);
       let intermediateSensorData = [];
 
-      // console.log("updateRealtimeSensorData: ", sensorData);
+      console.log("updateRealtimeSensorData: ", sensorData);
 
       if (
         this.facilitystatus.status === "COMPLETING" ||
@@ -627,6 +709,7 @@ export default {
           min: round(processDailyDataStats[sensorId].min_val, 2),
           max: round(processDailyDataStats[sensorId].max_val, 2),
           median: round(processDailyDataStats[sensorId].median_val, 2),
+          stddev: round(processDailyDataStats[sensorId].stddev_val, 2),
           ts: dailyStatsData.ts,
         };
       }
@@ -642,22 +725,23 @@ export default {
     },
 
     // Sensor stats by latest minute
-    async updateSensorStatsByLatestMinute(sensorStatsMessage) {
-      console.log(
-        "updateSensorStatsByLatestMinute 'sensorStatsMessage': ",
-        sensorStatsMessage
-      );
-
-      let statsResults = JSON.parse(sensorStatsMessage);
-      let intermediateSensorStats = [];
-
+    async updateSensorStatsByLatestMinute(latestminutestats) {
       // console.log(
-      //   `updateSensorStatsByLatestMinute - name: ${
-      //     statsResults.name
-      //   } time:${new Date(statsResults.deviceTimestamp).toLocaleTimeString(
-      //     "en-US"
-      //   )}`
+      //   "updateSensorStatsByLatestMinute 'latestminutestats': ",
+      //   latestminutestats
       // );
+
+      // Check to make sure these are the latest minute stats
+      // of the current process.
+      // Note that here we check to make sure that we don't display daily data
+      // of the previous process which was stopped before it completed.
+      if (latestminutestats.processId !== `proc-${this.currentProcessId}`) {
+        console.log("Current process ID doesn't match the latestminutestats");
+        return;
+      }
+
+      let statsResults = JSON.parse(latestminutestats.sensorstats);
+      let intermediateSensorStats = [];
 
       statsResults.map((sensorstats) => {
         // Update sensor stats by latest minute:

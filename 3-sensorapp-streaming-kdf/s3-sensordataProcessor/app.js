@@ -28,29 +28,29 @@ exports.handler = async (event) => {
     })
     .promise();
 
-  // Uncompress  
+  // Uncompress
   // const data = await gunzip(response.Body);
   const data = response.Body;
 
   // Convert to JSON array
   let jsonRecords = convertToJsonArray(data.toString());
-  console.log("jsonRecords: ", jsonRecords);
+//  console.log("jsonRecords: ", jsonRecords);
   facilityProcessData = {};
 
   let runningProcessRecords = checkForRunningProcessRecords(jsonRecords);
   if (runningProcessRecords.length !== 0) {
     // Append incoming sensor data records of a running process:
-    console.log(
-      "Facility process records before append:",
-      runningProcessRecords
-    );
+    // console.log(
+    //   "Facility process records before append:",
+    //   runningProcessRecords
+    // );
     let facilityRunningProcessData = await appendToFacilityProcessData(
       runningProcessRecords
     );
-    console.log(
-      "Facility process data after append record:",
-      facilityRunningProcessData
-    );
+    // console.log(
+    //   "Facility process data after append record:",
+    //   facilityRunningProcessData
+    // );
     // Save combined sensor data for a running process:
     await saveCurrentFacilityProcessData(facilityRunningProcessData);
   }
@@ -82,18 +82,18 @@ const convertToJsonArray = (raw) => {
 
 const checkForCompletedProcessRecords = (currentRecords) => {
   let completedProcessRecords = [];
-  console.log("currentRecords: ", currentRecords);  
+  // console.log("currentRecords: ", currentRecords);
 
   completedProcessRecords = currentRecords.filter(
     (record) => record.event === "complete"
   );
 
-  console.log("completedProcessRecords:", completedProcessRecords);
+ // console.log("completedProcessRecords:", completedProcessRecords);
   return completedProcessRecords;
 };
 
 const checkForRunningProcessRecords = (jsonRecords) => {
-  let runningProcessRecords = [];  
+  let runningProcessRecords = [];
 
   runningProcessRecords = jsonRecords.filter(
     (record) => record.event !== "complete"
@@ -112,7 +112,7 @@ const getCurrentProcessDataPerFacility = async (jsonRecords) => {
 
 const getFacilityProcessData = async (processDataRecord) => {
   // Load current facility process data from S3
-  console.log("getFacilityProcessData: ", processDataRecord);
+  // console.log("getFacilityProcessData: ", processDataRecord);
   const facilityBucketFolder = `facility-${processDataRecord.facilityId}`;
   const facilityBucketPath =
     process.env.RuntimeProcessBucket +
@@ -182,7 +182,7 @@ const saveProcessDataHistoryPerFacility = async (processDataRecord) => {
       console.error("completedProcessDataPerFacility: ", err);
     }
   }
-  
+
   let historyBucketPath =
     process.env.HistoryBucket + `/facility-${processDataRecord.facilityId}`;
   console.log("Storing data for process ID: ", processDataRecord.processId);
@@ -202,11 +202,11 @@ const saveProcessDataHistoryPerFacility = async (processDataRecord) => {
 };
 
 // Save existing facility process data for each facility ID
-const saveCurrentFacilityProcessData = async (runningProcessData) => { 
+const saveCurrentFacilityProcessData = async (runningProcessData) => {
   for (const [facilityId, processDataRecords] of Object.entries(
     runningProcessData
   )) {
-    console.log(facilityId, processDataRecords);
+    //  console.log(facilityId, processDataRecords);
     await saveFacilityProcessData(facilityId, processDataRecords);
   }
 
@@ -218,11 +218,11 @@ const saveFacilityProcessData = async (
   facilityProcessDataRecords
 ) => {
   // Save to intermediate bucket:
-  console.log(
-    "saveFacilityProcessData() facilityProcessDataRecords: ",
-    facilityId,
-    facilityProcessDataRecords
-  );
+  // console.log(
+  //   "saveFacilityProcessData() facilityProcessDataRecords: ",
+  //   facilityId,
+  //   facilityProcessDataRecords
+  // );
 
   for (const [facilityProcessId, processDataRecords] of Object.entries(
     facilityProcessDataRecords
@@ -232,12 +232,12 @@ const saveFacilityProcessData = async (
       process.env.RuntimeProcessBucket + `/` + facilityId;
     const facilityProcessBucketKey = facilityProcessId;
 
-    console.log(
-      "saveFacilityProcessData: ",
-      facilityId,
-      facilityProcessId,
-      process.env.RuntimeProcessBucket
-    );
+    // console.log(
+    //   "saveFacilityProcessData: ",
+    //   facilityId,
+    //   facilityProcessId,
+    //   process.env.RuntimeProcessBucket
+    // );
 
     let currentS3ProcessData = {};
     currentS3ProcessData[facilityBucketFolder] = {};
@@ -252,10 +252,10 @@ const saveFacilityProcessData = async (
         .promise();
       currentS3ProcessData[facilityBucketFolder][facilityProcessBucketKey] =
         JSON.parse(response.Body.toString());
-      console.log(
-        "currentS3ProcessData after reading S3:",
-        currentS3ProcessData
-      );
+      // console.log(
+      //   "currentS3ProcessData after reading S3:",
+      //   currentS3ProcessData
+      // );
     } catch (err) {
       // If this 404s, it means no previous facility process data has been saved.
       // Any other error should be logged.
@@ -313,24 +313,25 @@ const appendToFacilityProcessData = async (runningProcessRecords) => {
       runningProcessData[facilityId] = {};
       runningProcessData[facilityId][processId] = [];
 
-      console.log("In !facilityProcessData[facilityId]");
+      //  console.log("In !facilityProcessData[facilityId]");
       return runningProcessData[facilityId][processId].push(record);
     }
 
     if (!runningProcessData[facilityId][processId]) {
       runningProcessData[facilityId][processId] = [];
 
-      console.log("In !runningProcessData[facilityId][processId]");
+      //  console.log("In !runningProcessData[facilityId][processId]");
       return runningProcessData[facilityId][processId].push(record);
     }
 
-    console.log("Append payload record: ", record);
+    //  console.log("Append payload record: ", record);
     return runningProcessData[facilityId][processId].push(record);
   });
 
   return runningProcessData;
 };
 
+// TODO: not used in current implementation
 const saveDailyDataBySensorId = async (recordsBySensorId) => {
   console.log("Saving to DDB:", recordsBySensorId);
 

@@ -19,7 +19,7 @@ const topics = {
   sensorInstanceInfoRequest: "sensor-info-request",
   sensorInstanceInfoUpdate: "sensor-instance-update",
   facilitycommand: "facility-command",
-  sensorpublish: "sensordata-publish",
+ // sensorpublish: "sensordata-publish",
   sensorsubscribe: "sensordata-subscribe",
   procdailystats: "process-dailystats",
   completedprocinfo: "completed-processinfo",
@@ -209,7 +209,7 @@ export default {
     mqttClient.unsubscribe(topics.completedprocinfo);
     mqttClient.unsubscribe(topics.latestminutestats);
 
-    bus.$off("sensorpublish");
+    // bus.$off("sensorpublish");
     bus.$off("facilitycommandissued");
     // bus.$off("sensorInstanceInfoRequest");
     // bus.$off("facilitystatusupdate");

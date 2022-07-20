@@ -5,7 +5,7 @@
 //const { gzip, gunzip } = require("./lib/gzip");
 
 const AWS = require("aws-sdk");
-const { median } = require("./lib/mathlib.js");
+const { median, getStandardDevitation } = require("./lib/mathlib.js");
 
 AWS.config.region = process.env.AWS_REGION;
 const s3 = new AWS.S3();
@@ -24,8 +24,8 @@ exports.handler = async (event) => {
 
   const object = event.Records[0];
   console.log("CompletedProcessStatsFunction is called");
-  console.log("Bucket name:", object.s3.bucket.name);
-  console.log("Bucket key:", object.s3.object.key);
+  // console.log("Bucket name:", object.s3.bucket.name);
+  // console.log("Bucket key:", object.s3.object.key);
 
   // Load completed process sensor data from History bucket:
   const response = await s3
@@ -42,7 +42,7 @@ exports.handler = async (event) => {
 
   // 1. Convert to JSON array
   let jsonRecords = JSON.parse(data.toString());
-  console.log("jsonRecords: ", jsonRecords);
+  // console.log("jsonRecords: ", jsonRecords);
 
   // 2. Get facility ID and process ID from the first record:
   completedProcessData.facilityId = jsonRecords[0].facilityId;
@@ -64,11 +64,11 @@ exports.handler = async (event) => {
 const getProcessSensorData = async (jsonRecords) => {
   try {
     jsonRecords.map((sensorDataRecord) => {
-      console.log("sensorDataRecord:", sensorDataRecord);
-      console.log(
-        "completedProcessData.processSensorDataObj: ",
-        completedProcessData.processSensorDataObj
-      );
+      // console.log("sensorDataRecord:", sensorDataRecord);
+      // console.log(
+      //   "completedProcessData.processSensorDataObj: ",
+      //   completedProcessData.processSensorDataObj
+      // );
       if (
         !(
           sensorDataRecord.sensorId in completedProcessData.processSensorDataObj
@@ -95,7 +95,7 @@ const getProcessSensorData = async (jsonRecords) => {
     console.log("Error in getProcessSensorData(): ", error);
   }
 
-  console.log("completedProcessData:", completedProcessData);
+  //  console.log("completedProcessData:", completedProcessData);
 };
 
 // TODO: refactor this into a separate lib module
@@ -103,16 +103,16 @@ const getProcessSensorStats = async () => {
   for (const [sensorId, sensorDataInfo] of Object.entries(
     completedProcessData.processSensorDataObj
   )) {
-    console.log("sensorId and sensorDataInfo:", sensorId, sensorDataInfo);
+    //  console.log("sensorId and sensorDataInfo:", sensorId, sensorDataInfo);
     let sensorData = [];
     for (let second in sensorDataInfo.sensorData) {
       sensorData.push(sensorDataInfo.sensorData[second]);
     }
 
     const min_val = Math.min(...sensorData);
-    console.log("min_val: ", min_val);
     const max_val = Math.max(...sensorData);
     const median_val = median(sensorData);
+    const stddev_val = getStandardDevitation(sensorData);
 
     if (!(sensorId in completedProcessData.processSensorStats)) {
       completedProcessData.processSensorStats[`${sensorId}`] = {};
@@ -122,14 +122,16 @@ const getProcessSensorStats = async () => {
     completedProcessData.processSensorStats[`${sensorId}`].max_val = max_val;
     completedProcessData.processSensorStats[`${sensorId}`].median_val =
       median_val;
+    completedProcessData.processSensorStats[`${sensorId}`].stddev_val =
+      stddev_val;
     completedProcessData.processSensorStats[`${sensorId}`].name =
       sensorDataInfo.name;
 
-    console.log(
-      "completedProcessData.processSensorStats[sensorId]:",
-      sensorId,
-      completedProcessData.processSensorStats[sensorId]
-    );
+    // console.log(
+    //   "completedProcessData.processSensorStats[sensorId]:",
+    //   sensorId,
+    //   completedProcessData.processSensorStats[sensorId]
+    // );
   }
 };
 

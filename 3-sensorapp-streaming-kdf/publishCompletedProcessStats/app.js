@@ -22,7 +22,7 @@ exports.handler = async (event) => {
 };
 
 const publishCompletedProcInfoToIoT = async (messages) => {
-  console.log("PublishCompletedProcessStats messages:", messages);
+  //  console.log("PublishCompletedProcessStats messages:", messages);
   // Get promises for IoT delivery
   const promises = messages.map(async (record) => {
     const JSONpayload = {

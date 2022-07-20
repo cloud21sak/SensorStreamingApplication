@@ -83,7 +83,7 @@ Resources:
       CodeUri: transformer/
       Handler: app.handler
       Runtime: nodejs14.x
-      Timeout: 30
+      Timeout: 300
       MemorySize: 256
 
   S3SensorProcessorFunction:
@@ -92,7 +92,7 @@ Resources:
       CodeUri: s3-sensordataProcessor/
       Handler: app.handler
       Runtime: nodejs14.x
-      Timeout: 30
+      Timeout: 300
       MemorySize: 1024
       Environment:
         Variables:
@@ -122,7 +122,7 @@ Resources:
       CodeUri: s3-dailydata-process-stats/
       Handler: app.handler
       Runtime: nodejs14.x
-      Timeout: 30
+      Timeout: 300
       MemorySize: 1024
       Environment:
         Variables:
@@ -146,7 +146,7 @@ Resources:
       CodeUri: s3-completed-process-stats/
       Handler: app.handler
       Runtime: nodejs14.x
-      Timeout: 30
+      Timeout: 300
       MemorySize: 1024
       Environment:
         Variables:
@@ -171,7 +171,7 @@ Resources:
       CodeUri: publishRunningProcessStats/
       Handler: app.handler
       Runtime: nodejs14.x
-      Timeout: 10
+      Timeout: 30
       # ReservedConcurrentExecutions: 1
       MemorySize: 128
       Environment:
@@ -200,7 +200,7 @@ Resources:
       CodeUri: publishCompletedProcessStats/
       Handler: app.handler
       Runtime: nodejs14.x
-      Timeout: 10
+      Timeout: 30
       # ReservedConcurrentExecutions: 1
       MemorySize: 128
       Environment:

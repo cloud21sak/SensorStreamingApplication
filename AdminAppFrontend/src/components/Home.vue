@@ -254,9 +254,6 @@ export default {
     dailyStatsDisplay() {
       return this.$store.getters.dailySensorStats;
     },
-    // completedProcessStatsDisplay() {
-    //   return this.$store.getters.completedProcessStats;
-    // },
     completedProcessInfoDisplay() {
       return this.$store.getters.completedProcessInfo;
     },
@@ -268,6 +265,7 @@ export default {
         { text: "Min", value: "min" },
         { text: "Max", value: "max" },
         { text: "Median", value: "median" },
+        { text: "Std-dev", value: "stddev" },
       ],
       latestminutestatsheaders: [
         { text: "Name", value: "name" },
@@ -317,7 +315,13 @@ export default {
     console.log("Home Component: created() hook called");
     console.log("event bus in created beginning:", bus);
 
-    await this.initializeSensorTypesConfiguration();
+    // Here we need to check whether sensor instances have been created.
+    // This covers the case when sensor types have been updated in the Configure
+    // component. If they were, then sensor instances have been already generated
+    // in vuex store.
+    if (this.$store.getters.sensorInstances.length === 0) {
+      await this.initializeSensorTypesConfiguration();
+    }
 
     const that = this;
     this.sensors = this.$store.getters.sensorInstances;
@@ -352,7 +356,7 @@ export default {
 
     bus.$on("latestminutestats", async (latestminutestats) => {
       console.log("Home::on::latestminutestats: ");
-      await that.updateSensorStatsByLatestMinute(latestminutestats.sensorstats);
+      await that.updateSensorStatsByLatestMinute(latestminutestats);
     });
 
     bus.$on("procdailystats", async (procdailystats) => {
@@ -366,23 +370,25 @@ export default {
     });
 
     this.resetFacility();
-    bus.$emit("sensorInstanceInfoPublish", this.sensors);
+    //  bus.$emit("sensorInstanceInfoPublish", this.sensors);
 
     console.log("event bus in created end:", bus);
 
     // Get list of completed processes if there are any:
     await this.initializeCompletedProcessList();
   },
-  // async mounted() {
-  //   console.log("Home Component: mounted() hook called");
-  //   const facilitystatus = this.$store.getters.facilityStatus;
-  //   const udpatedFacilityStatus = {
-  //     facilityId: facilitystatus.facilityId,
-  //     status: "IDLE",
-  //   };
-  //   this.$store.dispatch("setFacilityStatus", udpatedFacilityStatus);
-  //   bus.$emit("facilitystatusupdate", udpatedFacilityStatus);
-  // },
+  async mounted() {
+    console.log("Home Component: mounted() hook called!");
+    this.resetFacility();
+    const facilityconfiguration = {
+      totalruntime: FACILITY_RUN_SECONDS,
+      currentPctComplete: round(this.pctComplete, 2),
+      currentStatus: this.facilitystatus,
+      currentProcessId: this.currentProcessId,
+    };
+    bus.$emit("facilityconfigpublish", facilityconfiguration);
+    bus.$emit("sensorInstanceInfoPublish", this.sensors);
+  },
   async beforeDestroy() {
     console.log("Home Component: beforeUnmount() hook called");
     console.log("event bus in beforeDestroy beginning:", bus);
@@ -424,6 +430,7 @@ export default {
     bus.$off("sensorInstanceInfoRequest");
     bus.$off("procdailystats");
     bus.$off("completedprocinfo");
+    bus.$off("latestminutestats");
 
     console.log("event bus in beforeDestroy end:", bus);
   },
@@ -434,8 +441,6 @@ export default {
       // console.log("Sensor types: ", this.sensortypes);
       console.log("Sensor types: ", sensorTypeConfigurations);
       var idCount = 0;
-      // for (let j = 0; j < this.sensortypes.length; j++) {
-      //   const sensortype = this.sensortypes[j];
       for (let j = 0; j < sensorTypeConfigurations.length; j++) {
         const sensortype = sensorTypeConfigurations[j];
         for (let i = 0; i < sensortype.totalnumber; i++) {
@@ -497,7 +502,9 @@ export default {
         sensortypeConfigurations.push(sensortype);
       });
       console.log("sensortypeConfigurations: ", sensortypeConfigurations);
-      // Update vuex state for sensor type configurations:
+      // Update vuex state for sensor type configurations.
+      // Note that this will also generate sensor instances
+      // based on type configurations.
       this.$store.dispatch(
         "setConfiguredSensorTypes",
         sensortypeConfigurations
@@ -545,6 +552,7 @@ export default {
           min: round(statsForSelectedProcess[sensorId].min_val, 2),
           max: round(statsForSelectedProcess[sensorId].max_val, 2),
           median: round(statsForSelectedProcess[sensorId].median_val, 2),
+          stddev: round(statsForSelectedProcess[sensorId].stddev_val, 2),
           ts: statsForSelectedProcess.ts,
         });
       }
@@ -554,11 +562,6 @@ export default {
         "this.statsForSelectedProcessId: ",
         this.statsForSelectedProcessId
       );
-
-      // this.$store.dispatch(
-      //   "setCompletedProcessStats",
-      //   this.statsForSelectedProcessId
-      // );
 
       const selectedProcessInfo = {
         selectedProcessId: this.selectedProcessId,
@@ -616,14 +619,7 @@ export default {
 
       bus.$emit("sensorInstanceInfoPublish", this.sensors);
     },
-    // async handleCurrentProcessIdRequest(receivedCurrentProcessIdRequest) {
-    //   console.log(
-    //     "Current process ID request:",
-    //     receivedCurrentProcessIdRequest
-    //   );
 
-    //   bus.$emit("currentProcessIdPublish", this.currentProcessId);
-    // },
     async executeCommand(receivedcommand) {
       const facilitystatus = this.$store.getters.facilityStatus;
       console.log("currentStatus:", facilitystatus);
@@ -641,7 +637,7 @@ export default {
             // update the status of simulator, and then publish the status update
             // to IoT.
             const udpatedFacilityStatus = {
-              facilityId: facilitystatus.facilityId,
+              facilityId: 1,
               status: "RUNNING",
             };
             this.$store.dispatch("setFacilityStatus", udpatedFacilityStatus);
@@ -657,12 +653,6 @@ export default {
           ) {
             // Transition to 'STOPPED' state:
             this.stopFacility();
-            // const udpatedFacilityStatus = {
-            //   facilityId: facilitystatus.facilityId,
-            //   status: "IDLE",
-            // };
-            // this.$store.dispatch("setFacilityStatus", udpatedFacilityStatus);
-            // bus.$emit("facilitystatusupdate", udpatedFacilityStatus);
           }
           break;
         case "pause":
@@ -769,6 +759,7 @@ export default {
           min: round(processDailyDataStats[sensorId].min_val, 2),
           max: round(processDailyDataStats[sensorId].max_val, 2),
           median: round(processDailyDataStats[sensorId].median_val, 2),
+          stddev: round(processDailyDataStats[sensorId].stddev_val, 2),
           ts: dailyStatsData.ts,
         };
       }
@@ -784,22 +775,25 @@ export default {
     },
 
     // Sensor stats by latest minute
-    async updateSensorStatsByLatestMinute(sensorStatsMessage) {
-      console.log(
-        "updateSensorStatsByLatestMinute 'sensorStatsMessage': ",
-        sensorStatsMessage
-      );
-
-      let statsResults = JSON.parse(sensorStatsMessage);
-      let intermediateSensorStats = [];
-
+    async updateSensorStatsByLatestMinute(latestminutestats) {
       // console.log(
-      //   `updateSensorStatsByLatestMinute - name: ${
-      //     statsResults.name
-      //   } time:${new Date(statsResults.deviceTimestamp).toLocaleTimeString(
-      //     "en-US"
-      //   )}`
+      //   "updateSensorStatsByLatestMinute 'latestminutestats': ",
+      //   latestminutestats
       // );
+
+      // Check to make sure these are the latest minute stats
+      // of the current process.
+      // Note that here we check to make sure that we don't display daily data
+      // of the previous process which was stopped before it completed.
+      if (latestminutestats.processId !== `proc-${this.currentProcessId}`) {
+        console.log(
+          `Current process ID: ${this.currentProcessId} doesn't match the latestminutestats process ID: ${latestminutestats.processId}`
+        );
+        return;
+      }
+
+      let statsResults = JSON.parse(latestminutestats.sensorstats);
+      let intermediateSensorStats = [];
 
       statsResults.map((sensorstats) => {
         // Update sensor stats by latest minute:
@@ -813,10 +807,6 @@ export default {
         };
       });
 
-      // Convert to array
-      // for (let sensorId in this.latestMinuteSensorStats) {
-      //   intermediateSensorStats.push(this.latestMinuteSensorStats[sensorId]);
-      // }
       intermediateSensorStats = Object.values(this.latestMinuteSensorStats);
       console.log("intermediateSensorStats:", intermediateSensorStats);
 
@@ -831,7 +821,7 @@ export default {
       this.issuedcommand = "start";
       const facilityCommand = {
         command: this.issuedcommand,
-        facilityId: 1,
+        facilityId: this.$store.getters.facilityStatus.facilityId,
       };
 
       console.log("Issued start command: ", facilityCommand);
@@ -839,13 +829,11 @@ export default {
     },
     onStop() {
       console.log("Stop command issued");
-      // TODO: Why are we setting this:
-      // this.event = "update";
 
       this.issuedcommand = "stop";
       const facilityCommand = {
         command: this.issuedcommand,
-        facilityId: 1,
+        facilityId: this.$store.getters.facilityStatus.facilityId,
       };
 
       console.log("Issued stop command: ", facilityCommand);
@@ -853,13 +841,11 @@ export default {
     },
     onPause() {
       console.log("Pause command issued");
-      // TODO: Why are we setting this:
-      // this.event = "update";
 
       this.issuedcommand = "pause";
       const facilityCommand = {
         command: this.issuedcommand,
-        facilityId: 1,
+        facilityId: this.$store.getters.facilityStatus.facilityId,
       };
 
       console.log("Issued pause command: ", facilityCommand);
@@ -867,13 +853,11 @@ export default {
     },
     onResume() {
       console.log("Resume command issued");
-      // TODO: Why are we setting this:
-      // this.event = "update";
 
       this.issuedcommand = "resume";
       const facilityCommand = {
         command: this.issuedcommand,
-        facilityId: 1,
+        facilityId: this.$store.getters.facilityStatus.facilityId,
       };
 
       console.log("Issued resume command: ", facilityCommand);
@@ -885,7 +869,7 @@ export default {
       this.issuedcommand = "reset";
       const facilityCommand = {
         command: this.issuedcommand,
-        facilityId: 1,
+        facilityId: this.$store.getters.facilityStatus.facilityId,
       };
 
       console.log("Issued reset command: ", facilityCommand);
@@ -899,26 +883,17 @@ export default {
       this.pctComplete = 0;
       this.sensorsToPublish.length = 0;
       this.event = "update";
-      // We need to set sensors every time before starting a new process in case
-      // the configuration has been updated.
+      // We need to set sensors every time before starting a new process
+      // in case the configuration has been updated.
       this.sensors = this.$store.getters.sensorInstances;
 
       this.intervalVar = setInterval(this.nextInterval, 1000);
 
-      // Get daily data every minute:
-      // this.dailyDataIntervalVar = setInterval(
-      //   this.nextDailyDataInterval,
-      //   30000
-      // );
-
       this.sensors.forEach((sensor) => {
         this.sensor = new Sensor(sensor);
-        {
-          console.log("sensor:", sensor);
-        }
         this.sensorsToPublish.push(this.sensor);
       });
-      //  this.sensormessages = [];
+
       console.log("this.sensorsToPublish: ", this.sensorsToPublish);
     },
 
@@ -932,7 +907,6 @@ export default {
       this.$store.dispatch("setFacilityStatus", udpatedFacilityStatus);
 
       this.$store.dispatch("setPctComplete", this.pctComplete);
-      //this.$store.dispatch("setDailySenorStats", []);
       bus.$emit("facilitystatusupdate", udpatedFacilityStatus);
       console.log("Facility was stopped");
     },
@@ -958,7 +932,7 @@ export default {
       this.latestMinuteSensorStats = {};
       this.sensorsToPublish.length = 0;
       const udpatedFacilityStatus = {
-        facilityId: this.$store.getters.facilityStatus.facilityId,
+        facilityId: 1,
         status: "IDLE",
       };
       this.$store.dispatch("setFacilityStatus", udpatedFacilityStatus);
@@ -981,10 +955,9 @@ export default {
       if (this.currentSecond === FACILITY_RUN_SECONDS + INTERVAL_SECONDS) {
         console.log("Issue complete message for second:", this.currentSecond);
         clearInterval(this.intervalVar);
-        //  clearInterval(this.dailyDataIntervalVar);
+
         const udpatedFacilityStatus = {
           facilityId: this.$store.getters.facilityStatus.facilityId,
-          //status: "COMPLETE",
           status: "COMPLETING",
         };
 
@@ -993,7 +966,7 @@ export default {
         this.$store.dispatch("setPctComplete", this.pctComplete);
         //  console.log("pctComplete: ", this.pctComplete);
         bus.$emit("updatepercentcomplete", {
-          facilityid: 1,
+          facilityid: udpatedFacilityStatus.facilityId,
           pctcomplete: round(this.pctComplete, 2),
         });
         bus.$emit("facilitystatusupdate", udpatedFacilityStatus);
@@ -1007,7 +980,7 @@ export default {
           deviceTimestamp: Date.now(),
           second: this.currentSecond,
           processId: this.processId,
-          facilityId: 1,
+          facilityId: udpatedFacilityStatus.facilityId,
         };
         bus.$emit("sensorpublish", sensormessage);
         this.currentSecond += INTERVAL_SECONDS;
@@ -1023,6 +996,7 @@ export default {
       );
 
       // console.log("this.currentSecond:", this.currentSecond);
+      const facilityId = this.$store.getters.facilityStatus.facilityId;
       this.sensorsToPublish.forEach((sensor) => {
         //   console.log("sensor to publish: ", sensor);
         // Publish the sensor's current value
@@ -1037,7 +1011,7 @@ export default {
           name: sensor.name,
           sensorId: sensor.id,
           processId: this.processId,
-          facilityId: 1,
+          facilityId: facilityId,
           sensorData: sensorData,
         };
 
@@ -1046,7 +1020,7 @@ export default {
 
       this.$store.dispatch("setPctComplete", this.pctComplete);
       bus.$emit("updatepercentcomplete", {
-        facilityid: 1,
+        facilityid: facilityId,
         pctcomplete: round(this.pctComplete, 2),
       });
 

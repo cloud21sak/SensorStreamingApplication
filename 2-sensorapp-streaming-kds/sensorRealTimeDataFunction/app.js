@@ -9,12 +9,12 @@ AWS.config.region = process.env.AWS_REGION;
 // Main Lambda handler
 exports.handler = async (event) => {
   console.log(`Received sensor data: ${event.Records.length} messages`);
-  console.log(JSON.stringify(event, null, 2));
+ // console.log(JSON.stringify(event, null, 2));
 
   let processMap = {};
   // Get sensor data of a process from event
   let jsonRecords = getRecordsFromPayload(event);
-  console.log(JSON.stringify(jsonRecords, null, 2));
+ // console.log(JSON.stringify(jsonRecords, null, 2));
 
   getSensorDataByProcessId(processMap, jsonRecords);
   return await publishToIoT(processMap);
@@ -64,7 +64,7 @@ const getRecordsFromPayload = (event) => {
 };
 
 const getSensorDataByProcessId = (processMap, jsonRecords) => {
-  console.log("getSensorDataByProcessId: ", processMap);
+ // console.log("getSensorDataByProcessId: ", processMap);
   jsonRecords.map((record) => {
     // Add processId if not in processMap
     if (!processMap[record.processId]) {
