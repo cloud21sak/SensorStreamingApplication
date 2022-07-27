@@ -11,21 +11,25 @@ AWS.config.region = process.env.AWS_REGION;
 const s3 = new AWS.S3();
 let documentClient = undefined;
 
-let completedProcessData = {};
-completedProcessData.processSensorDataObj = {};
-completedProcessData.processSensorStats = {};
+let completedProcessData = undefined;
+// completedProcessData.processSensorDataObj = {};
+// completedProcessData.processSensorStats = {};
 
 // Main Lambda handler
 exports.handler = async (event) => {
   console.log(JSON.stringify(event, null, 2));
+
+  completedProcessData = {};
+  completedProcessData.processSensorDataObj = {};
+  completedProcessData.processSensorStats = {};
 
   //var s3 = new AWS.S3();
   documentClient = new AWS.DynamoDB.DocumentClient();
 
   const object = event.Records[0];
   console.log("CompletedProcessStatsFunction is called");
-  // console.log("Bucket name:", object.s3.bucket.name);
-  // console.log("Bucket key:", object.s3.object.key);
+  console.log("Bucket name:", object.s3.bucket.name);
+  console.log("Bucket key:", object.s3.object.key);
 
   // Load completed process sensor data from History bucket:
   const response = await s3
@@ -56,8 +60,6 @@ exports.handler = async (event) => {
   await getProcessSensorStats();
 
   // 5. Save completed process stats for each sensor to DDB table:
-  console.log("Saving completed process stats for each sensor to DDB");
-
   await saveProcessSensorStats();
 };
 

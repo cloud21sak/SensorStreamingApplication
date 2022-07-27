@@ -133,7 +133,7 @@ npm run serve
 
 ## Setting up the client app in CloudFront:
 
-1. From terminal prompt, go to SensorDataViewer folder. Run npm run build. When the build is finished, you should see "dist" subfolder under SensorDataViewer folder.
+1. From terminal prompt, go to OperatorAppFrontend folder. Run npm run build. When the build is finished, you should see "dist" subfolder under OperatorAppFrontend folder.
 2. Create an S3 bucket (note that the name must be globally unique. For example: sensor-app-client-sak21. Enable public access.
 3. Go to the Properties page, and enable "Static website hosting" property. Enter index.html for Index document and Error document entries.
 4. Go to the Permissions page, and under the "Bucket policy" enter the following policy:
@@ -144,12 +144,12 @@ npm run serve
 {
 "Sid": "PublicReadGetObject",
 "Effect": "Allow",
-"Principal": "_",
+"Principal": "*",
 "Action": [
 "s3:GetObject"
 ],
 "Resource": [
-"arn:aws:s3:::[your bucket name]/_" # (for example: "Resource": "arn:aws:s3:::sensor-app-client-sak21/\*")
+"arn:aws:s3:::[your bucket name]/*" # (for example: "Resource": "arn:aws:s3:::sensor-app-client-sak21/*")
 ]
 }
 ]

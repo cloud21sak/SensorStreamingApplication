@@ -11,18 +11,22 @@ AWS.config.region = process.env.AWS_REGION;
 const s3 = new AWS.S3();
 const documentClient = new AWS.DynamoDB.DocumentClient();
 
-let facilityProcessDailyData = {};
-facilityProcessDailyData.sensorDailyData = {};
-facilityProcessDailyData.sensorDailyStats = {};
+let facilityProcessDailyData = undefined;
+// facilityProcessDailyData.sensorDailyData = {};
+// facilityProcessDailyData.sensorDailyStats = {};
 
 // Main Lambda handler
 exports.handler = async (event) => {
   console.log(JSON.stringify(event, null, 2));
 
+  facilityProcessDailyData = {};
+  facilityProcessDailyData.sensorDailyData = {};
+  facilityProcessDailyData.sensorDailyStats = {};
+
   console.log("DailyProcessStatsFunction is called");
   const object = event.Records[0];
-  // console.log("Bucket name:", object.s3.bucket.name);
-  // console.log("Bucket key:", object.s3.object.key);
+  console.log("Bucket name:", object.s3.bucket.name);
+  console.log("Bucket key:", object.s3.object.key);
 
   // Load incoming daily records written by Kinesis Data Firehose
   // from intermediate bucket:
@@ -40,10 +44,11 @@ exports.handler = async (event) => {
 
   // 1. Convert to JSON array
   let jsonRecords = JSON.parse(data.toString());
-  // console.log("jsonRecords: ", jsonRecords);
+  //console.log("jsonRecords: ", jsonRecords);
 
   // 2. Get facility ID and process ID from the first record:
   facilityProcessDailyData.facilityId = jsonRecords[0].facilityId;
+  // TODO: refactor this for per process setup
   facilityProcessDailyData.processId = jsonRecords[0].processId;
 
   // 3. Get cumulative daily data for each sensor:
@@ -98,7 +103,7 @@ const getDailySensorStats = async () => {
       sensorData.push(sensorDataInfo.sensorData[second]);
     }
 
-    const min_val = Math.min(...sensorData);    
+    const min_val = Math.min(...sensorData);
     const max_val = Math.max(...sensorData);
     const median_val = median(sensorData);
     const stddev_val = getStandardDevitation(sensorData);

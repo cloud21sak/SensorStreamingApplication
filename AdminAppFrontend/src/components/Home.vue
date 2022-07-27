@@ -716,16 +716,26 @@ export default {
 
       // Update internal realtime sensor data
       for (let sensorId in sensorData) {
+        // TODO: check if this is needed
         if (!this.sensors[sensorId]) {
           continue;
         }
 
-        intermediateSensorData.push({
-          sensorId,
+        this.realtimeSensorData[sensorId] = {
+          sensorId: sensorId,
           name: this.sensors[sensorId].name,
           typeId: this.sensors[sensorId].typeId,
           sensordata: round(sensorData[sensorId], 2),
-        });
+        };
+
+        intermediateSensorData = Object.values(this.realtimeSensorData);
+
+        // intermediateSensorData.push({
+        //   sensorId,
+        //   name: this.sensors[sensorId].name,
+        //   typeId: this.sensors[sensorId].typeId,
+        //   sensordata: round(sensorData[sensorId], 2),
+        // });
       }
 
       this.realtimeSensorDisplay = intermediateSensorData;
@@ -927,6 +937,8 @@ export default {
       this.pctComplete = 0;
       this.currentSecond = 0;
       this.processId = 0;
+      this.dailySensorStats = [];
+      this.realtimeSensorData = {};
       this.realtimeSensorDisplay = [];
       this.latestMinuteSensorStatsDisplay = [];
       this.latestMinuteSensorStats = {};
@@ -938,7 +950,7 @@ export default {
       this.$store.dispatch("setFacilityStatus", udpatedFacilityStatus);
       this.$store.dispatch("setCurrentProcessId", this.processId);
       this.$store.dispatch("setPctComplete", this.pctComplete);
-      this.$store.dispatch("setDailySenorStats", []);
+      this.$store.dispatch("setDailySenorStats", this.dailySensorStats);
       // Update all subscribers that facility was reset:
       bus.$emit("facilitystatusupdate", udpatedFacilityStatus);
       // bus.$emit("updatepercentcomplete", this.pctComplete);

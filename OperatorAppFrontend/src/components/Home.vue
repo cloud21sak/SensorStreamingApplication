@@ -271,6 +271,9 @@ export default {
     currentPctComplete() {
       return this.$store.getters.getPctComplete;
     },
+    // realtimeSensorDisplay() {
+    //   return this.$store.getters.realtimeSensorData;
+    // },
     dailyStatsDisplay() {
       return this.$store.getters.dailySensorStats;
     },
@@ -514,10 +517,12 @@ export default {
       // Reset the dashboard tables:
       if (configupdateinfo.currentStatus.status === "IDLE") {
         console.log("Facility status is IDLE, resetting dashboard");
+        this.realtimeSensorData = {};
         this.realtimeSensorDisplay = [];
+        this.dailySensorStats = [];
         this.latestMinuteSensorStatsDisplay = [];
         this.latestMinuteSensorStats = {};
-        this.$store.dispatch("setDailySenorStats", []);
+        this.$store.dispatch("setDailySenorStats", this.dailySensorStats);
       }
     },
     async updateSensorInstanceInfo(sensorInstanceInfoUpdate) {
@@ -546,12 +551,14 @@ export default {
       if (statusupdate.status === "IDLE") {
         this.processId = 0;
         this.pctComplete = 0;
+        this.realtimeSensorData = {};
         this.realtimeSensorDisplay = [];
+        this.dailySensorStats = [];
         this.latestMinuteSensorStatsDisplay = [];
         this.latestMinuteSensorStats = {};
         this.$store.dispatch("setCurrentProcessId", this.processId);
         this.$store.dispatch("setPctComplete", this.pctComplete);
-        this.$store.dispatch("setDailySenorStats", []);
+        this.$store.dispatch("setDailySenorStats", this.dailySensorStats);
       }
 
       this.$store.dispatch("setFacilityStatus", statusupdate);
@@ -658,6 +665,7 @@ export default {
         this.facilitystatus.status === "COMPLETING" ||
         this.facilitystatus.status === "COMPLETE"
       ) {
+        console.log("Returning because status is:", this.facilitystatus.status);
         return;
       }
 
@@ -666,19 +674,31 @@ export default {
 
       // Update internal realtime sensor data
       for (let sensorId in sensorData) {
+        // TODO: check if this is needed
         if (!this.sensors[sensorId]) {
           continue;
         }
 
-        intermediateSensorData.push({
-          sensorId,
+        this.realtimeSensorData[sensorId] = {
+          sensorId: sensorId,
           name: this.sensors[sensorId].name,
           typeId: this.sensors[sensorId].typeId,
           sensordata: round(sensorData[sensorId], 2),
-        });
+        };
       }
 
+      intermediateSensorData = Object.values(this.realtimeSensorData);
+
+      // intermediateSensorData.push({
+      //   sensorId,
+      //   name: this.sensors[sensorId].name,
+      //   typeId: this.sensors[sensorId].typeId,
+      //   sensordata: round(sensorData[sensorId], 2),
+      // });
+      //   }
+
       this.realtimeSensorDisplay = intermediateSensorData;
+      // this.$store.dispatch("setRealtimeSenorData", intermediateSensorData);
     },
 
     async updateDailyStats(dailyStatsData) {
