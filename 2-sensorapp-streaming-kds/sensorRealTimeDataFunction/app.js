@@ -9,12 +9,12 @@ AWS.config.region = process.env.AWS_REGION;
 // Main Lambda handler
 exports.handler = async (event) => {
   console.log(`Received sensor data: ${event.Records.length} messages`);
- // console.log(JSON.stringify(event, null, 2));
+  // console.log(JSON.stringify(event, null, 2));
 
   let processMap = {};
   // Get sensor data of a process from event
   let jsonRecords = getRecordsFromPayload(event);
- // console.log(JSON.stringify(jsonRecords, null, 2));
+  // console.log(JSON.stringify(jsonRecords, null, 2));
 
   getSensorDataByProcessId(processMap, jsonRecords);
   return await publishToIoT(processMap);
@@ -27,7 +27,7 @@ const publishToIoT = async (processMap) => {
       msg: "sensordata",
       facilityId: processMap[processId].facilityId,
       processId: `process-${processId}`,
-      sensordata: JSON.stringify(processMap[processId]),
+      sensordata: JSON.stringify(processMap[processId].sensordata),
     };
 
     let promise = iotdata
@@ -57,21 +57,22 @@ const getRecordsFromPayload = (event) => {
     // Extract JSON record from base64 data
     const buffer = Buffer.from(record.kinesis.data, "base64").toString();
     const jsonRecord = JSON.parse(buffer);
-
     jsonRecords.push(jsonRecord);
   });
   return jsonRecords;
 };
 
 const getSensorDataByProcessId = (processMap, jsonRecords) => {
- // console.log("getSensorDataByProcessId: ", processMap);
+  // console.log("getSensorDataByProcessId: ", processMap);
   jsonRecords.map((record) => {
     // Add processId if not in processMap
     if (!processMap[record.processId]) {
       processMap[record.processId] = {};
       processMap[record.processId].facilityId = record.facilityId;
+      processMap[record.processId].sensordata = {};
     }
 
-    processMap[record.processId][record.sensorId] = record.sensorData;
+    processMap[record.processId].sensordata[record.sensorId] =
+      record.sensorData;
   });
 };

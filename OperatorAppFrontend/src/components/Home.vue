@@ -246,7 +246,6 @@ import sensorconfig from "@/configurations/sensorconfig.json";
 import axios from "axios";
 
 // Libraries
-//const Sensor = require("@/lib/sensor");
 import appStore from "../store";
 
 const round = (value, decimals) => {
@@ -271,9 +270,6 @@ export default {
     currentPctComplete() {
       return this.$store.getters.getPctComplete;
     },
-    // realtimeSensorDisplay() {
-    //   return this.$store.getters.realtimeSensorData;
-    // },
     dailyStatsDisplay() {
       return this.$store.getters.dailySensorStats;
     },
@@ -347,11 +343,6 @@ export default {
         // console.log("Received sensor data message: ", message);
         await that.updateRealtimeSensorData(message.sensordata);
       }
-
-      // if (message.msg === "sensorstats") {
-      //   //  console.log("Received sensor stats message: ", message);
-      //   await that.updateSensorStatsByLatestMinute(message.sensorstats);
-      // }
     });
 
     bus.$on("facilitystatusupdated", async (statusupdate) => {
@@ -407,75 +398,6 @@ export default {
   },
   async created() {
     console.log("Home Component: created() hook called");
-    // const that = this;
-
-    // this.selectedProcessId = this.$store.getters.completedProcessInfo.selectedProcessId;
-
-    // // When messages are received via IOT, these handlers are triggered
-    // bus.$on("message", async (message) => {
-    //   //console.log("Home::on::message: ", message);
-
-    //   if (message.msg === "sensordata") {
-    //     // console.log("Received sensor data message: ", message);
-    //     await that.updateRealtimeSensorData(message.sensordata);
-    //   }
-
-    //   // if (message.msg === "sensorstats") {
-    //   //   //  console.log("Received sensor stats message: ", message);
-    //   //   await that.updateSensorStatsByLatestMinute(message.sensorstats);
-    //   // }
-    // });
-
-    // bus.$on("facilitystatusupdated", async (statusupdate) => {
-    //   console.log("Home::on::facilitystatus: ", statusupdate);
-    //   await that.updateFacilityStatus(statusupdate);
-    // });
-
-    // bus.$on("facilityconfigupdate", async (configupdateinfo) => {
-    //   //console.log("Home::on::facilityconfigupdate: ", configupdateinfo);
-    //   await that.updateFacilityConfigInfo(configupdateinfo);
-    // });
-
-    // bus.$on("sensorInstanceInfoUpdate", async (sensorInstanceInfoUpdate) => {
-    //   console.log(
-    //     "Home::on::sensorInstanceInfoUpdate: ",
-    //     sensorInstanceInfoUpdate
-    //   );
-    //   await that.updateSensorInstanceInfo(sensorInstanceInfoUpdate);
-    // });
-
-    // bus.$on("latestminutestats", async (latestminutestats) => {
-    //   console.log("Home::on::latestminutestats: ");
-    //   await that.updateSensorStatsByLatestMinute(latestminutestats.sensorstats);
-    // });
-
-    // bus.$on("procdailystats", async (procdailystats) => {
-    //   console.log("Home::on::procdailystats: ");
-    //   await that.updateDailyStats(procdailystats);
-    // });
-
-    // bus.$on("completedprocinfo", async (completedprocinfo) => {
-    //   console.log("Home::on::completedprocinfo: ", completedprocinfo);
-    //   await that.updateCompletedProcessList(completedprocinfo);
-    // });
-
-    // bus.$on("updatepercentcomplete", async (percentCompleteUpdate) => {
-    //   //console.log("Home::on::updatepercentcomplete: ", percentCompleteUpdate);
-    //   that.pctComplete = percentCompleteUpdate.pctcomplete;
-    //   that.$store.dispatch("setPctComplete", that.pctComplete);
-    // });
-
-    // bus.$on("updateCurrentProcessId", async (currentProcessIdUpdate) => {
-    //   console.log(
-    //     "Home::on::updateSelectedProcessId: ",
-    //     currentProcessIdUpdate
-    //   );
-    //   that.processId = currentProcessIdUpdate;
-    //   that.$store.dispatch("setCurrentProcessId", that.processId);
-    // });
-
-    // // Get list of completed processes if there are any:
-    // await this.initializeCompletedProcessList();
   },
   async beforeDestroy() {
     console.log("Home Component: beforeUnmount() hook called");
@@ -527,11 +449,11 @@ export default {
     },
     async updateSensorInstanceInfo(sensorInstanceInfoUpdate) {
       this.sensors.length = 0;
-      console.log("updateSensorInstanceInfo:", sensorInstanceInfoUpdate);
+      //  console.log("updateSensorInstanceInfo:", sensorInstanceInfoUpdate);
 
       sensorInstanceInfoUpdate.map((sensorInstance) => {
         const sensorObj = {
-          id: sensorInstance.Id,
+          id: sensorInstance.id,
           name: sensorInstance.name,
           typeId: sensorInstance.typeId,
           minval: sensorInstance.minval,
@@ -659,7 +581,7 @@ export default {
       let sensorData = JSON.parse(sensormessage);
       let intermediateSensorData = [];
 
-      console.log("updateRealtimeSensorData: ", sensorData);
+      // console.log("updateRealtimeSensorData: ", sensorData);
 
       if (
         this.facilitystatus.status === "COMPLETING" ||
@@ -669,15 +591,12 @@ export default {
         return;
       }
 
-      // TODO: refactor to use one message per facility and set current second
-      // on the facility instead of on each sensor message:
-
       // Update internal realtime sensor data
       for (let sensorId in sensorData) {
         // TODO: check if this is needed
-        if (!this.sensors[sensorId]) {
-          continue;
-        }
+        // if (!this.sensors[sensorId]) {
+        //   continue;
+        // }
 
         this.realtimeSensorData[sensorId] = {
           sensorId: sensorId,
@@ -688,17 +607,9 @@ export default {
       }
 
       intermediateSensorData = Object.values(this.realtimeSensorData);
-
-      // intermediateSensorData.push({
-      //   sensorId,
-      //   name: this.sensors[sensorId].name,
-      //   typeId: this.sensors[sensorId].typeId,
-      //   sensordata: round(sensorData[sensorId], 2),
-      // });
-      //   }
+      // console.log("intermediateSensorData: ", intermediateSensorData);
 
       this.realtimeSensorDisplay = intermediateSensorData;
-      // this.$store.dispatch("setRealtimeSenorData", intermediateSensorData);
     },
 
     async updateDailyStats(dailyStatsData) {

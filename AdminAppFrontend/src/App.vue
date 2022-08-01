@@ -105,24 +105,7 @@ export default {
   },
   data: () => ({
     showPassword: false,
-    isAuthenticated: appStore.getters.isAuthenticated,
-    // links: [
-    //   {
-    //     label: "Home",
-    //     url: "/home",
-    //     loggedIn: "isLoggedIn",
-    //   },
-    //   {
-    //     label: "Login",
-    //     url: "/login",
-    //     loggedIn: "!isLoggedIn",
-    //   },
-    //   {
-    //     label: "Logout",
-    //     url: "/login",
-    //     loggedIn: "false",
-    //   },
-    // ],
+    isAuthenticated: appStore.getters.isAuthenticated,    
   }),
 };
 </script>

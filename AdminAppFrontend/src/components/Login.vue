@@ -146,7 +146,6 @@ export default {
 
           AWS.config.region = appStore.getters.appConfiguration.region;
           var authData = {
-            // ClientId: "4abq6psn3ie7te4dgu4thg767", // Your client id here
             AppWebDomain: "iot-23.auth.us-east-1.amazoncognito.com",
             //  TokenScopesArray: ["email", "openid"], // e.g.['phone', 'email', 'profile','openid', 'aws.cognito.signin.user.admin'],
             //  RedirectUriSignIn: "http://localhost:8000",
@@ -221,13 +220,8 @@ export default {
 
           // store userAttributes in global variable
           sessionUserAttributes = userAttributes;
-
-          // SAK TEMP??? modified to handle password confirmation
+          // TODO: needs to be implemented as a custom prompt instead
           const userPswd = window.prompt("Please enter password:");
-          // This is just for testing:
-
-          //document.getElementById("promptdialog").close();
-          // const userPswd = this.promptForPassword();
 
           cognitoUser.completeNewPasswordChallenge(
             (authenticationData.Password = userPswd),

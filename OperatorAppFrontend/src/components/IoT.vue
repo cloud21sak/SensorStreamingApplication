@@ -13,13 +13,11 @@ const topics = {
   facilitystatus: "facility-status",
   percentcompleteupdate: "percent-complete-update",
   currentProcessIdUpdate: "current-procid-update",
-  // currentProcessIdRequest: "current-procid-request",
   facilityconfigrequest: "facility-config-request",
   facilityconfigupdate: "facility-config-update",
   sensorInstanceInfoRequest: "sensor-info-request",
   sensorInstanceInfoUpdate: "sensor-instance-update",
   facilitycommand: "facility-command",
- // sensorpublish: "sensordata-publish",
   sensorsubscribe: "sensordata-subscribe",
   procdailystats: "process-dailystats",
   completedprocinfo: "completed-processinfo",
@@ -73,7 +71,7 @@ export default {
       "IoT Component, this.$store.getters.appConfiguration: ",
       this.$store.getters.appConfiguration
     );
-    // const AWSConfiguration = this.$appConfig;
+
     const authcredentials = this.$store.getters.authCredentials;
     console.log("authcredentials: ", authcredentials);
     console.log(authcredentials.accessKeyId);
@@ -140,21 +138,6 @@ export default {
         data.Credentials.SessionToken
       );
     });
-
-    // User just connected, request current facility configuration:
-    // bus.$on("facilityconfigrequest", async (data) => {
-    //   console.log("facilityconfigrequest: ", data);
-    //   mqttClient.publish(topics.facilityconfigrequest, JSON.stringify(data));
-    // });
-
-    // User just connected, request current facility configured sensor instance list:
-    // bus.$on("sensorInstanceInfoRequest", async (data) => {
-    //   console.log("sensorInstanceInfoRequest: ", data);
-    //   mqttClient.publish(
-    //     topics.sensorInstanceInfoRequest,
-    //     JSON.stringify(data)
-    //   );
-    // });
 
     // User issued command to sensor facility:
     bus.$on("facilitycommandissued", async (data) => {

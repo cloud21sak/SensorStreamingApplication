@@ -18,7 +18,7 @@ export default new Vuex.Store({
     authcredentials: {},
     appconfiguration: {},
     pctComplete: 0,
-    currentProcessId: 0,
+    currentProcessId: 0,    
     dailySensorStats: [],
     completedProcessInfo: {
       selectedProcessId: null,
@@ -51,7 +51,7 @@ export default new Vuex.Store({
     },
     getCurrentProcessId: (state) => {
       return state.currentProcessId;
-    },
+    },    
     dailySensorStats: (state) => {
       return state.dailySensorStats;
     },
@@ -105,7 +105,7 @@ export default new Vuex.Store({
     },
     updateCurrentProcessId(state, currentProcessId) {
       state.currentProcessId = currentProcessId;
-    },
+    },    
     updateDailySensorStats(state, dailySensorStats) {
       state.dailySensorStats = dailySensorStats;
     },
@@ -142,7 +142,7 @@ export default new Vuex.Store({
     },
     setCurrentProcessId({ commit }, currentProcessId) {
       commit("updateCurrentProcessId", currentProcessId);
-    },
+    },    
     setDailySenorStats({ commit }, dailySensorStats) {
       commit("updateDailySensorStats", dailySensorStats);
     },

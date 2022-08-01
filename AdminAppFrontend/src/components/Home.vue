@@ -319,12 +319,84 @@ export default {
     // This covers the case when sensor types have been updated in the Configure
     // component. If they were, then sensor instances have been already generated
     // in vuex store.
+
+    // if (this.$store.getters.sensorInstances.length === 0) {
+    //   await this.initializeSensorTypesConfiguration();
+    // }
+
+    // const that = this;
+    // this.sensors = this.$store.getters.sensorInstances;
+    // console.log("Generated sensor instances in created() hook: ", this.sensors);
+
+    // // Set selected process from the vuex store:
+    // this.selectedProcessId = this.$store.getters.completedProcessInfo.selectedProcessId;
+
+    // // When messages are received via IOT, these handlers are triggered
+    // bus.$on("message", async (message) => {
+    //   // console.log("Home::on::message: ", message);
+
+    //   if (message.msg === "sensordata") {
+    //     //console.log("Received sensor data message: ", message);
+    //     await that.updateRealtimeSensorData(message.sensordata);
+    //   }
+    // });
+
+    // bus.$on("facilitycommandreceived", async (receivedcommand) => {
+    //   console.log("Home::on::facilitycommand: ", receivedcommand.command);
+    //   await that.executeCommand(receivedcommand);
+    // });
+
+    // bus.$on("facilityconfigrequest", async (receivedconfigrequest) => {
+    //   console.log("Home::on::facilityconfigrequest: ");
+    //   await that.handleConfigurationRequest(receivedconfigrequest);
+    // });
+
+    // bus.$on("sensorInstanceInfoRequest", async (sensorInstanceInfoRequest) => {
+    //   console.log("Home::on::sensorInstanceInfoRequest: ");
+    //   await that.handleSensorInstanceInfoRequest(sensorInstanceInfoRequest);
+    // });
+
+    // bus.$on("latestminutestats", async (latestminutestats) => {
+    //   console.log("Home::on::latestminutestats: ");
+    //   await that.updateSensorStatsByLatestMinute(latestminutestats);
+    // });
+
+    // bus.$on("procdailystats", async (procdailystats) => {
+    //   console.log("Home::on::procdailystats: ");
+    //   await that.updateDailyStats(procdailystats);
+    // });
+
+    // bus.$on("completedprocinfo", async (completedprocinfo) => {
+    //   console.log("Home::on::completedprocinfo: ", completedprocinfo);
+    //   await that.updateCompletedProcessList(completedprocinfo);
+    // });
+
+    // //this.resetFacility();
+    // // Sensor instances have been generated, publish them:
+    // bus.$emit("sensorInstanceInfoPublish", this.sensors);
+
+    // console.log("event bus in created end:", bus);
+
+    // // Get list of completed processes if there are any:
+    // await this.initializeCompletedProcessList();
+  },
+  async mounted() {
+    console.log("Home Component: mounted() hook called!");
+
+    // *** START SETUP ***
+    // Setup event handling, sensor instance initializations,
+    // and completed process list:
+    // Here we need to check whether sensor instances have been created.
+    // This covers the case when sensor types have been updated in the Configure
+    // component. If they were, then sensor instances have been already generated
+    // in vuex store.
     if (this.$store.getters.sensorInstances.length === 0) {
       await this.initializeSensorTypesConfiguration();
     }
 
     const that = this;
     this.sensors = this.$store.getters.sensorInstances;
+    console.log("Generated sensor instances in created() hook: ", this.sensors);
 
     // Set selected process from the vuex store:
     this.selectedProcessId = this.$store.getters.completedProcessInfo.selectedProcessId;
@@ -369,16 +441,17 @@ export default {
       await that.updateCompletedProcessList(completedprocinfo);
     });
 
-    this.resetFacility();
-    //  bus.$emit("sensorInstanceInfoPublish", this.sensors);
+    //this.resetFacility();
+    // Sensor instances have been generated, publish them:
+    //bus.$emit("sensorInstanceInfoPublish", this.sensors);
 
-    console.log("event bus in created end:", bus);
+    console.log("event bus in mounted end:", bus);
 
     // Get list of completed processes if there are any:
     await this.initializeCompletedProcessList();
-  },
-  async mounted() {
-    console.log("Home Component: mounted() hook called!");
+
+    // *** END SETUP ****
+
     this.resetFacility();
     const facilityconfiguration = {
       totalruntime: FACILITY_RUN_SECONDS,
@@ -387,6 +460,8 @@ export default {
       currentProcessId: this.currentProcessId,
     };
     bus.$emit("facilityconfigpublish", facilityconfiguration);
+
+    console.log("sensorInstanceInfoPublish: ", this.sensors);
     bus.$emit("sensorInstanceInfoPublish", this.sensors);
   },
   async beforeDestroy() {
@@ -705,7 +780,7 @@ export default {
       let intermediateSensorData = [];
 
       // console.log("updateRealtimeSensorData: ", sensorData);
-      console.log("this.facilitystatus:", this.facilitystatus);
+      // console.log("this.facilitystatus:", this.facilitystatus);
 
       if (
         this.facilitystatus.status === "COMPLETING" ||
@@ -717,9 +792,9 @@ export default {
       // Update internal realtime sensor data
       for (let sensorId in sensorData) {
         // TODO: check if this is needed
-        if (!this.sensors[sensorId]) {
-          continue;
-        }
+        // if (!this.sensors[sensorId]) {
+        //   continue;
+        // }
 
         this.realtimeSensorData[sensorId] = {
           sensorId: sensorId,
@@ -729,13 +804,6 @@ export default {
         };
 
         intermediateSensorData = Object.values(this.realtimeSensorData);
-
-        // intermediateSensorData.push({
-        //   sensorId,
-        //   name: this.sensors[sensorId].name,
-        //   typeId: this.sensors[sensorId].typeId,
-        //   sensordata: round(sensorData[sensorId], 2),
-        // });
       }
 
       this.realtimeSensorDisplay = intermediateSensorData;
@@ -887,7 +955,7 @@ export default {
     },
     launchFacility() {
       console.log("Start facility");
-      this.currentSecond = 500;
+      this.currentSecond = 1;
       this.processId = Date.now();
       this.$store.dispatch("setCurrentProcessId", this.processId);
       this.pctComplete = 0;
