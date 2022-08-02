@@ -314,71 +314,6 @@ export default {
   async created() {
     console.log("Home Component: created() hook called");
     console.log("event bus in created beginning:", bus);
-
-    // Here we need to check whether sensor instances have been created.
-    // This covers the case when sensor types have been updated in the Configure
-    // component. If they were, then sensor instances have been already generated
-    // in vuex store.
-
-    // if (this.$store.getters.sensorInstances.length === 0) {
-    //   await this.initializeSensorTypesConfiguration();
-    // }
-
-    // const that = this;
-    // this.sensors = this.$store.getters.sensorInstances;
-    // console.log("Generated sensor instances in created() hook: ", this.sensors);
-
-    // // Set selected process from the vuex store:
-    // this.selectedProcessId = this.$store.getters.completedProcessInfo.selectedProcessId;
-
-    // // When messages are received via IOT, these handlers are triggered
-    // bus.$on("message", async (message) => {
-    //   // console.log("Home::on::message: ", message);
-
-    //   if (message.msg === "sensordata") {
-    //     //console.log("Received sensor data message: ", message);
-    //     await that.updateRealtimeSensorData(message.sensordata);
-    //   }
-    // });
-
-    // bus.$on("facilitycommandreceived", async (receivedcommand) => {
-    //   console.log("Home::on::facilitycommand: ", receivedcommand.command);
-    //   await that.executeCommand(receivedcommand);
-    // });
-
-    // bus.$on("facilityconfigrequest", async (receivedconfigrequest) => {
-    //   console.log("Home::on::facilityconfigrequest: ");
-    //   await that.handleConfigurationRequest(receivedconfigrequest);
-    // });
-
-    // bus.$on("sensorInstanceInfoRequest", async (sensorInstanceInfoRequest) => {
-    //   console.log("Home::on::sensorInstanceInfoRequest: ");
-    //   await that.handleSensorInstanceInfoRequest(sensorInstanceInfoRequest);
-    // });
-
-    // bus.$on("latestminutestats", async (latestminutestats) => {
-    //   console.log("Home::on::latestminutestats: ");
-    //   await that.updateSensorStatsByLatestMinute(latestminutestats);
-    // });
-
-    // bus.$on("procdailystats", async (procdailystats) => {
-    //   console.log("Home::on::procdailystats: ");
-    //   await that.updateDailyStats(procdailystats);
-    // });
-
-    // bus.$on("completedprocinfo", async (completedprocinfo) => {
-    //   console.log("Home::on::completedprocinfo: ", completedprocinfo);
-    //   await that.updateCompletedProcessList(completedprocinfo);
-    // });
-
-    // //this.resetFacility();
-    // // Sensor instances have been generated, publish them:
-    // bus.$emit("sensorInstanceInfoPublish", this.sensors);
-
-    // console.log("event bus in created end:", bus);
-
-    // // Get list of completed processes if there are any:
-    // await this.initializeCompletedProcessList();
   },
   async mounted() {
     console.log("Home Component: mounted() hook called!");
@@ -510,26 +445,26 @@ export default {
     console.log("event bus in beforeDestroy end:", bus);
   },
   methods: {
-    generateSensors() {
-      let sensorTypeConfigurations = this.$store.getters
-        .sensortypeConfigurations;
-      // console.log("Sensor types: ", this.sensortypes);
-      console.log("Sensor types: ", sensorTypeConfigurations);
-      var idCount = 0;
-      for (let j = 0; j < sensorTypeConfigurations.length; j++) {
-        const sensortype = sensorTypeConfigurations[j];
-        for (let i = 0; i < sensortype.totalnumber; i++) {
-          const sensorObj = {
-            id: idCount++,
-            name: sensortype.name + "_" + i,
-            typeId: sensortype.typeId,
-          };
-          // console.log("sensorObj: ", sensorObj);
-          this.sensors.push(sensorObj);
-        }
-      }
-      console.log("Generated sensors: ", this.sensors);
-    },
+    // generateSensors() {
+    //   let sensorTypeConfigurations = this.$store.getters
+    //     .sensortypeConfigurations;
+    //   // console.log("Sensor types: ", this.sensortypes);
+    //   console.log("Sensor types: ", sensorTypeConfigurations);
+    //   var idCount = 0;
+    //   for (let j = 0; j < sensorTypeConfigurations.length; j++) {
+    //     const sensortype = sensorTypeConfigurations[j];
+    //     for (let i = 0; i < sensortype.totalnumber; i++) {
+    //       const sensorObj = {
+    //         id: idCount++,
+    //         name: sensortype.name + "_" + i,
+    //         typeId: sensortype.typeId,
+    //       };
+    //       // console.log("sensorObj: ", sensorObj);
+    //       this.sensors.push(sensorObj);
+    //     }
+    //   }
+    //   console.log("Generated sensors: ", this.sensors);
+    // },
 
     async initializeSensorTypesConfiguration() {
       // Check if current sensor configurations for the facility exists in the database:
@@ -791,11 +726,6 @@ export default {
 
       // Update internal realtime sensor data
       for (let sensorId in sensorData) {
-        // TODO: check if this is needed
-        // if (!this.sensors[sensorId]) {
-        //   continue;
-        // }
-
         this.realtimeSensorData[sensorId] = {
           sensorId: sensorId,
           name: this.sensors[sensorId].name,
