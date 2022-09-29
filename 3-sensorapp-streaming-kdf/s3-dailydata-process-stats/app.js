@@ -135,8 +135,8 @@ const saveDailySensorStats = async () => {
   //   facilityProcessDailyData.sensorDailyStats
   // );
 
-  // Stringify, compress, and store as an attribute value the daily stats
-  // of the running process:
+  // Stringify, compress, and store the daily stats
+  // of the running process as an attribute value:
   const response = await documentClient
     .put({
       TableName: process.env.DDB_TABLE,

@@ -12,8 +12,8 @@
 
       <v-flex mb-4>
         <h1 class="display-2 font-weight-bold mb-3">
-          This application demonstrates serverless architecture for realtime
-          data in AWS
+          This application demonstrates serverless architecture for streaming
+          sensor data in AWS
         </h1>
         <p class="subheading font-weight-regular">
           Please login to start working with the app

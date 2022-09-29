@@ -71,7 +71,7 @@ export default {
       "IoT Component, this.$store.getters.appConfiguration: ",
       this.$store.getters.appConfiguration
     );
-    // const AWSConfiguration = this.$appConfig;
+
     const authcredentials = this.$store.getters.authCredentials;
     console.log("authcredentials: ", authcredentials);
     console.log(authcredentials.accessKeyId);
@@ -117,7 +117,7 @@ export default {
     mqttClient.on("error", async function(err) {
       console.log("mqttClient error:", err);
 
-      // Update creds
+      // Update credentials
       const data = await that.getCreds();
       mqttClient.updateWebSocketCredentials(
         data.Credentials.AccessKeyId,

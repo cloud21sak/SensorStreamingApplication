@@ -24,7 +24,7 @@ Parameters:
     Default: sensordata-table
   IoTdataEndpoint:
     Type: String
-    Default: "abc123abc123-ats.iot.us-east-2.amazonaws.com"
+    Default: "a1dqbiklucuqp5-ats.iot.us-east-1.amazonaws.com"
   DynamoDBSensorstreamARN:
     Type: String
     Default: "arn:aws:dynamodb:us-east-1:732230631636:table/sensordata-table/stream/2021-08-14T10:11:51.960"
@@ -39,6 +39,10 @@ Resources:
     Properties:
       BucketName: !Ref DeliveryBucketName
 
+  ##############################################################
+  # S3 RuntimeProcess Bucket                                   #
+  # Store for cumulative data per sensor of a running process  #
+  ##############################################################
   RuntimeProcessBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -56,6 +60,10 @@ Resources:
             AllowedOrigins:
               - "*"
 
+  ##############################################################
+  # S3 History Bucket                                          #
+  # Store for data per sensor of a completed process           #
+  ##############################################################
   HistoryBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -83,7 +91,7 @@ Resources:
       CodeUri: transformer/
       Handler: app.handler
       Runtime: nodejs14.x
-      Timeout: 900
+      Timeout: 300
       MemorySize: 256
 
   S3SensorProcessorFunction:
@@ -246,6 +254,7 @@ Resources:
           LogGroupName: "/aws/kinesisfirehose/sensordata-firehose"
           LogStreamName: "S3Delivery"
         CompressionFormat: "UNCOMPRESSED"
+        # CompressionFormat: "GZIP"
         EncryptionConfiguration:
           NoEncryptionConfig: "NoEncryption"
         Prefix: ""

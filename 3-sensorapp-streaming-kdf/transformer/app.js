@@ -8,7 +8,7 @@ exports.handler = async (event) => {
     const buffer = Buffer.from(record.data, "base64").toString();
     const jsonRecord = JSON.parse(buffer);
 
-    // Convert back to base64 + add a newline
+    // Convert back to base64 and append a newline
     const dataBuffer = Buffer.from(
       JSON.stringify(jsonRecord) + "\n",
       "utf8"
@@ -21,6 +21,6 @@ exports.handler = async (event) => {
     };
   });
 
-  console.log(`{ recordsTotal: ${output.length} }`);
+  console.log(`{totalRecords: ${output.length} }`);
   return { records: output };
 };

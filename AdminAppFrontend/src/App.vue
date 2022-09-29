@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-app-bar app color="primary" dark>
-      <v-toolbar-title> ACME Industries Inc </v-toolbar-title>
+      <v-toolbar-title> ACME Industries Inc. </v-toolbar-title>
       <v-spacer></v-spacer>
       <v-toolbar-title>Sensor Configuration and Data Dashboard</v-toolbar-title>
       <v-spacer></v-spacer>
@@ -33,7 +33,8 @@
         :disabled="
           facilitystatus.status !== 'IDLE' &&
             facilitystatus.status !== 'COMPLETE' &&
-            facilitystatus.status !== 'STOPPED'
+            facilitystatus.status !== 'STOPPED' &&
+            facilitystatus.status !== 'IDLE-OFFLINE'
         "
         key="Configure"
         color="white"
@@ -105,7 +106,7 @@ export default {
   },
   data: () => ({
     showPassword: false,
-    isAuthenticated: appStore.getters.isAuthenticated,    
+    isAuthenticated: appStore.getters.isAuthenticated,
   }),
 };
 </script>

@@ -12,7 +12,7 @@ Resources:
 
   ##########################################
   # Resources for sensor app realtime      #
-  # messaging                             #
+  # messaging                              #
   ##########################################
   SensorDataRealtime:
     Type: AWS::IoT::Thing
@@ -32,7 +32,7 @@ Resources:
           Mutable: true
           Required: true
 
-  # Creates a User Pool Client to be used by the identity pool
+  # Create a User Pool Client to be used by the identity pool
   UserPoolClient:
     Type: AWS::Cognito::UserPoolClient
     Properties:
@@ -40,7 +40,7 @@ Resources:
       GenerateSecret: false
       UserPoolId: !Ref UserPool
 
-  # Creates a federated Identity pool
+  # Create a federated Identity pool
   IdentityPool:
     Type: AWS::Cognito::IdentityPool
     Properties:
@@ -120,7 +120,7 @@ Resources:
                       ":topic/*",
                     ],
                   ]
-  # Assigns the roles to the Identity Pool
+  # The roles are assigned to the Identity Pool
   IdentityPoolRoleMapping:
     Type: AWS::Cognito::IdentityPoolRoleAttachment
     Properties:
@@ -128,9 +128,7 @@ Resources:
       Roles:
         authenticated: !GetAtt CognitoAuthorizedRole.Arn
 
-  ###################################################################
-  # IoT topic rule to publish from IoT to Kinesis Stream/CloudWatch #
-  ###################################################################
+  # IoT topic rule to route sensor data from IoT to Kinesis Data Streams
   IotSensorTopicRule:
     Type: AWS::IoT::TopicRule
     Properties:
@@ -166,9 +164,7 @@ Resources:
                 Action: "kinesis:PutRecord"
                 Resource: !GetAtt KinesisSensorStream.Arn
 
-  ##########################################
-  #   Sensor App's DynamoDB table          #
-  ##########################################
+  # Sensor App's DynamoDB table
   DynamoDBSensorTable:
     Type: "AWS::DynamoDB::Table"
     Properties:
