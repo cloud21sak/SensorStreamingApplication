@@ -11,7 +11,8 @@ exports.handler = async (event) => {
 
   const results = await publishSensorStatsToIoT(event.records);
   console.log("results:", results);
-  return results;
+
+  return { records: results };
 };
 
 const publishSensorStatsToIoT = async (records) => {
@@ -22,12 +23,25 @@ const publishSensorStatsToIoT = async (records) => {
     const payload = Buffer.from(record.data, "base64").toString("ascii");
     console.log("Payload for sensor stats: ", payload);
     const payloadObject = JSON.parse(payload);
+    // payloadObject.deviceTimestamp = new Date(Date.now()).toLocaleTimeString(
+    //   "en-US"
+    // );
     payloadObject.deviceTimestamp = Date.now();
+
+    // *****************************************************************
+    // Note this is for compatibility with "sensorStatsByLatestMinute
+    // tumbling window Lambda function:
+    let payloadObjectArray = [];
+    payloadObjectArray.push(payloadObject);
+    // ******************************************************************
 
     console.log("payloadObject:", payloadObject);
     const JSONpayload = {
       msg: "sensorstats",
-      sensorstats: JSON.stringify(payloadObject),
+      facilityId: payloadObject.facilityId,
+      processId: `proc-${payloadObject.processId}`,
+      //sensorstats: JSON.stringify(payloadObject),
+      sensorstats: JSON.stringify(payloadObjectArray),
     };
 
     try {
@@ -59,70 +73,21 @@ const publishSensorStatsToIoT = async (records) => {
   console.log(
     `Successfully delivered records ${success}, Failed delivered records ${failure}.`
   );
-  const output = await Promise.allSettled(promises);
 
-  output.map((result) =>
-    result.status === "rejected"
-      ? console.log("Promise rejected:", result)
-      : null
-  );
-  return { records: output };
+  const output = await Promise.all(promises);
+
+  // *****************************************************
+  // Alternative implementation using Promise.allSettled()
+  // *****************************************************
+  // const results = await Promise.allSettled(promises);
+  // results.map((result) =>
+  //   result.status === "rejected"
+  //     ? console.log("Promise rejected:", result)
+  //     : null
+  // );
+  // const output = results.map((result) => result.value);
+
+  console.log("output:", output);
+
+  return output;
 };
-
-// const promises = event.records.map(async (record) => {
-//   //event.records.map((record) => {
-//   const payload = Buffer.from(record.data, "base64").toString("ascii");
-//   console.log("Payload for sensor stats: ", payload);
-
-//   // const payloadObjectRecord = {};
-//   const payloadObject = JSON.parse(payload);
-//   payloadObject.deviceTimestamp = Date.now();
-
-//   try {
-//     console.log("payloadObject:", payloadObject);
-//     const JSONpayload = {
-//       msg: "sensorstats",
-//       sensorstats: JSON.stringify(payloadObject),
-//     };
-
-//     iotdata
-//       .publish({
-//         topic: process.env.TOPIC,
-//         qos: 0,
-//         payload: JSON.stringify(JSONpayload),
-//       })
-//       .promise();
-
-//     success++;
-
-//     return {
-//       recordId: record.recordId,
-//       result: "Ok",
-//     };
-//   } catch (err) {
-//     failure++;
-//     console.error(err);
-
-//     return {
-//       recordId: record.recordId,
-//       result: "DeliveryFailed",
-//     };
-//   }
-// });
-
-// console.log(
-//   `Successfully delivered records ${success}, Failed delivered records ${failure}.`
-// );
-
-//const output = await Promise.all(promises);
-// const output = await Promise.allSettled(promises);
-// Log out any rejected results
-// output.map((result) =>
-//   result.status === "rejected"
-//     ? console.log("Promise rejected:", result)
-//     : null
-// );
-// console.log(output);
-
-//   return { records: output };
-// };
