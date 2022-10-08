@@ -12,47 +12,40 @@ Parameters:
     Default: "abc123abc123-ats.iot.us-east-2.amazonaws.com"
 
 Resources:
-  ##########################################
-  # Kinesis Data Analytics configuration   #
-  ##########################################
+  # ****************************************
+  # Kinesis Data Analytics configuration
+  # ****************************************
   KinesisAnalyticsSensorApplication:
     Type: "AWS::KinesisAnalytics::Application"
     Properties:
       ApplicationName: "sensor-stats"
       ApplicationCode: |
-        -- -- 1. Calculate output field 
-        CREATE OR REPLACE STREAM "SENSORCALC_STREAM" (
-        -- -- "event" VARCHAR(8),        
-        -- -- "deviceTimestamp"  BIGINT,            
-        -- -- "COL_second" INTEGER, 
+        -- -- 1. Calculate sensor data stats 
+        CREATE OR REPLACE STREAM "SENSORCALC_STREAM" (             
+            "deviceTimestamp"  TIMESTAMP,
             "name" VARCHAR(16),              
             "facilityId" INTEGER,
             "processId" BIGINT,
             "sensorId" INTEGER NOT NULL, 
             "min_value" REAL,
             "max_value" REAL,
-        -- -- "stddev_value" REAL);
+            "stddev_value" REAL,
+            "count_items" INTEGER);
             
         CREATE OR REPLACE PUMP "SENSORCALC_STREAM_PUMP" AS 
         INSERT INTO "SENSORCALC_STREAM" 
-        SELECT STREAM 
-        -- -- "event",            
-        -- -- "deviceTimestamp",            
-        -- -- "COL_second",            
+        SELECT STREAM STEP("SOURCE_SQL_STREAM_001".ROWTIME BY INTERVAL '30' SECOND) AS "deviceTimestamp",              
             "name", 
             "facilityId",             
             "processId",             
             "sensorId",
-        -- -- MIN("sensorData") OVER SIXTY_SECOND_SLIDING_WINDOW AS "min_value",
-        -- -- MAX("sensorData") OVER SIXTY_SECOND_SLIDING_WINDOW AS "max_value",
-        -- -- STDDEV_SAMP("sensorData") OVER SIXTY_SECOND_SLIDING_WINDOW AS "stddev_value"
-         MIN("sensorData") AS "min_value",
-         MAX("sensorData") AS "max_value",
-        -- -- STDDEV_SAMP("sensorData") AS "stddev_value"
-            
+            MIN("sensorData") AS "min_value",
+            MAX("sensorData") AS "max_value",
+            STDDEV_SAMP("sensorData") AS "stddev_value",
+            COUNT(*) AS "count_items"                 
         FROM "SOURCE_SQL_STREAM_001"
-        GROUP BY "facilityId","processId", "sensorId","name",
-             STEP("SOURCE_SQL_STREAM_001".ROWTIME BY INTERVAL '60' SECOND);
+        GROUP BY "facilityId", "processId", "sensorId", "name",
+               STEP("SOURCE_SQL_STREAM_001".ROWTIME BY INTERVAL '30' SECOND);
 
       Inputs:
         - NamePrefix: "SOURCE_SQL_STREAM"
@@ -110,9 +103,9 @@ Resources:
         DestinationSchema:
           RecordFormatType: "JSON"
 
-  ##########################################
-  # Lambda function for KDA destination    #
-  ##########################################
+  # *************************************************************
+  # Lambda function for Kinesis Data Analytics app destination
+  # *************************************************************
   SensorStatsFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -134,7 +127,7 @@ Resources:
               Resource: "*"
 
   ###################################################################
-  #  Kinesis Analytics Role for Sensor Data #
+  #  Kinesis Analytics Role for Sensor Data
   ###################################################################
   KinesisAnalyticsSensorRole:
     Type: "AWS::IAM::Role"
