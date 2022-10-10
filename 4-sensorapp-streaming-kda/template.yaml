@@ -9,7 +9,7 @@ Description: SensorStats - Kinesis Data Analytics example
 Parameters:
   IoTdataEndpoint:
     Type: String
-    Default: "abc123abc123-ats.iot.us-east-2.amazonaws.com"
+    Default: "a1dqbiklucuqp5-ats.iot.us-east-1.amazonaws.com"
 
 Resources:
   # ****************************************
@@ -29,8 +29,7 @@ Resources:
             "sensorId" INTEGER NOT NULL, 
             "min_value" REAL,
             "max_value" REAL,
-            "stddev_value" REAL,
-            "count_items" INTEGER);
+            "stddev_value" REAL);
             
         CREATE OR REPLACE PUMP "SENSORCALC_STREAM_PUMP" AS 
         INSERT INTO "SENSORCALC_STREAM" 
@@ -41,8 +40,7 @@ Resources:
             "sensorId",
             MIN("sensorData") AS "min_value",
             MAX("sensorData") AS "max_value",
-            STDDEV_SAMP("sensorData") AS "stddev_value",
-            COUNT(*) AS "count_items"                 
+            STDDEV_SAMP("sensorData") AS "stddev_value"                             
         FROM "SOURCE_SQL_STREAM_001"
         GROUP BY "facilityId", "processId", "sensorId", "name",
                STEP("SOURCE_SQL_STREAM_001".ROWTIME BY INTERVAL '30' SECOND);

@@ -24,10 +24,10 @@ const publishSensorStatsToIoT = async (records) => {
     const payload = Buffer.from(record.data, "base64").toString("ascii");
     console.log("Payload for sensor stats: ", payload);
     const payloadObject = JSON.parse(payload);
-    // payloadObject.deviceTimestamp = new Date(Date.now()).toLocaleTimeString(
-    //   "en-US"
-    // );
-    // payloadObject.deviceTimestamp = Date.now();
+
+    // Sort out sensor stats messages per facility and per process for
+    // each facility. Note that currently the simulator only assumes
+    // one facility and one running process:
     if (!processMap[payloadObject.facilityId]) {
       processMap[payloadObject.facilityId] = {};
       processMap[payloadObject.facilityId][payloadObject.processId] = {};
@@ -52,6 +52,7 @@ const publishSensorStatsToIoT = async (records) => {
     processMap[payloadObject.facilityId][payloadObject.processId][
       payloadObject.sensorId
     ].payload = payloadObject;
+
     // After messages are published, we must return
     // the recordId(s) and the result(s) back to KDA application:
     processMap[payloadObject.facilityId][payloadObject.processId][
@@ -65,6 +66,7 @@ const publishSensorStatsToIoT = async (records) => {
   let payloadObjectArray = [];
   let promises = [];
 
+  // Publish sensor stats per running process to IoT topic:
   for (let facilityId in processMap) {
     for (let processId in processMap[facilityId]) {
       for (const [sensorId, sensorDataInfo] of Object.entries(
@@ -116,11 +118,6 @@ const publishSensorStatsToIoT = async (records) => {
         `Successfully delivered records ${success}, Failed delivered records ${failure}.`
       );
 
-      //const output = await Promise.all(promises);
-
-      // *****************************************************
-      // Alternative implementation using Promise.allSettled()
-      // *****************************************************
       const results = await Promise.allSettled(promises);
       results.map((result) =>
         result.status === "rejected"
@@ -130,7 +127,6 @@ const publishSensorStatsToIoT = async (records) => {
     }
   }
 
-  // const output = results.map((result) => result.value);
   let output = [];
   for (let facilityId in processMap) {
     for (let processId in processMap[facilityId]) {
@@ -141,6 +137,5 @@ const publishSensorStatsToIoT = async (records) => {
   }
 
   console.log("output:", output);
-
   return output;
 };
