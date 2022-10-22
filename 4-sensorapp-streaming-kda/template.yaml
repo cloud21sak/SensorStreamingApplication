@@ -20,7 +20,6 @@ Resources:
     Properties:
       ApplicationName: "sensor-stats"
       ApplicationCode: |
-        -- -- 1. Calculate sensor data stats 
         CREATE OR REPLACE STREAM "SENSORCALC_STREAM" (             
             "deviceTimestamp"  TIMESTAMP,
             "name" VARCHAR(16),              

@@ -41,21 +41,12 @@ exports.handler = async (event) => {
       (record) => (processMap[record.processId] = record.facilityId)
     );
 
-    let toBePublished = false;
     if (sensorDataRecords.length !== 0) {
       getSensorDataByProcessId(state, sensorDataRecords);
     }
 
-    toBePublished = checkIfSensorDataShouldBePublished(
-      state,
-      sensorDataRecords
-    );
-
-    console.log("toBePublished:", toBePublished);
-    if (toBePublished) {
-      console.log("Publish last sensor stats after complete event");
-      await publishToIoT(state);
-    }
+    console.log("Publish last sensor stats after complete event");
+    await publishToIoT(state);
 
     console.log("Done publishing stats per last minute for the process");
     if (event.isFinalInvokeForWindow) {
@@ -78,7 +69,7 @@ exports.handler = async (event) => {
     jsonRecords.map(
       (record) => (processMap[record.processId] = record.facilityId)
     );
-  // console.log("Payload records: ", JSON.stringify(jsonRecords, null, 2));
+    // console.log("Payload records: ", JSON.stringify(jsonRecords, null, 2));
 
     getSensorDataByProcessId(state, jsonRecords);
 
@@ -93,10 +84,10 @@ exports.handler = async (event) => {
         return;
       }
 
-    //  console.log("Final invoke state: ", JSON.stringify(state, null, 2));
+      //  console.log("Final invoke state: ", JSON.stringify(state, null, 2));
       await publishToIoT(state);
     } else {
-    //  console.log("Returning state: ", JSON.stringify(state, null, 2));
+      //  console.log("Returning state: ", JSON.stringify(state, null, 2));
       return { state };
     }
   }
@@ -109,7 +100,15 @@ const publishToIoT = async (processSensorData) => {
     for (const [sensorId, sensorDataInfo] of Object.entries(
       processSensorData[processId]
     )) {
-    //  console.log("sensorDataInfo: ", sensorDataInfo);
+      // Ignore if sensor data size is less than 15:
+      if (sensorDataInfo.sensorData.length < 15) {
+        console.log(
+          "sensorData size is < 15. Ignore sensor data: ",
+          sensorDataInfo
+        );
+        continue;
+      }
+      //  console.log("sensorDataInfo: ", sensorDataInfo);
       const payloadObject = {
         name: sensorDataInfo.name,
         sensorId: sensorId,
@@ -162,7 +161,7 @@ const getRecordsFromPayload = (eventRecords) => {
 
 // Process records and return sensor data grouped by processId:
 const getSensorDataByProcessId = (state, jsonRecords) => {
-//  console.log("getSensorDataByProcessId: ", state);
+  //  console.log("getSensorDataByProcessId: ", state);
   jsonRecords.map((record) => {
     // Add processId if not in state
     if (!state[record.processId]) {
@@ -176,44 +175,4 @@ const getSensorDataByProcessId = (state, jsonRecords) => {
     }
     state[record.processId][record.sensorId].sensorData.push(record.sensorData);
   });
-};
-
-const checkIfSensorDataShouldBePublished = (state, jsonRecords) => {
-//  console.log("checkIfSensorDataShouldBePublished state: ", state);
-  let isPublishable = false;
-  if (jsonRecords.length !== 0) {
-    jsonRecords.map((record) => {
-      // Add processId if not in state
-      if (!state[record.processId]) {
-        state[record.processId] = {};
-      }
-
-      if (!state[record.processId][record.sensorId]) {
-        state[record.processId][record.sensorId] = {};
-        state[record.processId][record.sensorId].sensorData = [];
-        state[record.processId][record.sensorId].name = record.name;
-      }
-      state[record.processId][record.sensorId].sensorData.push(
-        record.sensorData
-      );
-      if (state[record.processId][record.sensorId].sensorData.length >= 15) {
-        isPublishable = true;
-      }
-    });
-  } else {
-    for (const [processId, processSensorDataState] of Object.entries(state)) {
-      for (const [sensorId, sensorDataInfo] of Object.entries(
-        processSensorDataState
-      )) {
-        if (sensorDataInfo.sensorData.length >= 15) {
-          console.log(
-            `sensorDataInfo: ${sensorDataInfo}, sensordata: ${sensorDataInfo.sensorData} is publishable`
-          );
-          isPublishable = true;
-        }
-      }
-    }
-  }
-
-  return isPublishable;
 };
