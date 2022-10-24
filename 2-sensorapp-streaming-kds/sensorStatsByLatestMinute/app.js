@@ -46,17 +46,21 @@ exports.handler = async (event) => {
     }
 
     console.log("Publish last sensor stats after complete event");
+    console.log("State after 'complete' event:", state);
     await publishToIoT(state);
 
     console.log("Done publishing stats per last minute for the process");
     if (event.isFinalInvokeForWindow) {
-      console.log("This is finalInvokeForWindow after complete event");
+      console.log("This is finalInvokeForWindow after the 'complete' event");
       // We don't need the state anymore, just return:
       return;
     } else {
       // We need to return the state object here since this is not
-      // the final invoke window:
-      state = {};
+      // the final invoke window.
+      // Remove state data for the completed processes:
+      completedProcessRecords.map((record) => {
+        delete state[record.processId];
+      });
       return { state };
     }
   }
