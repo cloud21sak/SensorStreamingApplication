@@ -140,6 +140,7 @@ export default {
               return;
             }
             userSession = session;
+            console.log("userSession: ", userSession);
             const token = session.getIdToken().getJwtToken();
             console.log("token: ", token);
           });
@@ -161,6 +162,8 @@ export default {
             ".amazonaws.com/" +
             authData["UserPoolId"];
           login[loginKey] = userSession.getIdToken().getJwtToken();
+          console.log("login[loginKey]:", login[loginKey]);
+
           AWS.config.credentials = new AWS.CognitoIdentityCredentials({
             IdentityPoolId: appStore.getters.appConfiguration.identityPoolId,
             Logins: login,
@@ -183,6 +186,8 @@ export default {
               //   }
               // );
 
+              console.log("AWS.config.credentials:", AWS.config.credentials);
+
               console.log(
                 "Configuration in store: ",
                 appStore.getters.appConfiguration
@@ -190,6 +195,7 @@ export default {
               appStore.dispatch("setAuthCredentials", AWS.config.credentials);
               appStore.dispatch("setAuthenticationStatus", true);
               appStore.dispatch("storeUserPool", userPool);
+              appStore.dispatch("storeUserSession", userSession);
 
               // Connecting to IoT here:
               //var clientID = "webapp:" + new Date().getTime(); //needs to be unique

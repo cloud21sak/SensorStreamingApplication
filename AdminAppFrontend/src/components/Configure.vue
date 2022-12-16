@@ -217,15 +217,22 @@ export default {
       // Store sensor configurations for the facility in the database:
       try {
         const urlPostConfig = `${this.$store.getters.appConfiguration.APIendpoint}/savefacilitysensorconfig?facilityId=${sensorconfig.facilityId}`;
-        const response = await axios.post(urlPostConfig, {
-          headers: {
-            Authorization: this.$store.getters.authCredentials.sessionToken,
+
+        const userSession = this.$store.getters.userSession;
+        const response = await axios.post(
+          urlPostConfig,
+          {
+            payload: {
+              sensortypes: this.sensortypeConfigurations,
+            },
           },
-          payload: {
-            //sensortypes: sensorconfig.sensortypes,
-            sensortypes: this.sensortypeConfigurations,
-          },
-        });
+          {
+            headers: {
+              Authorization: userSession.getIdToken().getJwtToken(),
+            },
+          }
+        );
+
         console.log("response after post: ", response);
         return response.status;
       } catch (err) {

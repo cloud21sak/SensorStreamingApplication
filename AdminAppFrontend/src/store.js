@@ -1,6 +1,5 @@
 import Vue from "vue";
 import Vuex from "vuex";
-//import router from "./router";
 
 Vue.use(Vuex);
 
@@ -8,6 +7,7 @@ export default new Vuex.Store({
   state: {
     idToken: null,
     userPool: null,
+    userSession: null,
     userId: null,
     user: null,
     facilitystatus: {
@@ -24,7 +24,6 @@ export default new Vuex.Store({
       selectedProcessId: null,
       completedProcessStats: [],
     },
-    //  completedProcessStats: [],
     configuredSensorTypes: [],
     sensorInstances: [],
   },
@@ -34,6 +33,9 @@ export default new Vuex.Store({
     },
     userPool: (state) => {
       return state.userPool;
+    },
+    userSession: (state) => {
+      return state.userSession;
     },
     facilityStatus: (state) => {
       return state.facilitystatus;
@@ -56,9 +58,6 @@ export default new Vuex.Store({
     dailySensorStats: (state) => {
       return state.dailySensorStats;
     },
-    // completedProcessStats: (state) => {
-    //   return state.completedProcessStats;
-    // },
     completedProcessInfo: (state) => {
       return state.completedProcessInfo;
     },
@@ -88,6 +87,9 @@ export default new Vuex.Store({
     updateUserPool(state, userPool) {
       state.userPool = userPool;
     },
+    updateUserSession(state, userSession) {
+      state.userSession = userSession;
+    },
     clearAuthData(state) {
       state.idToken = null;
       state.userId = null;
@@ -105,9 +107,6 @@ export default new Vuex.Store({
     updateDailySensorStats(state, dailySensorStats) {
       state.dailySensorStats = dailySensorStats;
     },
-    // updateCompletedProcessStats(state, completedProcessStats) {
-    //   state.completedProcessStats = completedProcessStats;
-    // },
     updateCompletedProcessInfo(state, completedProcessInfo) {
       state.completedProcessInfo = completedProcessInfo;
     },
@@ -136,6 +135,9 @@ export default new Vuex.Store({
     },
     storeUserPool({ commit }, userPool) {
       commit("updateUserPool", userPool);
+    },
+    storeUserSession({ commit }, userSession) {
+      commit("updateUserSession", userSession);
     },
     logout({ commit }) {
       commit("clearAuthData");

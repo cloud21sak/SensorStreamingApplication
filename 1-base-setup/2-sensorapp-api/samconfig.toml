@@ -8,4 +8,4 @@ s3_prefix = "sensorapp-streaming-api"
 region = "us-east-1"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
-parameter_overrides = "DynamoDBSensortableName=\"sensordata-table\""
+parameter_overrides = "DynamoDBSensortableName=\"sensordata-table\" UserPoolId=\"us-east-1_IlhWfE3gH\" ApplClientId=\"7p65mtn90t3e9p1cs4t6fibcao\" AuthHeader=\"$request.header.Authorization\""

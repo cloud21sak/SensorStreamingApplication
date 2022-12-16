@@ -488,11 +488,12 @@ export default {
     async initializeCompletedProcessList() {
       const URL = `${this.$store.getters.appConfiguration.APIendpoint}/completedProcesses`;
 
+      const userSession = this.$store.getters.userSession;
       let response;
       try {
         response = await axios.get(URL, {
           headers: {
-            Authorization: this.$store.getters.authCredentials.sessionToken,
+            Authorization: userSession.getIdToken().getJwtToken(),
           },
         });
         console.log("Got response for completed processes: ", response);
@@ -528,11 +529,12 @@ export default {
 
       const URL = `${this.$store.getters.appConfiguration.APIendpoint}/processStats?processId=${this.selectedProcessId}`;
 
+      const userSession = this.$store.getters.userSession;
       let response;
       try {
         response = await axios.get(URL, {
           headers: {
-            Authorization: this.$store.getters.authCredentials.sessionToken,
+            Authorization: userSession.getIdToken().getJwtToken(),
           },
         });
         //   console.log("Got response for selected process: ", response);

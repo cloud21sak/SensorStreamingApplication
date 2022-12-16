@@ -445,36 +445,17 @@ export default {
     console.log("event bus in beforeDestroy end:", bus);
   },
   methods: {
-    // generateSensors() {
-    //   let sensorTypeConfigurations = this.$store.getters
-    //     .sensortypeConfigurations;
-    //   // console.log("Sensor types: ", this.sensortypes);
-    //   console.log("Sensor types: ", sensorTypeConfigurations);
-    //   var idCount = 0;
-    //   for (let j = 0; j < sensorTypeConfigurations.length; j++) {
-    //     const sensortype = sensorTypeConfigurations[j];
-    //     for (let i = 0; i < sensortype.totalnumber; i++) {
-    //       const sensorObj = {
-    //         id: idCount++,
-    //         name: sensortype.name + "_" + i,
-    //         typeId: sensortype.typeId,
-    //       };
-    //       // console.log("sensorObj: ", sensorObj);
-    //       this.sensors.push(sensorObj);
-    //     }
-    //   }
-    //   console.log("Generated sensors: ", this.sensors);
-    // },
-
     async initializeSensorTypesConfiguration() {
       // Check if current sensor configurations for the facility exists in the database:
       const urlGetConfig = `${this.$store.getters.appConfiguration.APIendpoint}/facilitysensorconfig?facilityId=${sensorconfig.facilityId}`;
 
+      const userSession = this.$store.getters.userSession;
+
       var response;
       try {
         response = await axios.get(urlGetConfig, {
-          headers: {
-            Authorization: this.$store.getters.authCredentials.sessionToken,
+          headers: {            
+            Authorization: userSession.getIdToken().getJwtToken(),
           },
         });
         console.log("Got response for sensor configuration: ", response);
@@ -482,14 +463,19 @@ export default {
           // Store sensor configurations for the facility in the database:
           try {
             const urlPostConfig = `${this.$store.getters.appConfiguration.APIendpoint}/savefacilitysensorconfig?facilityId=${sensorconfig.facilityId}`;
-            const response = await axios.post(urlPostConfig, {
-              headers: {
-                Authorization: this.$store.getters.authCredentials.sessionToken,
+            const response = await axios.post(
+              urlPostConfig,
+              {
+                payload: {
+                  sensortypes: sensorconfig.sensortypes,
+                },
               },
-              payload: {
-                sensortypes: sensorconfig.sensortypes,
-              },
-            });
+              {
+                headers: {                  
+                  Authorization: userSession.getIdToken().getJwtToken(),
+                },
+              }
+            );
             console.log("response after post: ", response);
           } catch (err) {
             console.log("error saving sensor configuration:", err);
@@ -532,12 +518,15 @@ export default {
       this.statsForSelectedProcessId = [];
 
       const URL = `${this.$store.getters.appConfiguration.APIendpoint}/processStats?processId=${this.selectedProcessId}`;
+      console.log("completed process URL:", URL);
+
+      const userSession = this.$store.getters.userSession;
 
       let response;
       try {
         response = await axios.get(URL, {
-          headers: {
-            Authorization: this.$store.getters.authCredentials.sessionToken,
+          headers: {           
+            Authorization: userSession.getIdToken().getJwtToken(),
           },
         });
         //   console.log("Got response for selected process: ", response);
@@ -583,15 +572,17 @@ export default {
     async initializeCompletedProcessList() {
       const URL = `${this.$store.getters.appConfiguration.APIendpoint}/completedProcesses`;
 
+      const userSession = this.$store.getters.userSession;
       let response;
       try {
         response = await axios.get(URL, {
-          headers: {
-            Authorization: this.$store.getters.authCredentials.sessionToken,
+          headers: {            
+            Authorization: userSession.getIdToken().getJwtToken(),
           },
         });
         console.log("Got response for completed processes: ", response);
       } catch (err) {
+        console.log("Error getting completed processes: ", err);
         console.log("Getting completed process stats errror: ", err.message);
       }
 
@@ -885,7 +876,7 @@ export default {
     },
     launchFacility() {
       console.log("Start facility");
-      this.currentSecond = 1;
+      this.currentSecond = 500;
       this.processId = Date.now();
       this.$store.dispatch("setCurrentProcessId", this.processId);
       this.pctComplete = 0;
@@ -951,8 +942,7 @@ export default {
       this.$store.dispatch("setDailySenorStats", this.dailySensorStats);
       // Update all subscribers that facility was reset:
       bus.$emit("facilitystatusupdate", udpatedFacilityStatus);
-      // bus.$emit("updatepercentcomplete", this.pctComplete);
-      // bus.$emit("currentProcessIdPublish", this.processId);
+
       console.log("Facility was reset");
     },
 

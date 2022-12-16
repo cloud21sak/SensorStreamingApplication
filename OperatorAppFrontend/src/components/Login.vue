@@ -189,6 +189,7 @@ export default {
               appStore.dispatch("setAuthCredentials", AWS.config.credentials);
               appStore.dispatch("setAuthenticationStatus", true);
               appStore.dispatch("storeUserPool", userPool);
+              appStore.dispatch("storeUserSession", userSession);
 
               // Connecting to IoT here:
               console.log(AWS.config.credentials.accessKeyId);
@@ -237,13 +238,13 @@ export default {
 
       this.isLoading = false;
     },
-    switchAuthMode() {
-      if (this.mode === "login") {
-        this.mode = "signup";
-      } else {
-        this.mode = "login";
-      }
-    },
+    // switchAuthMode() {
+    //   if (this.mode === "login") {
+    //     this.mode = "signup";
+    //   } else {
+    //     this.mode = "login";
+    //   }
+    // },
     handleError() {
       this.error = null;
     },

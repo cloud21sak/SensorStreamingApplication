@@ -174,8 +174,6 @@ export default {
         bus.$emit("facilityconfigrequest", payloadEnvelope);
       } else if (topic === topics.sensorInstanceInfoRequest) {
         bus.$emit("sensorInstanceInfoRequest", payloadEnvelope);
-        // } else if (topic === topics.currentProcessIdRequest) {
-        //   bus.$emit("currentProcessIdRequest", payloadEnvelope);
       } else if (topic === topics.procdailystats) {
         console.log("Received message for topic: ", topics.procdailystats);
         bus.$emit("procdailystats", payloadEnvelope);
