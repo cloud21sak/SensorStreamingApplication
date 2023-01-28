@@ -120,21 +120,6 @@ Resources:
                       ":topic/*",
                     ],
                   ]
-              - Effect: "Allow"
-                Action:
-                  - "execute-api:Invoke"
-                Resource:
-                  !Join [
-                    "",
-                    [
-                      "arn:aws:execute-api:",
-                      !Ref "AWS::Region",
-                      ":",
-                      "*",
-                      ":",
-                      "*",
-                    ],
-                  ]
   # The roles are assigned to the Identity Pool
   IdentityPoolRoleMapping:
     Type: AWS::Cognito::IdentityPoolRoleAttachment

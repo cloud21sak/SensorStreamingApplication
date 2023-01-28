@@ -12,9 +12,9 @@ Parameters:
   ApplClientId:
     Type: String
     Default: 2j7h3v5sj1u0289poljqg9gbn2
-  AuthHeader:
-    Type: String
-    Default: "$request.header.Authorization"
+  # AuthHeader:
+  #   Type: String
+  #   Default: "$request.header.Authorization"
 
 Resources:
   # SensorAppApi:

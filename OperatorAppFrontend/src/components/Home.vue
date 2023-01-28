@@ -244,8 +244,6 @@ import sensorconfig from "@/configurations/sensorconfig.json";
 
 //import { gunzip } from "@/lib/gzip";
 import axios from "axios";
-
-// Libraries
 import appStore from "../store";
 
 const round = (value, decimals) => {
@@ -487,6 +485,7 @@ export default {
     },
     async initializeCompletedProcessList() {
       const URL = `${this.$store.getters.appConfiguration.APIendpoint}/completedProcesses`;
+      console.log("completed process list URL:", URL);
 
       const userSession = this.$store.getters.userSession;
       let response;
@@ -595,11 +594,6 @@ export default {
 
       // Update internal realtime sensor data
       for (let sensorId in sensorData) {
-        // TODO: check if this is needed
-        // if (!this.sensors[sensorId]) {
-        //   continue;
-        // }
-
         this.realtimeSensorData[sensorId] = {
           sensorId: sensorId,
           name: this.sensors[sensorId].name,
@@ -728,7 +722,6 @@ export default {
     },
     onPause() {
       console.log("Pause command issued");
-      // TODO: Why are we setting this:
       this.event = "update";
 
       this.issuedcommand = "pause";

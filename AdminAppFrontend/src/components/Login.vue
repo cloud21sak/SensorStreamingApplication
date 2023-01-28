@@ -28,12 +28,8 @@
   </v-card>
 </template>
 <script>
-//import Vue from "vue";
 import appconfig from "@/configurations/appconfig.json";
 const AWS = require("aws-sdk");
-
-// SAK TEMP???
-//const AWSIoTData = require("aws-iot-device-sdk");
 const AmazonCognito = require("amazon-cognito-identity-js");
 import appStore from "../store";
 
@@ -110,26 +106,25 @@ export default {
         UserPoolId: this.$store.getters.appConfiguration.userPoolId,
         ClientId: this.$store.getters.appConfiguration.appClientId,
       };
-
-      // Perform authentication:
       const userPool = new AmazonCognito.CognitoUserPool(poolData);
 
       authenticationData = {
         Username: this.username,
         Password: this.password,
       };
-
       const authenticationDetails = new AmazonCognito.AuthenticationDetails(
         authenticationData
       );
+
       const userData = {
         Username: this.username,
         Pool: userPool,
       };
-
       cognitoUser = new AmazonCognito.CognitoUser(userData);
 
       const appRouter = this.$router;
+
+      // Perform authentication:
       cognitoUser.authenticateUser(authenticationDetails, {
         onSuccess: function() {
           console.log("User successfully authenticated");
@@ -142,42 +137,43 @@ export default {
             userSession = session;
             console.log("userSession: ", userSession);
             const token = session.getIdToken().getJwtToken();
-            console.log("token: ", token);
+            console.log("ID token: ", token);
+
+            // Note that this is just for demo purposes,-
+            // only the ID token is used when calling API Gateway
+            const accessToken = session.getAccessToken().getJwtToken();
+            console.log("access token: ", accessToken);
           });
 
           AWS.config.region = appStore.getters.appConfiguration.region;
-          var authData = {
-            AppWebDomain: "iot-23.auth.us-east-1.amazoncognito.com",
-            //  TokenScopesArray: ["email", "openid"], // e.g.['phone', 'email', 'profile','openid', 'aws.cognito.signin.user.admin'],
-            //  RedirectUriSignIn: "http://localhost:8000",
-            //  RedirectUriSignOut: "http://localhost:8000",
-            // UserPoolId: "us-east-1_WbzqvIv3C", // Your user pool id here
-            UserPoolId: appStore.getters.appConfiguration.userPoolId,
-          };
-          var login = {};
+          const userPoolId = appStore.getters.appConfiguration.userPoolId;
 
+          var login = {};
           var loginKey =
-            "cognito-idp." +
-            AWS.config.region +
-            ".amazonaws.com/" +
-            authData["UserPoolId"];
+            "cognito-idp." + AWS.config.region + ".amazonaws.com/" + userPoolId;
           login[loginKey] = userSession.getIdToken().getJwtToken();
-          console.log("login[loginKey]:", login[loginKey]);
 
           AWS.config.credentials = new AWS.CognitoIdentityCredentials({
             IdentityPoolId: appStore.getters.appConfiguration.identityPoolId,
             Logins: login,
           });
 
+          // Get temporary AWS credentials for authenticated user
+          // Note you can also call get() here instead of refresh()
           AWS.config.credentials.refresh((error) => {
             if (error) {
               console.error(error);
             } else {
               var principal = AWS.config.credentials.identityId;
               console.log("IdentityId: " + principal);
+
+              // NOTE that the commented out code should be implemented in an admin script
+              // on the backend. It can be triggered when an authenticated user ID
+              // gets added to the identity pool.
+              // It should not be implemented inside the client application.
               // console.log("Attaching principal policy");
               // new AWS.Iot().attachPrincipalPolicy(
-              //   { policyName: "demo-policy", principal: principal },
+              //   { policyName: "SensorDataPolicy", principal: principal },
               //   function(err, data) {
               //     console.log("data: ", data);
               //     if (err) {
@@ -197,11 +193,12 @@ export default {
               appStore.dispatch("storeUserPool", userPool);
               appStore.dispatch("storeUserSession", userSession);
 
-              // Connecting to IoT here:
-              //var clientID = "webapp:" + new Date().getTime(); //needs to be unique
               console.log(AWS.config.credentials.accessKeyId);
               console.log(AWS.config.credentials.secretAccessKey);
-              console.log(AWS.config.credentials.sessionToken);
+              console.log(
+                "session token: ",
+                AWS.config.credentials.sessionToken
+              );
 
               // Connection to IoT happens after redirection
               appRouter.push("/home");

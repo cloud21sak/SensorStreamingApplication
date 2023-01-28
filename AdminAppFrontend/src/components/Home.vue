@@ -376,10 +376,6 @@ export default {
       await that.updateCompletedProcessList(completedprocinfo);
     });
 
-    //this.resetFacility();
-    // Sensor instances have been generated, publish them:
-    //bus.$emit("sensorInstanceInfoPublish", this.sensors);
-
     console.log("event bus in mounted end:", bus);
 
     // Get list of completed processes if there are any:
@@ -448,13 +444,14 @@ export default {
     async initializeSensorTypesConfiguration() {
       // Check if current sensor configurations for the facility exists in the database:
       const urlGetConfig = `${this.$store.getters.appConfiguration.APIendpoint}/facilitysensorconfig?facilityId=${sensorconfig.facilityId}`;
+      console.log("URL for facilitysensorconfig:", urlGetConfig);
 
       const userSession = this.$store.getters.userSession;
 
       var response;
       try {
         response = await axios.get(urlGetConfig, {
-          headers: {            
+          headers: {
             Authorization: userSession.getIdToken().getJwtToken(),
           },
         });
@@ -463,6 +460,8 @@ export default {
           // Store sensor configurations for the facility in the database:
           try {
             const urlPostConfig = `${this.$store.getters.appConfiguration.APIendpoint}/savefacilitysensorconfig?facilityId=${sensorconfig.facilityId}`;
+            console.log("URL for savefacilitysensorconfig: ", urlPostConfig);
+
             const response = await axios.post(
               urlPostConfig,
               {
@@ -471,7 +470,7 @@ export default {
                 },
               },
               {
-                headers: {                  
+                headers: {
                   Authorization: userSession.getIdToken().getJwtToken(),
                 },
               }
@@ -518,14 +517,14 @@ export default {
       this.statsForSelectedProcessId = [];
 
       const URL = `${this.$store.getters.appConfiguration.APIendpoint}/processStats?processId=${this.selectedProcessId}`;
-      console.log("completed process URL:", URL);
+      console.log("completed process stats URL:", URL);
 
       const userSession = this.$store.getters.userSession;
 
       let response;
       try {
         response = await axios.get(URL, {
-          headers: {           
+          headers: {
             Authorization: userSession.getIdToken().getJwtToken(),
           },
         });
@@ -571,12 +570,13 @@ export default {
     },
     async initializeCompletedProcessList() {
       const URL = `${this.$store.getters.appConfiguration.APIendpoint}/completedProcesses`;
+      console.log("completed process list URL:", URL);
 
       const userSession = this.$store.getters.userSession;
       let response;
       try {
         response = await axios.get(URL, {
-          headers: {            
+          headers: {
             Authorization: userSession.getIdToken().getJwtToken(),
           },
         });

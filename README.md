@@ -162,7 +162,15 @@ npm run serve
    d) do the same for "img" and "js" folders
    e) On the Upload page for your bucket click the "Upload" button at the bottom of the page.
 6. Your bucket now has the same structure as your local "dist" subforlder.
-7.
+7. In Management Console, go to the CloudFront service console
+8. Select Create Distribution
+9. In Origin Domain dropdown, select the bucket URL where the files from the dist folder were uploaded.
+10. In Name field, enter name for the origin, for example: sensor-app-operator
+11. Under 'Viewer', for 'Viewer protocol policy', select 'Redirect HTTP to HTTPS'
+12. Under 'Settings' for 'Default root object' enter index.html
+13. Select "Create Distribution". 
+14. Go to Distributions page, and wait until the "Last modified" status changes is set to 'Deployed'
+15. Copy the domain name of the new distribution and paste it on a new tab in your browser.
 
 ## Cleanup
 
