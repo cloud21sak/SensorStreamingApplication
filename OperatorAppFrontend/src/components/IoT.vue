@@ -192,13 +192,7 @@ export default {
     mqttClient.unsubscribe(topics.completedprocinfo);
     mqttClient.unsubscribe(topics.latestminutestats);
 
-    // bus.$off("sensorpublish");
     bus.$off("facilitycommandissued");
-    // bus.$off("sensorInstanceInfoRequest");
-    // bus.$off("facilitystatusupdate");
-    // bus.$off("facilityconfigpublish");
-    // bus.$off("currentProcessIdPublish");
-    // bus.$off("updatepercentcomplete");
   },
 };
 </script>
