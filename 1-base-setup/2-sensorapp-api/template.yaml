@@ -12,38 +12,8 @@ Parameters:
   ApplClientId:
     Type: String
     Default: 2j7h3v5sj1u0289poljqg9gbn2
-  # AuthHeader:
-  #   Type: String
-  #   Default: "$request.header.Authorization"
 
 Resources:
-  # SensorAppApi:
-  #   Type: AWS::Serverless::HttpApi
-  #   Properties:
-  #     # CORS configuration - this is open for development only and should be restricted in prod.
-  #     # See https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-httpapi-httpapicorsconfiguration.html
-  #     CorsConfiguration:
-  #       AllowMethods:
-  #         - GET
-  #         - POST
-  #         - DELETE
-  #         - OPTIONS
-  #       AllowHeaders:
-  #         - "*"
-  #       AllowOrigins:
-  #         - "*"
-
-  # AppApiRoute:
-  #   Type: AWS::ApiGatewayV2::Route
-  #   Properties:
-  #     ApiId: !Ref SensorAppApi
-  #     RouteKey: "GET /completedProcesses"
-  #     AuthorizationType: JWT
-  #     AuthorizerId: !GetAtt SensorAppApi.Auth.Authorizers.OAuth2Authorizer
-  # SensorRestApi:
-  #   Type: AWS::ApiGateway::RestApi
-  #   Properties:
-  #     Name: sensordata-api
   SensorAppApi:
     Type: AWS::Serverless::HttpApi
     Properties:
@@ -72,7 +42,6 @@ Resources:
           - "*"
         AllowOrigins:
           - "*"
-      #DefaultRouteSettings: !Ref SensorAppApiRoute
   JWTAuthorizer:
     Type: AWS::ApiGatewayV2::Authorizer
     Properties:
@@ -85,14 +54,6 @@ Resources:
           - !Ref ApplClientId
         Issuer: !Sub https://cognito-idp.${AWS::Region}.amazonaws.com/${UserPoolId}
       Name: sensorapp-api-authorizer
-  # DefaultRouteOverrides:
-  #   Type: AWS::ApiGatewayV2::ApiGatewayManagedOverrides
-  #   Properties:
-  #     ApiId: !Ref SensorAppApi
-  #     Route:
-  #       AuthorizationType: JWT
-  #       AuthorizerId: !Ref JWTAuthorizer
-
   ##########################################
   # Lambda functions                       #
   ##########################################
@@ -118,8 +79,6 @@ Resources:
             Path: "/processStats"
             Method: get
             ApiId: !Ref SensorAppApi
-            # Auth: !GetAtt SensorAppApi.Auth
-
   GetCompletedProcessesFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -141,8 +100,6 @@ Resources:
             Path: "/completedProcesses"
             Method: get
             ApiId: !Ref SensorAppApi
-            # Auth: !GetAtt SensorAppApi.Auth
-
   GetFacilitySensorConfigurationFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -164,8 +121,6 @@ Resources:
             Path: "/facilitysensorconfig"
             Method: get
             ApiId: !Ref SensorAppApi
-            # Auth: !GetAtt SensorAppApi.Auth
-
   SetFacilitySensorConfigurationFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -187,8 +142,6 @@ Resources:
             Path: "/savefacilitysensorconfig"
             Method: post
             ApiId: !Ref SensorAppApi
-            # Auth: !GetAtt SensorAppApi.Auth
-
 Outputs:
   APIendpoint:
     Description: HTTP API endpoint URL.
