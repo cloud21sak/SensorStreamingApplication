@@ -2,8 +2,17 @@
 
 This example application shows how to build flexible serverless backends for streaming sensor data workloads.
 
-The software simulates a manufacturing facility with a backend application that processes the data of remote sensors for some batch processes.
-The frontend allows users to view real-time or near real-time sensor data per facility.
+The software simulates a manufacturing facility with a backend application that processes data from remote sensors for some batch processes.
+The frontend allows users to view real-time or near real-time sensor data from a production facility.
+
+To learn more about how this application works, see the 6-part series on the https://thecloud21.com:
+
+- Part 1:
+- Part 2:
+- Part 3:
+- Part 4:
+- Part 5:
+- Part 6:
 
 NOTE!!!: Running this application will incur costs. It uses applications not in the AWS Free Tier and generates large number of messages.
 
@@ -17,7 +26,13 @@ NOTE!!!: Running this application will incur costs. It uses applications not in 
 
 ## Installation Instructions
 
-### 1. Set up core template
+1. Clone the repository onto your local development machine:
+
+```
+git clone https://github.com/cloud21sak/SensorStreamingApplication
+```
+
+### 1. Set up core template and DynamoDB table
 
 1. From the command line, install the realtime IoT messaging stack, Kinesis Data Streams stack, and DynamoDB table:
 
@@ -30,14 +45,31 @@ During the prompts, enter `sensor-app-base` for the stack name, enter your prefe
 
 ### 2. Set up APIs
 
-2. From the command line, install the application's API functionaliy using the AWS SAM template:
+1. Change directory to the 2-sensorapp-api folder:
 
 ```
 cd ../2-sensorapp-api
+```
+
+2. In the AWS Management Console, go to the Cognito User Pools console, and select the SensorDataUserPool.
+3. Copy the user pool ID and user pool client ID as shown:
+   - ![SensorDataUserPool ID: ](/setupdocs/imgs/SensorDataUserPoolIdHighlighted.PNG "SensorDataUserPool ID example")
+   - ![SensorDataUserPoolClient ID: ](/setupdocs/imgs/SensorDataUserPoolClientIdHighlighted.PNG "SensorDataUserPoolClient ID example")
+4. In the samconfig.toml file in the 2-sensorapp-api folder, replace values for UserPoolId and ApplClientId with your SensorDataUserPool ID and SensorDataUserPoolClient ID respectively:
+
+```
+parameter_overrides = "DynamoDBSensortableName=\"sensordata-table\" UserPoolId=\"your user pool ID here\" ApplClientId=\"your user pool client ID here\""
+```
+
+5. From the command line, install the application's API functionaliy using the AWS SAM template:
+
+```
 sam deploy --guided
 ```
 
-During the prompts, enter `sensorapp-streaming-api` for the stack name, enter your preferred Region, and answer Y to both questions `<<API>> may not have authorization defined, Is this okay? [y/N]`. Accept the defaults for the remaining questions. Note the API Gateway endpoint output.
+During the prompts, enter `sensorapp-streaming-api` for the stack name, enter your preferred Region. Accept the defaults for the remaining questions.
+Answer Y if you are prompted `Deploy this changeset? [y/N]:`
+Note the API Gateway endpoint output.
 
 ### 3. Set up streaming examples
 
@@ -144,12 +176,12 @@ npm run serve
 {
 "Sid": "PublicReadGetObject",
 "Effect": "Allow",
-"Principal": "*",
+"Principal": "_",
 "Action": [
 "s3:GetObject"
 ],
 "Resource": [
-"arn:aws:s3:::[your bucket name]/*" # (for example: "Resource": "arn:aws:s3:::sensor-app-client-sak21/*")
+"arn:aws:s3:::[your bucket name]/_" # (for example: "Resource": "arn:aws:s3:::sensor-app-client-sak21/\*")
 ]
 }
 ]
@@ -168,8 +200,8 @@ npm run serve
 10. In Name field, enter name for the origin, for example: sensor-app-operator
 11. Under 'Viewer', for 'Viewer protocol policy', select 'Redirect HTTP to HTTPS'
 12. Under 'Settings' for 'Default root object' enter index.html
-13. Select "Create Distribution". 
-14. Go to Distributions page, and wait until the "Last modified" status changes is set to 'Deployed'
+13. Select "Create Distribution".
+14. Go to Distributions page, and wait until the "Last modified" status is set to 'Deployed'
 15. Copy the domain name of the new distribution and paste it on a new tab in your browser.
 
 ## Cleanup
