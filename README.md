@@ -41,7 +41,7 @@ cd ./1-base-setup/1-iot-kinesis-ddb
 sam deploy --guided
 ```
 
-During the prompts, enter `sensor-app-base` for the stack name, enter your preferred Region, and accept the defaults for the remaining questions.
+During the prompts, enter `sensor-app-base` for the stack name, enter your preferred Region, and accept the defaults for the remaining questions. Note the DynamoDB stream ARN output.
 
 ### 2. Set up APIs
 
@@ -76,13 +76,37 @@ Note the API Gateway endpoint output.
 
 ### 3. Set up streaming examples
 
-1. Change back to the root directory of the repo:
+1. Change directory to install Lambda functions that process data from Kinesis Data Streams:
 
 ```
-cd ../..
+cd ../../2-sensorapp-streaming-kds
 ```
 
-2. Change directory, for each use case, and deploy the AWS SAM template in the directory:
+3. Retrieve the IoT endpoint address. You can do this by:
+   - executing the CLI command:
+
+```
+aws iot describe-endpoint --endpoint-type iot:Data-ATS
+```
+
+- or getting it from the AWS IoT console:
+  ![AWS IoT endpoint address: ](/setupdocs/imgs/AwsIoTEndpoint.PNG "AWS IoT device data endpoint of your account")
+
+4. In the samconfig.toml file, set the value of IoTdataEndpoint similar to this:
+
+```
+IoTdataEndpoint=\"a1dqbiklucuqp5-ats.iot.us-east-1.amazonaws.com\""
+```
+
+5. Deploy the AWS SAM template in the directory:
+
+```
+sam deploy --guided
+```
+
+During the prompts, enter a stack name, your preferred Region, and accept the defaults for the remaining questions.
+
+6. Change directory, for each use case, and deploy the AWS SAM template in the directory:
 
 #### a)
 
