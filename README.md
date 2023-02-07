@@ -104,33 +104,31 @@ IoTdataEndpoint=\"a1dqbiklucuqp5-ats.iot.us-east-1.amazonaws.com\""
 sam deploy --guided
 ```
 
-During the prompts, enter a stack name, your preferred Region, and accept the defaults for the remaining questions.
+During the prompts, enter a stack name, your preferred Region, and accept the defaults for the remaining questions. Answer Y if you are prompted `Deploy this changeset? [y/N]:`
 
-6. Change directory, for each use case, and deploy the AWS SAM template in the directory:
-
-#### a)
+6. Change directory to the 3-sensorapp-streaming-kdf folder:
 
 ```
-cd ./2-sensorapp-streaming-kds    <--- Sensor App using Kinesis Streams (see part 2 of the blog series)
+cd ../3-sensorapp-streaming-kdf
 ```
 
-```
-sam deploy --guided
-```
+7. In the samconfig.toml file, set parameter values:
 
-During the prompts, enter a stack name, your preferred Region, and accept the defaults for the remaining questions.
+- DeliveryBucketName: provide unique name for your delivery bucket.
+- RuntimeProcessBucketName: provide unique name for your runtime bucket.
+- HistoryBucketName: provide unique name for your history bucket.
+- IoTdataEndpoint: this is the IoT endpoint from earlier
+- DynamoDBSensorstreamARN: this is the DynamoDB stream ARN from earlier (sensor-app-base stack)
 
-#### b)
-
-```
-cd ../3-sensorapp-streaming-kdf   <--- Sensor App using Kinesis Firehose (see part 3 of the blog series)
-```
+8. Deploy the AWS SAM template in the directory:
 
 ```
 sam deploy --guided
 ```
 
-#### c)
+During the prompts, enter a stack name, your preferred Region, and accept the defaults for the remaining questions. Answer Y if you are prompted `Deploy this changeset? [y/N]:`
+
+9. Change directory to the 4-sensorapp-streaming-kda folder:
 
 ```
 cd ../4-sensorapp-streaming-kda  <---  Sensor App using Kinesis Data Analytics (see part 4 of the blog series)
