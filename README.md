@@ -82,14 +82,16 @@ Note the API Gateway endpoint output.
 cd ../../2-sensorapp-streaming-kds
 ```
 
-3. Retrieve the IoT endpoint address. You can do this by:
-   - executing the CLI command:
+3. Retrieve the IoT endpoint address. You can do this:
+
+- by executing the CLI command:
 
 ```
 aws iot describe-endpoint --endpoint-type iot:Data-ATS
 ```
 
-- or getting it from the AWS IoT console:
+- or by getting it from the AWS IoT console:
+
   ![AWS IoT endpoint address: ](/setupdocs/imgs/AwsIoTEndpoint.PNG "AWS IoT device data endpoint of your account")
 
 4. In the samconfig.toml file, set the value of IoTdataEndpoint similar to this:
@@ -114,11 +116,11 @@ cd ../3-sensorapp-streaming-kdf
 
 7. In the samconfig.toml file, set parameter values:
 
-- DeliveryBucketName: provide unique name for your delivery bucket.
-- RuntimeProcessBucketName: provide unique name for your runtime bucket.
-- HistoryBucketName: provide unique name for your history bucket.
-- IoTdataEndpoint: this is the IoT endpoint from earlier
-- DynamoDBSensorstreamARN: this is the DynamoDB stream ARN from earlier (sensor-app-base stack)
+   - DeliveryBucketName: provide unique name for your delivery bucket.
+   - RuntimeProcessBucketName: provide unique name for your runtime bucket.
+   - HistoryBucketName: provide unique name for your history bucket.
+   - IoTdataEndpoint: this is the IoT endpoint from earlier.
+   - DynamoDBSensorstreamARN: this is the DynamoDB stream ARN from earlier (sensor-app-base stack).
 
 8. Deploy the AWS SAM template in the directory:
 
@@ -128,25 +130,7 @@ sam deploy --guided
 
 During the prompts, enter a stack name, your preferred Region, and accept the defaults for the remaining questions. Answer Y if you are prompted `Deploy this changeset? [y/N]:`
 
-9. Change directory to the 4-sensorapp-streaming-kda folder:
-
-```
-cd ../4-sensorapp-streaming-kda  <---  Sensor App using Kinesis Data Analytics (see part 4 of the blog series)
-```
-
-```
-sam deploy --guided
-```
-
-After deployment, navigate to the Kinesis Data Analytics console and start the application.
-
-3. Retrieve the IoT endpointAddress - note this for the AdminAppFrontend installation:
-
-```
-aws iot describe-endpoint --endpoint-type iot:Data-ATS
-```
-
-4. Retrieve the Cognito Pool ID - note this for the AdminAppFrontend installation:
+9. Retrieve the Cognito Identity Pool ID for SensorDataIdentityPool - note this for the frontend installation:
 
 ```
 aws cognito-identity list-identity-pools --max-results 10
@@ -158,20 +142,24 @@ The frontend code is saved in the `AdminAppFrontend` subdirectory.
 
 1. Before running, you need to set environment variables in the `src\configurations\appconfig.json` file:
 
-- APIendpoint: this is the `APIendpoint` value earlier.
-- PoolId: your Cognito pool ID from earlier.
-- Host: your IoT endpoint from earlier.
-- Region: your preferred AWS Region (e.g. us-east-1).
+   - userPoolId: your SensorDataUserPool Cognito pool ID from earlier.
+   - appClientId: your SensorDataUserPoolClient ID from earlier.
+   - identityPoolId: your SensorDataIdentityPool Cognito Identity pool ID from earlier.
+   - iotHost: your IoT endpoint from earlier.
+   - region: your preferred AWS Region (e.g. us-east-1).
+   - APIendpoint: this is the API Gateway endpoint output value from sensorapp-streaming-api stack earlier.
 
-2. Change directory into the AdminAppFrontend code directory, and run the NPM installation:
+2. Open a new terminal window
+3. Change directory into the AdminAppFrontend code directory, and run the NPM installation:
 
 ```
-cd ../AdminAppFrontend
+cd AdminAppFrontend
 npm install
+```
 
 3. After installation is complete, you can run the application locally:
-```
 
+```
 npm run serve
 
 ```
@@ -180,12 +168,15 @@ npm run serve
 
 cd ../OperatorAppFrontend
 npm install
+
 ```
 
 5. After installation is complete, you can run the application locally:
 
 ```
+
 npm run serve
+
 ```
 
 ## Setting up the client app in CloudFront:
@@ -229,6 +220,26 @@ npm run serve
 14. Go to Distributions page, and wait until the "Last modified" status is set to 'Deployed'
 15. Copy the domain name of the new distribution and paste it on a new tab in your browser.
 
+## Alternative stack to analyze streaming data: Kinesis Data Analytics
+
+This stack shows how to create a Kinesis Data Anaytics consumer for the main Kinesis Data Stream as an alternative to using tumbling window Lambda function. To deploy this stack:
+
+Change directory to the 4-sensorapp-streaming-kda folder:
+
+```
+
+cd ../4-sensorapp-streaming-kda <--- Sensor App using Kinesis Data Analytics (see part 4 of the blog series)
+
+```
+
+```
+
+sam deploy --guided
+
+```
+
+After deployment, navigate to the Kinesis Data Analytics console and start the application.
+
 ## Cleanup
 
 1. Manually delete any objects in the application's S3 buckets.
@@ -237,3 +248,4 @@ npm run serve
 ## Clearing the DynamoDB table
 
 SPDX-License-Identifier: MIT-0
+```
