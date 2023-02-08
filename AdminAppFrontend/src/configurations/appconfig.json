@@ -1,9 +1,8 @@
 {
-  "userPoolId": "us-east-1_Ok7ZJKfwz",
-  "appClientId": "1k32g8mj32emqgsf4rsj4jv0pg",
-  "identityPoolId": "us-east-1:1401591b-fcd2-40fb-a4e5-4f98b8869ef6",
+  "userPoolId": "us-east-1_wHwRFUA3W",
+  "appClientId": "4h17efpm60p9e21tj45fsofve1",
+  "identityPoolId": "us-east-1:cbf83d18-43fe-48d4-9afc-8105d9f34c6e",
   "iotHost": "a1dqbiklucuqp5-ats.iot.us-east-1.amazonaws.com",
   "region": "us-east-1",
-  "historyBucket": "sensordata-history-bucket-sak",
-  "APIendpoint": "https://gz67bgtbja.execute-api.us-east-1.amazonaws.com"
+  "APIendpoint": "https://8bz6ysjfji.execute-api.us-east-1.amazonaws.com"
 }

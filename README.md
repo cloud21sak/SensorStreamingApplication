@@ -74,7 +74,7 @@ During the prompts, enter `sensorapp-streaming-api` for the stack name, enter yo
 Answer Y if you are prompted `Deploy this changeset? [y/N]:`
 Note the API Gateway endpoint output.
 
-### 3. Set up streaming examples
+### 3. Set up streaming functionality
 
 1. Change directory to install Lambda functions that process data from Kinesis Data Streams:
 
@@ -136,37 +136,56 @@ During the prompts, enter a stack name, your preferred Region, and accept the de
 aws cognito-identity list-identity-pools --max-results 10
 ```
 
-### 5. Installing the AdminAppFrontend application
+### 4. Installing the AdminAppFrontend application
 
 The frontend code is saved in the `AdminAppFrontend` subdirectory.
 
-1. Before running, you need to set environment variables in the `src\configurations\appconfig.json` file:
+1. Open a new terminal window (I used VS Code)
+2. Change directory into the AdminAppFrontend code directory:
 
-   - userPoolId: your SensorDataUserPool Cognito pool ID from earlier.
-   - appClientId: your SensorDataUserPoolClient ID from earlier.
-   - identityPoolId: your SensorDataIdentityPool Cognito Identity pool ID from earlier.
+```
+cd AdminAppFrontend
+
+```
+
+3. Before running, you need to set environment variables in the `src\configurations\appconfig.json` file:
+
+   - userPoolId: your Cognito SensorDataUserPool ID from earlier.
+   - appClientId: your Cognito SensorDataUserPoolClient ID from earlier.
+   - identityPoolId: your Cognito SensorDataIdentityPool ID from earlier.
    - iotHost: your IoT endpoint from earlier.
    - region: your preferred AWS Region (e.g. us-east-1).
    - APIendpoint: this is the API Gateway endpoint output value from sensorapp-streaming-api stack earlier.
 
-2. Open a new terminal window
-3. Change directory into the AdminAppFrontend code directory, and run the NPM installation:
+4. Run the NPM installation if this is the first time you are setting up the app on your PC:
 
 ```
-cd AdminAppFrontend
 npm install
 ```
 
-3. After installation is complete, you can run the application locally:
+5. After installation is complete, you can run the application locally:
 
 ```
 npm run serve
 
 ```
 
-4. Change directory into the OperatorAppFrontend code directory, and run the NPM installation:
+### 5. Installing the OperatorAppFrontend application
 
-cd ../OperatorAppFrontend
+The OperatorAppFrontend code is saved in the `OperatorAppFrontend` subdirectory.
+
+1. Open another terminal window (I used VS Code).
+2. Change directory into the `OperatorAppFrontend` code directory:
+
+```
+cd OperatorAppFrontend
+```
+
+3. Overwrite contents in `src\configurations\appconfig.json` file with the configuration setup in the appconfig.json file from `AdminAppFrontend`folder.
+
+4. Run the NPM installation if this is the first time you are setting up the app on your PC:
+
+```
 npm install
 
 ```
@@ -174,12 +193,11 @@ npm install
 5. After installation is complete, you can run the application locally:
 
 ```
-
 npm run serve
 
 ```
 
-## Setting up the client app in CloudFront:
+### 6. Setting up the OperatorAppFrontend app in CloudFront:
 
 1. From terminal prompt, go to OperatorAppFrontend folder. Run npm run build. When the build is finished, you should see "dist" subfolder under OperatorAppFrontend folder.
 2. Create an S3 bucket (note that the name must be globally unique. For example: sensor-app-client-sak21. Enable public access.
@@ -248,4 +266,7 @@ After deployment, navigate to the Kinesis Data Analytics console and start the a
 ## Clearing the DynamoDB table
 
 SPDX-License-Identifier: MIT-0
+
+```
+
 ```
