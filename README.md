@@ -136,6 +136,60 @@ During the prompts, enter a stack name, your preferred Region, and accept the de
 aws cognito-identity list-identity-pools --max-results 10
 ```
 
+10. Create the AWS IoT policy to allow clients to connect to IoT Core service:
+
+- go to the AWS IoT Management Console -> Security -> Policies
+- create new policy, name it SensorDataPolicy:
+  ![AWS IoT policy: ](/setupdocs/imgs/SensorDataPolicy.PNG "AWS IoT SensorDataPolicy")
+- enter the following policy:
+
+```
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "iot:Connect",
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": "iot:Publish",
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": "iot:Receive",
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": "iot:Subscribe",
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": "iot:GetThingShadow",
+      "Resource": "*"
+    }
+  ]
+}
+```
+
+For more details on how security works in ACME Industries application, see Part 6 of the series.
+
+### 4. Adding user accounts to Cognito user pool
+
+1. Go to Cognito User Pools console and select SensorDataUserPool.
+2. In the left panel, under 'General settings', select 'Users and groups':
+   ![Cognito users and groups: ](/setupdocs/imgs/CognitoUserPoolsUsersAndGroups.PNG "Cognito users and groups")
+3. Click on the 'Create user' button to bring up the 'Create user' form:
+   ![Cognito create user: ](/setupdocs/imgs/CognitoCreateUserDialog.PNG "Cognito create user dialog")
+4. Enter a user name, valid temporary password, and an email address similar to what is shown. To keep things simple, uncheck the 'Send an invitation to this new user?' and 'Mark phone number as verified' checkboxes:
+   ![Cognito create user: ](/setupdocs/imgs/CognitoCreateUserDialogWithUserInfo.PNG "Cognito create user dialog with user info")
+5. Click on the 'Create user' button at the bottom of the form. The user has been added to the Users directory of SensorDataUserPool.
+6. You might want to add at least one more user to the user pool in order to run the frontends with two different users.
+
 ### 4. Installing the AdminAppFrontend application
 
 The frontend code is saved in the `AdminAppFrontend` subdirectory.
@@ -170,7 +224,7 @@ npm run serve
 
 ```
 
-### 5. Installing the OperatorAppFrontend application
+### 5. Installing the OperatorAppFrontend application locally
 
 The OperatorAppFrontend code is saved in the `OperatorAppFrontend` subdirectory.
 
@@ -181,7 +235,7 @@ The OperatorAppFrontend code is saved in the `OperatorAppFrontend` subdirectory.
 cd OperatorAppFrontend
 ```
 
-3. Overwrite contents in `src\configurations\appconfig.json` file with the configuration setup in the appconfig.json file from `AdminAppFrontend`folder.
+3. Overwrite contents in `src\configurations\appconfig.json` file with the configuration setup in the appconfig.json file from `AdminAppFrontend`subdirectory.
 
 4. Run the NPM installation if this is the first time you are setting up the app on your PC:
 
@@ -196,6 +250,13 @@ npm install
 npm run serve
 
 ```
+
+### 6. Running frontend applications
+
+1. Assuming you have the AdminAppFrontend already running on your localhost, click on the 'LOGIN' button on the welcome page which will take you to the login page. Enter the user name and temporary password for the user you have created:
+   ![User login form: ](/setupdocs/imgs/Login.PNG "User login form for ACME Industries app")
+2. Click on the 'LOGIN' button.
+3.
 
 ### 6. Setting up the OperatorAppFrontend app in CloudFront:
 
