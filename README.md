@@ -140,7 +140,9 @@ aws cognito-identity list-identity-pools --max-results 10
 
 - go to the AWS IoT Management Console -> Security -> Policies
 - create new policy, name it SensorDataPolicy:
+
   ![AWS IoT policy: ](/setupdocs/imgs/SensorDataPolicy.PNG "AWS IoT SensorDataPolicy")
+
 - enter the following policy:
 
 ```
@@ -182,11 +184,17 @@ For more details on how security works in ACME Industries application, see Part 
 
 1. Go to Cognito User Pools console and select SensorDataUserPool.
 2. In the left panel, under 'General settings', select 'Users and groups':
+
    ![Cognito users and groups: ](/setupdocs/imgs/CognitoUserPoolsUsersAndGroups.PNG "Cognito users and groups")
+
 3. Click on the 'Create user' button to bring up the 'Create user' form:
+
    ![Cognito create user: ](/setupdocs/imgs/CognitoCreateUserDialog.PNG "Cognito create user dialog")
+
 4. Enter a user name, valid temporary password, and an email address similar to what is shown. To keep things simple, uncheck the 'Send an invitation to this new user?' and 'Mark phone number as verified' checkboxes:
+
    ![Cognito create user: ](/setupdocs/imgs/CognitoCreateUserDialogWithUserInfo.PNG "Cognito create user dialog with user info")
+
 5. Click on the 'Create user' button at the bottom of the form. The user has been added to the Users directory of SensorDataUserPool.
 6. You might want to add at least one more user to the user pool in order to run the frontends with two different users.
 
@@ -253,10 +261,33 @@ npm run serve
 
 ### 6. Running frontend applications
 
-1. Assuming you have the AdminAppFrontend already running on your localhost, click on the 'LOGIN' button on the welcome page which will take you to the login page. Enter the user name and temporary password for the user you have created:
+1. Assuming you have the AdminAppFrontend already running on your localhost, click on the 'LOGIN' button on the welcome page which will take you to the login page.Enter the user name and temporary password for the user you have created:
+
    ![User login form: ](/setupdocs/imgs/Login.PNG "User login form for ACME Industries app")
+
 2. Click on the 'LOGIN' button.
-3.
+3. After submitting the login form, user will be prompted to enter a new password (note that here I just use a simple window prompt; in production, you would obviously need to implement a custom prompt to hide the password):
+
+   ![User login password prompt: ](/setupdocs/imgs/LoginPrompt.PNG "User password prompt")
+
+4. If the user login was successful, you will be redirected to the main dashboard.
+5. Go to the Cognito Identity Pool console. Under Identity Browser tab you should see the autheticated user identity similar to this one:
+
+   ![Cognito Identity pool: ](/setupdocs/imgs/CognitoIdenityPoolWithAuthUser.PNG "Authenticated user ID")
+
+6. Copy the ID and paste it into the CLI command:
+
+```
+aws iot attach-policy --policy-name SensorDataPolicy --target your user ID here
+```
+
+7. You can check in the Console window of your browser if the connection was successful:
+
+   ![MQTT client connected: ](/setupdocs/imgs/MqttClientConnected.PNG "MQTTClient connected")
+
+8. You are now ready to start running the application.
+
+For more details on how security works in ACME Industries application, see Part 6 of the series.
 
 ### 6. Setting up the OperatorAppFrontend app in CloudFront:
 
