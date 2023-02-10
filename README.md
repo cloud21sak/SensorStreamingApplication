@@ -178,7 +178,7 @@ aws cognito-identity list-identity-pools --max-results 10
 }
 ```
 
-For more details on how security works in ACME Industries application, see Part 6 of the series.
+For more details on how security works in ACME Industries application see Part 6 of the series.
 
 ### 4. Adding user accounts to Cognito user pool
 
@@ -198,7 +198,7 @@ For more details on how security works in ACME Industries application, see Part 
 5. Click on the 'Create user' button at the bottom of the form. The user has been added to the Users directory of SensorDataUserPool.
 6. You might want to add at least one more user to the user pool in order to run the frontends with two different users.
 
-### 4. Installing the AdminAppFrontend application
+### 5. Installing the AdminAppFrontend application
 
 The frontend code is saved in the `AdminAppFrontend` subdirectory.
 
@@ -232,7 +232,7 @@ npm run serve
 
 ```
 
-### 5. Installing the OperatorAppFrontend application locally
+### 6. Installing the OperatorAppFrontend application locally
 
 The OperatorAppFrontend code is saved in the `OperatorAppFrontend` subdirectory.
 
@@ -259,16 +259,16 @@ npm run serve
 
 ```
 
-### 6. Running frontend applications
+### 7. Running frontend applications
 
-1. Assuming you have the AdminAppFrontend already running on your localhost, click on the 'LOGIN' button on the welcome page which will take you to the login page.Enter the user name and temporary password for the user you have created:
+1. Assuming you have the AdminAppFrontend already running on your localhost, click on the 'LOGIN' button on the welcome page which will take you to the login page. Enter user name and temporary password for the user you have created:
 
    ![User login form: ](/setupdocs/imgs/Login.PNG "User login form for ACME Industries app")
 
 2. Click on the 'LOGIN' button.
 3. After submitting the login form, user will be prompted to enter a new password (note that here I just use a simple window prompt; in production, you would obviously need to implement a custom prompt to hide the password):
 
-   ![User login password prompt: ](/setupdocs/imgs/LoginPrompt.PNG "User password prompt")
+   ![User login password prompt: ](/setupdocs/imgs/LoginPrompt2.PNG "User password prompt")
 
 4. If the user login was successful, you will be redirected to the main dashboard.
 5. Go to the Cognito Identity Pool console. Under Identity Browser tab you should see the autheticated user identity similar to this one:
@@ -278,52 +278,51 @@ npm run serve
 6. Copy the ID and paste it into the CLI command:
 
 ```
-aws iot attach-policy --policy-name SensorDataPolicy --target your user ID here
+aws iot attach-policy --policy-name SensorDataPolicy --target your_user_ID_here
 ```
 
-7. You can check in the Console window of your browser if the connection was successful:
+7. After the command executed successfully, you can check in the Console window of your browser if the connection was successful:
 
    ![MQTT client connected: ](/setupdocs/imgs/MqttClientConnected.PNG "MQTTClient connected")
 
 8. You are now ready to start running the application.
 
-For more details on how security works in ACME Industries application, see Part 6 of the series.
+For more details on how security works in ACME Industries application see Part 6 of the series.
 
-### 6. Setting up the OperatorAppFrontend app in CloudFront:
+### 8. Setting up the OperatorAppFrontend app in CloudFront:
 
-1. From terminal prompt, go to OperatorAppFrontend folder. Run npm run build. When the build is finished, you should see "dist" subfolder under OperatorAppFrontend folder.
+1. From terminal prompt, go to OperatorAppFrontend folder. Run command: npm run build. When the build is finished, you should see "dist" subfolder under OperatorAppFrontend folder.
 2. Create an S3 bucket (note that the name must be globally unique. For example: sensor-app-client-sak21. Enable public access.
 3. Go to the Properties page, and enable "Static website hosting" property. Enter index.html for Index document and Error document entries.
 4. Go to the Permissions page, and under the "Bucket policy" enter the following policy:
 
+```
 {
-"Version": "2012-10-17",
-"Statement": [
-{
-"Sid": "PublicReadGetObject",
-"Effect": "Allow",
-"Principal": "_",
-"Action": [
-"s3:GetObject"
-],
-"Resource": [
-"arn:aws:s3:::[your bucket name]/_" # (for example: "Resource": "arn:aws:s3:::sensor-app-client-sak21/\*")
-]
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "PublicReadGetObject",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::your_bucket_name_here/*"
+            (for example: "Resource": "arn:aws:s3:::sensor-app-client-sak21/*")
+        }
+    ]
 }
-]
-}
+```
 
 5. Next, upload files and folders under the dist folder:
-   a) Go to the Objects tab of your bucket and select Upload.
-   b) Select "Add files" button, and select index.html and favicon.ico
-   c) Next, click "Add folder" button, and select "css" folder, then click Upload
-   d) do the same for "img" and "js" folders
-   e) On the Upload page for your bucket click the "Upload" button at the bottom of the page.
+   - Go to the Objects tab of your bucket and select Upload.
+   - Select "Add files" button, and select index.html and favicon.ico
+   - Next, click "Add folder" button, and select "css" folder, then click Upload
+   - Do the same for "img" and "js" folders
+   - On the Upload page for your bucket click the "Upload" button at the bottom of the page.
 6. Your bucket now has the same structure as your local "dist" subforlder.
 7. In Management Console, go to the CloudFront service console
 8. Select Create Distribution
 9. In Origin Domain dropdown, select the bucket URL where the files from the dist folder were uploaded.
-10. In Name field, enter name for the origin, for example: sensor-app-operator
+10. In the Name field, enter name for the origin, for example: sensor-app-operator
 11. Under 'Viewer', for 'Viewer protocol policy', select 'Redirect HTTP to HTTPS'
 12. Under 'Settings' for 'Default root object' enter index.html
 13. Select "Create Distribution".
@@ -334,21 +333,35 @@ For more details on how security works in ACME Industries application, see Part 
 
 This stack shows how to create a Kinesis Data Anaytics consumer for the main Kinesis Data Stream as an alternative to using tumbling window Lambda function. To deploy this stack:
 
-Change directory to the 4-sensorapp-streaming-kda folder:
+1. You will need to disable the trigger for SensorStatsByLatestMinute function: go to the AWS Lambda management console, find the SensorStatsByLatestMinute function in the list:
+
+   ![SensorStatsByLatestMinute lambda: ](/setupdocs/imgs/SensorStatsByLatestMinute.PNG "SensorStatsByLatestMinute")
+
+2. Go to the Configuration tab, and disable the trigger:
+
+   ![SensorStatsByLatestMinute lambda disabled: ](/setupdocs/imgs/SensorStatsByLatestMinuteDisabled.PNG "SensorStatsByLatestMinute disabled")
+
+3. Locally, in your IDE terminal window, change directory to the 4-sensorapp-streaming-kda folder:
 
 ```
-
-cd ../4-sensorapp-streaming-kda <--- Sensor App using Kinesis Data Analytics (see part 4 of the blog series)
-
+cd ../4-sensorapp-streaming-kda
 ```
 
+4. In the samconfig.toml file, set the value of IoTdataEndpoint similar to this:
+
+```
+IoTdataEndpoint=\"a1dqbiklucuqp5-ats.iot.us-east-1.amazonaws.com\""
 ```
 
+5. Deploy the AWS SAM template in the directory:
+
+```
 sam deploy --guided
-
 ```
 
-After deployment, navigate to the Kinesis Data Analytics console and start the application.
+6. After deployment, navigate to the Kinesis Data Analytics console and start the sensor-stats application:
+
+   ![Kinesis Data Analytics app: ](/setupdocs/imgs/KinesisAnalyticsSqlApplication.PNG "sensor-stats application")
 
 ## Cleanup
 
