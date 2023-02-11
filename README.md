@@ -34,7 +34,7 @@ git clone https://github.com/cloud21sak/SensorStreamingApplication
 
 ### 1. Set up core template and DynamoDB table
 
-1. From the command line, install the realtime IoT messaging stack, Kinesis Data Streams stack, and DynamoDB table:
+1. From the command line, install the real-time IoT messaging stack, Kinesis Data Streams stack, and DynamoDB table:
 
 ```
 cd ./1-base-setup/1-iot-kinesis-ddb
@@ -94,7 +94,7 @@ aws iot describe-endpoint --endpoint-type iot:Data-ATS
 
   ![AWS IoT endpoint address: ](/setupdocs/imgs/AwsIoTEndpoint.PNG "AWS IoT device data endpoint of your account")
 
-4. In the samconfig.toml file, set the value of IoTdataEndpoint similar to this:
+4. In the samconfig.toml file, set the value of IoTdataEndpoint similar to this but using your account's device data endpoint:
 
 ```
 IoTdataEndpoint=\"a1dqbiklucuqp5-ats.iot.us-east-1.amazonaws.com\""
@@ -232,6 +232,12 @@ npm run serve
 
 ```
 
+**_Note that, when running the AdminAppFrontend, in case you want to shorten the running time of a process (which is hardcoded to 600 seconds (10 minutes)) in order to try things faster, under the AdminAppFrontend, go to: src -> components -> Home.vue, and in the launchFacility() function update the value of the currentSecond variable. For example, to reduce the total runtime of a process to just 100 seconds, set the value to 500:_**
+
+```
+this.currentSecond = 500;
+```
+
 ### 6. Installing the OperatorAppFrontend application locally
 
 The OperatorAppFrontend code is saved in the `OperatorAppFrontend` subdirectory.
@@ -347,7 +353,7 @@ This stack shows how to create a Kinesis Data Anaytics consumer for the main Kin
 cd ../4-sensorapp-streaming-kda
 ```
 
-4. In the samconfig.toml file, set the value of IoTdataEndpoint similar to this:
+4. In the samconfig.toml file, set the value of IoTdataEndpoint similar to this but using your account's device data endpoint:
 
 ```
 IoTdataEndpoint=\"a1dqbiklucuqp5-ats.iot.us-east-1.amazonaws.com\""
