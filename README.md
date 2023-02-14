@@ -232,7 +232,7 @@ npm run serve
 
 ```
 
-**_Note that, when running the AdminAppFrontend, in case you want to shorten the running time of a process (which is hardcoded to 600 seconds (10 minutes)) in order to try things faster, under the AdminAppFrontend, go to: src -> components -> Home.vue, and in the launchFacility() function update the value of the currentSecond variable. For example, to reduce the total runtime of a process to just 100 seconds, set the value to 500:_**
+**_Note that, when running the AdminAppFrontend, in case you want to shorten the running time of a process (which is hardcoded to 600 seconds (10 minutes)) in order to try things faster or to minimize the costs,- under the AdminAppFrontend, go to: src -> components -> Home.vue, and in the launchFacility() function, update the value of the currentSecond variable. For example, to reduce the total runtime of a process to just 100 seconds, set the value to 500:_**
 
 ```
 this.currentSecond = 500;
@@ -332,7 +332,7 @@ For more details on how security works in ACME Industries application see Part 6
 11. Under 'Viewer', for 'Viewer protocol policy', select 'Redirect HTTP to HTTPS'
 12. Under 'Settings' for 'Default root object' enter index.html
 13. Select "Create Distribution".
-14. Go to Distributions page, and wait until the "Last modified" status is set to 'Deployed'
+14. Go to Distributions page, and wait until the "Last modified" status changes to current datetime.
 15. Copy the domain name of the new distribution and paste it on a new tab in your browser.
 
 ## Alternative stack to analyze streaming data: Kinesis Data Analytics
@@ -368,6 +368,31 @@ sam deploy --guided
 6. After deployment, navigate to the Kinesis Data Analytics console and start the sensor-stats application:
 
    ![Kinesis Data Analytics app: ](/setupdocs/imgs/KinesisAnalyticsSqlApplication.PNG "sensor-stats application")
+
+## Debugging Lambda functions locally
+
+AWS SAM allows developers to step through Lambda functions locally without actually deploying them in the cloud. To be able to test and debug Lambda functions locally in the IDE of your choice you need to install an AWS Toolkit plugin for that IDE. For those who are using VS Code, here is a link to the documentation page that contains instructions on how to install the toolkit plugin: https://docs.aws.amazon.com/toolkit-for-vscode/latest/userguide/setup-toolkit.html.
+Most of the Lambda function folders in this project have their own TestFolder subfolder with testHarness.js file. Here is the list of functions that have a complete set of files for local debugging:
+
+- ![SensorStatsByLatestMinute lambda: ](/SensorStreamingApplication/2-sensorapp-streaming-kds/sensorStatsByLatestMinute/TestFolder/)
+- ![ACME Industries API lambdas: ](/SensorStreamingApplication/1-base-setup/2-sensorapp-api/functions/TestFolder/)
+- ![Running process stats lambda: ](/SensorStreamingApplication/3-sensorapp-streaming-kdf/s3-dailydata-process-stats/TestFolder/)
+- ![Completed process stats lambda: ](/SensorStreamingApplication/3-sensorapp-streaming-kdf/s3-completed-process-stats/TestFolder/)
+
+In addition to the main testHarness.js files, these folders have testEvent.json files that provide test data for debugging. They also have modules that initialize resources (DynamoDB table, S3 bucket) and then delete those resources at the end of a debugging session.
+Note that, some of the Lambdas require your account's device data endpoint in their logic. For those cases, you would need to find your account's device data endpoint in the Settings page of your AWS IoT Console, or use the following CLI command:
+
+```
+aws iot describe-endpoint --endpoint-type iot:Data-ATS
+```
+
+and replace the IOT_DATA_ENDPOINT value with your account's device data endpoint.
+To step through the code in any Lambda, you can follow the same pattern:
+
+- in the testHarness.js, set a breakpoint (F9) where you want to step into some function
+- press the F5 key to start Debugging
+- when the program breaks at the breakpoint, press F11 to step into the function you want to debug
+- once you are inside the function, use the debugger the same way as you would usually use to view variables, collections, etc.
 
 ## Cleanup
 
