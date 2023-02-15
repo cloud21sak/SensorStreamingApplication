@@ -374,10 +374,10 @@ sam deploy --guided
 AWS SAM allows developers to step through Lambda functions locally without actually deploying them in the cloud. To be able to test and debug Lambda functions locally in the IDE of your choice you need to install an AWS Toolkit plugin for that IDE. For those who are using VS Code, here is a link to the documentation page that contains instructions on how to install the toolkit plugin: https://docs.aws.amazon.com/toolkit-for-vscode/latest/userguide/setup-toolkit.html.
 Most of the Lambda function folders in this project have their own TestFolder subfolder with testHarness.js file. Here is the list of functions that have a complete set of files for local debugging:
 
-- ![SensorStatsByLatestMinute lambda: ](/SensorStreamingApplication/2-sensorapp-streaming-kds/sensorStatsByLatestMinute/TestFolder/)
-- ![ACME Industries API lambdas: ](/SensorStreamingApplication/1-base-setup/2-sensorapp-api/functions/TestFolder/)
-- ![Running process stats lambda: ](/SensorStreamingApplication/3-sensorapp-streaming-kdf/s3-dailydata-process-stats/TestFolder/)
-- ![Completed process stats lambda: ](/SensorStreamingApplication/3-sensorapp-streaming-kdf/s3-completed-process-stats/TestFolder/)
+- [SensorStatsByLatestMinute lambda](https://github.com/cloud21sak/SensorStreamingApplication/tree/master/2-sensorapp-streaming-kds/sensorStatsByLatestMinute/TestFolder)
+- [ACME Industries API lambdas](https://github.com/cloud21sak/SensorStreamingApplication/tree/master/1-base-setup/2-sensorapp-api/functions/TestFolder)
+- [Running process stats lambda](https://github.com/cloud21sak/SensorStreamingApplication/tree/master/3-sensorapp-streaming-kdf/s3-dailydata-process-stats/TestFolder)
+- [Completed process stats lambda](https://github.com/cloud21sak/SensorStreamingApplication/tree/master/3-sensorapp-streaming-kdf/s3-completed-process-stats/TestFolder)
 
 In addition to the main testHarness.js files, these folders have testEvent.json files that provide test data for debugging. They also have modules that initialize resources (DynamoDB table, S3 bucket) and then delete those resources at the end of a debugging session.
 Note that, some of the Lambdas require your account's device data endpoint in their logic. For those cases, you would need to find your account's device data endpoint in the Settings page of your AWS IoT Console, or use the following CLI command:
@@ -386,13 +386,23 @@ Note that, some of the Lambdas require your account's device data endpoint in th
 aws iot describe-endpoint --endpoint-type iot:Data-ATS
 ```
 
-and replace the IOT_DATA_ENDPOINT value with your account's device data endpoint.
+then replace the IOT_DATA_ENDPOINT value with your account's device data endpoint.
 To step through the code in any Lambda, you can follow the same pattern:
 
 - in the testHarness.js, set a breakpoint (F9) where you want to step into some function
 - press the F5 key to start Debugging
 - when the program breaks at the breakpoint, press F11 to step into the function you want to debug
 - once you are inside the function, use the debugger the same way as you would usually use to view variables, collections, etc.
+
+In addition, the Part 4 of this series has a section on local debugging of SensorStatsByLatestMinuteFunction tumbling window Lambda function.
+
+Note that each testHarness.js module can be executed from command line:
+
+```
+node testHarness.js
+```
+
+**_Note also that, although these modules are implemented for local debugging of the Lambda functions, it would be relatively easy to add test validation logic to each testHarness.js module, and convert the TestFolders into a suite of automated functional tests that could be added to a CI/CD pipeline._**
 
 ## Cleanup
 
@@ -402,6 +412,10 @@ To step through the code in any Lambda, you can follow the same pattern:
 ## Clearing the DynamoDB table
 
 SPDX-License-Identifier: MIT-0
+
+```
+
+```
 
 ```
 
