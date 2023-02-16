@@ -332,7 +332,7 @@ For more details on how security works in ACME Industries application see Part 6
 11. Under 'Viewer', for 'Viewer protocol policy', select 'Redirect HTTP to HTTPS'
 12. Under 'Settings' for 'Default root object' enter index.html
 13. Select "Create Distribution".
-14. Go to Distributions page, and wait until the "Last modified" status changes to current datetime.
+14. Go to Distributions page, and wait until the "Last modified" status changes to a current datetime.
 15. Copy the domain name of the new distribution and paste it on a new tab in your browser.
 
 ## Alternative stack to analyze streaming data: Kinesis Data Analytics
@@ -369,7 +369,15 @@ sam deploy --guided
 
    ![Kinesis Data Analytics app: ](/setupdocs/imgs/KinesisAnalyticsSqlApplication.PNG "sensor-stats application")
 
+## Cleanup
+
+1. Manually delete any objects in the application's S3 buckets.
+2. The Lambda functions in this project log information which can be viewed in the CloudWatch console. A log group gets automatically created for each of the Lambdas, and it doesn't get deleted during cleanup of stacks. In order to avoid incurring costs of keeping these log groups, go to CloudWatch console and manually delete all log groups for Lambda functions in this project.
+3. Use the CloudFormation console to delete all the stacks deployed.
+
 ## Debugging Lambda functions locally
+
+**_Note that, when debugging most of the Lambda functions in this project, the logic first creates required resources (S3 buckets, DydnamoDB table), then calls the Lambda function, and then, at the end, deletes them. Therefore, in case you have already deployed stacks for the application, you would either need to first delete them (perform cleanup), or change the names of S3 buckets and DynamoDB table in your testFolders to make sure not to delete the existing resources used by the application._**
 
 AWS SAM allows developers to step through Lambda functions locally without actually deploying them in the cloud. To be able to test and debug Lambda functions locally in the IDE of your choice you need to install an AWS Toolkit plugin for that IDE. For those who are using VS Code, here is a link to the documentation page that contains instructions on how to install the toolkit plugin: https://docs.aws.amazon.com/toolkit-for-vscode/latest/userguide/setup-toolkit.html.
 Most of the Lambda function folders in this project have their own TestFolder subfolder with testHarness.js file. Here is the list of functions that have a complete set of files for local debugging:
@@ -389,12 +397,12 @@ aws iot describe-endpoint --endpoint-type iot:Data-ATS
 then replace the IOT_DATA_ENDPOINT value with your account's device data endpoint.
 To step through the code in any Lambda, you can follow the same pattern:
 
-- in the testHarness.js, set a breakpoint (F9) where you want to step into some function
-- press the F5 key to start Debugging
+- in the testHarness.js, set a breakpoint (F9) where you want to step into a function
+- press the F5 key to start debugging
 - when the program breaks at the breakpoint, press F11 to step into the function you want to debug
 - once you are inside the function, use the debugger the same way as you would usually use to view variables, collections, etc.
 
-In addition, the Part 4 of this series has a section on local debugging of SensorStatsByLatestMinuteFunction tumbling window Lambda function.
+In addition, Part 4 of this series has a section on local debugging of SensorStatsByLatestMinuteFunction tumbling window Lambda function.
 
 Note that each testHarness.js module can be executed from command line:
 
@@ -404,19 +412,7 @@ node testHarness.js
 
 **_Note also that, although these modules are implemented for local debugging of the Lambda functions, it would be relatively easy to add test validation logic to each testHarness.js module, and convert the TestFolders into a suite of automated functional tests that could be added to a CI/CD pipeline._**
 
-## Cleanup
-
-1. Manually delete any objects in the application's S3 buckets.
-2. Use the CloudFormation console to delete all the stacks deployed.
-
-## Clearing the DynamoDB table
+==============================================
+Copyright 2023 Sergei Akopov (https://thecloud21.com). All Rights Reserved.
 
 SPDX-License-Identifier: MIT-0
-
-```
-
-```
-
-```
-
-```
