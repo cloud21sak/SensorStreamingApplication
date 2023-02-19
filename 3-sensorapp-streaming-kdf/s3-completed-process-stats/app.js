@@ -12,8 +12,6 @@ const s3 = new AWS.S3();
 let documentClient = undefined;
 
 let completedProcessData = undefined;
-// completedProcessData.processSensorDataObj = {};
-// completedProcessData.processSensorStats = {};
 
 // Main Lambda handler
 exports.handler = async (event) => {
@@ -23,7 +21,6 @@ exports.handler = async (event) => {
   completedProcessData.processSensorDataObj = {};
   completedProcessData.processSensorStats = {};
 
-  //var s3 = new AWS.S3();
   documentClient = new AWS.DynamoDB.DocumentClient();
 
   const object = event.Records[0];
@@ -40,7 +37,6 @@ exports.handler = async (event) => {
     .promise();
 
   // Uncompress
-  // SAK TEMP???
   // const data = await gunzip(response.Body);
   const data = response.Body;
 

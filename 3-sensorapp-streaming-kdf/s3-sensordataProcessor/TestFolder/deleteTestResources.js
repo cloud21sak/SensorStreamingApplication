@@ -20,7 +20,6 @@ const historyBucketKey = runtimeBucketKey;
 
 const firehoseBucketName = event.Records[0].s3.bucket.name;
 const firehoseBucketKey = event.Records[0].s3.object.key;
-// const testDataFile = "/testData.json";
 
 // Uncomment the line below to run as a standalone program
 //const main = async () => {

@@ -5,7 +5,6 @@
 const AWS = require("aws-sdk");
 
 AWS.config.region = process.env.AWS_REGION;
-//let documentClient = undefined;
 
 // Main Lambda handler
 exports.handler = async (event) => {

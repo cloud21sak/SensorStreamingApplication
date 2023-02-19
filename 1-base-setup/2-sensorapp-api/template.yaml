@@ -42,18 +42,18 @@ Resources:
           - "*"
         AllowOrigins:
           - "*"
-  JWTAuthorizer:
-    Type: AWS::ApiGatewayV2::Authorizer
-    Properties:
-      ApiId: !Ref SensorAppApi
-      AuthorizerType: JWT
-      IdentitySource:
-        - $request.header.Authorization
-      JwtConfiguration:
-        Audience:
-          - !Ref ApplClientId
-        Issuer: !Sub https://cognito-idp.${AWS::Region}.amazonaws.com/${UserPoolId}
-      Name: sensorapp-api-authorizer
+  # JWTAuthorizer:
+  #   Type: AWS::ApiGatewayV2::Authorizer
+  #   Properties:
+  #     ApiId: !Ref SensorAppApi
+  #     AuthorizerType: JWT
+  #     IdentitySource:
+  #       - $request.header.Authorization
+  #     JwtConfiguration:
+  #       Audience:
+  #         - !Ref ApplClientId
+  #       Issuer: !Sub https://cognito-idp.${AWS::Region}.amazonaws.com/${UserPoolId}
+  #     Name: sensorapp-api-authorizer
   ##########################################
   # Lambda functions                       #
   ##########################################

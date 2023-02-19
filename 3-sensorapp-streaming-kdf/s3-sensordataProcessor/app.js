@@ -7,9 +7,6 @@ const { gzip, gunzip } = require("./lib/gzip");
 const AWS = require("aws-sdk");
 AWS.config.region = process.env.AWS_REGION;
 const s3 = new AWS.S3();
-//const documentClient = new AWS.DynamoDB.DocumentClient();
-
-//let sensorMap = {};
 let facilityProcessData = {};
 
 // Main Lambda handler
@@ -330,53 +327,3 @@ const appendToFacilityProcessData = async (runningProcessRecords) => {
 
   return runningProcessData;
 };
-
-// TODO: not used in current implementation
-// const saveDailyDataBySensorId = async (recordsBySensorId) => {
-//   console.log("Saving to DDB:", recordsBySensorId);
-
-//   // Retrieve existing daily data for each sensor and add new results
-//   for (let sensorId in recordsBySensorId) {
-//     // console.log(
-//     //   "Current stream data for sensor:",
-//     //   sensorId,
-//     //   recordsBySensorId[sensorId]
-//     // );
-
-//     // Get existing daily data from DDB
-//     const data = await documentClient
-//       .get({
-//         TableName: process.env.DDB_TABLE,
-//         Key: {
-//           PK: `${sensorId}`,
-//           SK: `dailydata`,
-//         },
-//       })
-//       .promise();
-
-//     //console.log("Existing daily data for sensor from DDB: ", data);
-
-//     let results = data.Item ? JSON.parse(data.Item.results) : [];
-
-//     // Add latest data to existing daily data
-//     results.push.apply(results, recordsBySensorId[sensorId].results);
-
-//     // Save back to DDB table
-//     // TODO: refactor to use Promise.all() to perform saving to DDB in parallel
-//     const response = await documentClient
-//       .put({
-//         TableName: process.env.DDB_TABLE,
-//         Item: {
-//           PK: `${sensorId}`,
-//           SK: `dailydata`,
-//           GSI: recordsBySensorId[sensorId].facilityId,
-//           results: JSON.stringify(results),
-//           name: recordsBySensorId[sensorId].name,
-//           ts: Date.now(),
-//         },
-//       })
-//       .promise();
-//   }
-
-//   console.log("saveDailyDataBySensorId done");
-// };

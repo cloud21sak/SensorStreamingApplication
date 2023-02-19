@@ -7,12 +7,12 @@ The frontend allows users to view real-time or near real-time sensor data from a
 
 To learn more about how this application works, see the 6-part series on the https://thecloud21.com:
 
-- Part 1:
-- Part 2:
-- Part 3:
-- Part 4:
-- Part 5:
-- Part 6:
+- Part 1: https://thecloud21.com/?p=232.
+- Part 2: https://thecloud21.com/?p=638.
+- Part 3: https://thecloud21.com/?p=1010.
+- Part 4: https://thecloud21.com/?p=1591.
+- Part 5: https://thecloud21.com/?p=2069.
+- Part 6: https://thecloud21.com/?p=2502.
 
 NOTE!!!: Running this application will incur costs. It uses applications not in the AWS Free Tier and generates large number of messages.
 
@@ -232,7 +232,7 @@ npm run serve
 
 ```
 
-**_Note that, when running the AdminAppFrontend, in case you want to shorten the running time of a process (which is hardcoded to 600 seconds (10 minutes)) in order to try things faster or to minimize the costs,- under the AdminAppFrontend, go to: src -> components -> Home.vue, and in the launchFacility() function, update the value of the currentSecond variable. For example, to reduce the total runtime of a process to just 100 seconds, set the value to 500:_**
+**_Note that, when running the AdminAppFrontend, in case you want to shorten the running time of a process (which is hardcoded to 600 seconds (10 minutes)) in order to try things faster or to minimize the costs, - under the AdminAppFrontend, go to: src -> components -> Home.vue, and in the launchFacility() function, update the value of the currentSecond variable. For example, to reduce the total runtime of a process to just 100 seconds, set the value to 500:_**
 
 ```
 this.currentSecond = 500;
@@ -372,7 +372,7 @@ sam deploy --guided
 ## Cleanup
 
 1. Manually delete any objects in the application's S3 buckets.
-2. The Lambda functions in this project log information which can be viewed in the CloudWatch console. A log group gets automatically created for each of the Lambdas, and it doesn't get deleted during cleanup of stacks. In order to avoid incurring costs of keeping these log groups, go to CloudWatch console and manually delete all log groups for Lambda functions in this project.
+2. The Lambda functions in this project log information which can be viewed in the CloudWatch console. A log group gets automatically created for each of the Lambdas, and it doesn't get deleted during cleanup of stacks. In order to avoid incurring costs for keeping those log groups, go to CloudWatch console and manually delete all log groups for Lambda functions in this project.
 3. Use the CloudFormation console to delete all the stacks deployed.
 
 ## Debugging Lambda functions locally
@@ -412,7 +412,8 @@ node testHarness.js
 
 **_Note also that, although these modules are implemented for local debugging of the Lambda functions, it would be relatively easy to add test validation logic to each testHarness.js module, and convert the TestFolders into a suite of automated functional tests that could be added to a CI/CD pipeline._**
 
-==============================================
+---
+
 Copyright 2023 Sergei Akopov (https://thecloud21.com). All Rights Reserved.
 
 SPDX-License-Identifier: MIT-0
