@@ -876,7 +876,7 @@ export default {
     },
     launchFacility() {
       console.log("Start facility");
-      this.currentSecond = 500;
+      this.currentSecond = 1;
       this.processId = Date.now();
       this.$store.dispatch("setCurrentProcessId", this.processId);
       this.pctComplete = 0;
